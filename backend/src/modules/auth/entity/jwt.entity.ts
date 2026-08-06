@@ -1,7 +1,8 @@
 import { Exclude } from 'class-transformer';
 import { 
     UserSession,
-    UserPendingEmail
+    UserPendingEmail,
+    statusSession
 } from '@generated/prisma/client';
 
 
@@ -10,7 +11,7 @@ export class UserSessionsEntity implements Omit<UserSession, 'refreshToken' | 'u
     userAgent!: string | null;
     ipAddress!: string | null;
     country!: string | null;
-    status!: string ;
+    status!: statusSession;
     createdAt!: Date;
     updatedAt!: Date;
 

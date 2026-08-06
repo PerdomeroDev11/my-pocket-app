@@ -28,7 +28,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt'){
         const isBlackListed = await this.tokenBlackList.isBlackListByJti(payload.jti)
         if (isBlackListed) throw new UnauthorizedException ('revoked token')
         const sessionActive = await this.redis.get(`session:${payload.sessionId}`)
-        if(sessionActive != 'ACTIVE') throw new UnauthorizedException('session revoked')
+        if(sessionActive != 'ON') throw new UnauthorizedException('session revoked')
         return payload
     }
 }

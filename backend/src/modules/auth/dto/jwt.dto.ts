@@ -1,4 +1,4 @@
-import { IsEmail, IsString,IsDate ,MinLength} from 'class-validator'
+import { IsEmail, IsString,IsDate ,MinLength, IsNotEmpty, Length} from 'class-validator'
 
 export class GenerateTokenDto{
     @IsString()
@@ -6,6 +6,8 @@ export class GenerateTokenDto{
     @IsString()
     @IsEmail()
     email!: string
+    @IsString()
+    sessionId!: string
 }
 
 export class LoginDto{
@@ -18,10 +20,25 @@ export class LoginDto{
     userAgente?: string
     @IsString()
     ip?: string
+}
+export class SingInDto {
     @IsString()
-    region?: string
-    @IsDate()
-    expireAt!: Date
+    @IsEmail()
+    @IsNotEmpty()
+    email!: string
+    @IsString()
+    @IsNotEmpty()
+    password!: string
+}
+export class VerifyEmailDto{
+    @IsString()
+    @IsEmail({},{message: 'invalid email format '})
+    @IsNotEmpty()
+    email!: string
+    @IsString()
+    @IsNotEmpty()
+    @Length(6,6,{message: 'the code must be to 6 digits long'})
+    code!: string
 }
 
 export class CreateUserSessionDto {
@@ -49,11 +66,18 @@ export class CreateUserPendingDto {
     @MinLength(7)
     code!: string
     @IsString()
-    @MinLength(7)
     password!: string
     @IsDate()
     expireAt!: Date
 }
 
+export class LogOutDto {
+    @IsString()
+    @IsNotEmpty()
+    userId!: string
+    @IsString()
+    @IsNotEmpty()
+    sessionId!: string
+}
 
 
