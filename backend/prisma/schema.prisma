@@ -1,0 +1,326 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+  moduleFormat = "cjs"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+
+}
+
+enum TypeMovement {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum typePeriod {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  BIMONTHLY
+  QUARTERLY
+  SEMIANNUAL
+  ANNUAL
+  FREELANCE
+}
+
+enum statusPage {
+  ACTIVE
+  CLOSED
+}
+
+enum typeMovementSave {
+  CONTRIBUTION
+  WITHDRAWAL
+}
+
+enum typeInvestment {
+  CONTRIBUTION
+  WITHDRAWAL
+  REVENUE
+  LOSS
+}
+
+enum typeIntitution {
+  BANK
+  CASH
+  CRYPTO
+  STOCKS
+  NEQUI
+  DAVIPLATA
+  OTHER
+}
+enum statusUser {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  DELETED
+}
+
+model User {
+  id     String @id @default(uuid()) @db.Uuid
+  name String
+  email String @unique
+  password String?
+  verifyEmail Boolean @default(false) @map("verify_email")
+  timeZone String? @default("BOG") @map("time_zone")
+  googleId String? @unique @map("google_id")
+  status statusUser? @default(ACTIVE)
+  language String? @default("es")
+  passwordUpdate String? @map("password_update")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  sessions UserSession[]
+  loginConfigurations LoginConfiguration[]
+  budgetSections BudgetSections[]
+  financialPages FinancialPages[]
+  financialInstitutions FinancialInstitutions[]
+  userConsents UserConsent[]
+  balanceAdjustments BalanceAdjustments[]
+  balanceSections balanceSection[]
+  investmentAccounts investmentAccounts[]
+
+
+  @@index([email])
+  @@index([id])
+  @@map("users")
+}
+
+model UserSession {
+  id String @id @default(uuid()) @db.Uuid
+  userId String  @db.Uuid @map("user_id")
+  refreshToken String @map("refresh_token")
+  userAgent String? @map("user_agent")
+  ipAddress String?
+  country String? 
+  status String? @default("on")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  expiresAt DateTime @map("expires_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("sessions_users")
+}
+
+model UserPendingEmail {
+  id String @id @default(uuid()) @db.Uuid
+  name String
+  password String
+  email String 
+  code String @unique
+  expiresAt DateTime @map("expire_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@map("users_pending")
+}
+
+model PasswordForgot {
+  id String @id @default(uuid()) @db.Uuid
+  code String @unique
+  email String
+  expiresAt DateTime @map("expire_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("password_forgot")
+}
+
+model LoginConfiguration {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid @map("user_id")
+  pay_frequency String? @map("pay_frequency")
+  pay_day_one String? @map("pay_day")
+  pay_day_two String? @map("pay_day_two")
+  activeNotifications Boolean? @default(true) @map("active_notifications")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  payDays PayDays[]
+
+  user User @relation(fields: [userId], references: [id])
+  @@map("login_configurations")
+}
+
+model BudgetSections {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid @map("user_id")
+  name String
+  type String?
+  order Int?
+  isGlobalWorkforce Boolean? @default(false) @map("is_global_workforce")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  categoriesItems CategoriesItems[]
+
+  user User @relation(fields: [userId], references: [id])
+  @@map("budget_sections")
+}
+
+model FinancialPages {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid @map("user_id")
+  startDate DateTime @map("start_date")
+  endDate DateTime @map("end_date")
+  typePeriod String @map("type_period")
+  status statusPage? @default(ACTIVE)
+  totalIncome Decimal? @default(0.0) @map("total_income")
+  totalExpenses Decimal? @default(0.0) @map("total_expenses")
+  balance Decimal? @default(0.0)
+  startBalance Decimal? @default(0.0) @map("start_balance")
+  endBalance Decimal? @default(0.0) @map("end_balance")
+  closedAt DateTime? @map("closed_at")
+
+  balanceAdjustments BalanceAdjustments[]
+  movements Movements[]
+
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("financial_pages")
+}
+
+model FinancialInstitutions {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid @map("user_id")
+  name String
+  type typeIntitution?
+  balanceNow Decimal? @default(0.0) @map("balance_now")
+  status String? @default("ACTIVE")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  movements Movements[]
+
+  user User @relation(fields: [userId], references: [id])
+  @@map("financial_institutions")
+}
+
+model UserConsent {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid @map("user_id")
+  consentType String @map("type_consent")
+  version String
+  accepted Boolean @default(false)
+  dateAssigned DateTime @default(now()) @map("date_assigned")
+
+  user User @relation(fields: [userId], references: [id])
+  @@map("user_consents")
+}
+
+model PayDays {
+  id String @id @default(uuid()) @db.Uuid 
+  configurationId String @db.Uuid @map("configuration_id")
+  dayMonth Int @map("day_month")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  configuration LoginConfiguration @relation(fields: [configurationId], references: [id])
+  @@map("paydays")
+}
+
+model CategoriesItems {
+  id String @id @default(uuid()) @db.Uuid
+  sectionId String @db.Uuid @map("section_id")
+  name String
+  expectedAmount Decimal? @default(0.0) @map("expected_amount")
+  isRecurrent Boolean? @default(false) @map("is_recurrent")
+  order Int?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  movements Movements[]
+  balanceSections balanceSection[]
+  investmentAccounts investmentAccounts[]
+
+  section BudgetSections @relation(fields: [sectionId], references: [id])
+
+  @@map("categories_items")
+}
+
+model BalanceAdjustments {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid @map("user_id")
+  financialPageId String @db.Uuid @map("financial_page_id")
+  amount Decimal @map("amount")
+  reason String @map("reason")
+  dateAdjustment DateTime @map("date")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+  financialPage FinancialPages @relation(fields: [financialPageId], references: [id])
+
+  @@map("balance_adjustments")
+
+}
+
+model  Movements {
+  id String @id @default(uuid()) @db.Uuid
+  financialPageId String @db.Uuid @map("financial_page_id")
+  categoryItemId String @db.Uuid @map("category_item_id")
+  institutionFinancialId String @db.Uuid @map("institution_financial_id")
+  description String?
+  amount Decimal @map("amount")
+  date DateTime @map("date")
+  typeMovement TypeMovement @map("type_movement")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  financialPage FinancialPages @relation(fields: [financialPageId], references: [id])
+  categoryItem CategoriesItems @relation(fields: [categoryItemId], references: [id])
+  institutionFinancial FinancialInstitutions @relation(fields: [institutionFinancialId], references: [id])
+
+  @@map("movements")
+}
+
+model balanceSection {
+  id  String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid @map("user_id")
+  categoryItemId String @db.Uuid @map("category_item_id")
+  name String
+  balance Decimal @default(0.0)
+  goalSavings Decimal? @default(0.0) @map("goal_savings")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+  categoryItem CategoriesItems @relation(fields: [categoryItemId], references: [id])
+
+  @@map("balance_sections")
+}
+
+model investmentAccounts {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid @map("user_id")
+  categoryItemId String @db.Uuid @map("category_item_id")
+  name String
+  typeInvestment typeInvestment @map("type_investment")
+  whereInvestment String @map("where_investment")
+  balance Decimal @default(0.0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  movements movementsInvestmentAccounts[]
+
+  user User @relation(fields: [userId], references: [id])
+  categoryItem CategoriesItems @relation(fields: [categoryItemId], references: [id])
+
+  @@map("investment_accounts")
+}
+
+model movementsInvestmentAccounts {
+  id String @id @default(uuid()) @db.Uuid
+  investmentAccountId String @db.Uuid @map("investment_account_id")
+  typeMovement TypeMovement @map("type_movement")
+  amount Decimal @map("amount")
+  date DateTime @map("date")
+  reason String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  investmentAccount investmentAccounts @relation(fields: [investmentAccountId], references: [id])
+
+  @@map("movements_investment_accounts")
+}

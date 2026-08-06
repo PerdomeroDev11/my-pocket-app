@@ -1,0 +1,17 @@
+FROM node:24-alpine
+
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+ENV CI=true
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+RUN pnpm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD [ "pnpm", "run" , "start:dev"]

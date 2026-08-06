@@ -3,3 +3,10 @@ allowBuilds:
   bcrypt: true
   prisma: true
   unrs-resolver: true
+
+# backend/pnpm-workspace.yaml
+onlyBuiltDependencies:
+  - '@prisma/engines'
+  - bcrypt
+  - prisma
+  - unrs-resolver
