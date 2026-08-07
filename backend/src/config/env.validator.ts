@@ -17,8 +17,7 @@ export const envSchema = Joi.object({
   RESEND_API_KEY: Joi.string().required(),
   RESEND_FROM_EMAIL: Joi.string().email().required(),
 
-  //GOOGLE_CLIENT_ID: Joi.string().required(),
-  //GOOGLE_CLIENT_SECRET: Joi.string().required(),
-  //GOOGLE_REDIRECT_URI: Joi.string().uri().required(),
+  GOOGLE_CLIENT_ID: Joi.string().required(),
+  GOOGLE_CLIENT_SECRET: Joi.string().required(),
 
 });

@@ -11,6 +11,7 @@ import appConfig from '@/config/app.config';
 import jwtConfig from '@/config/jwt.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { RedisModule } from './redis/redis.module';
+import googleConfig from './config/google.config';
 
 
 @Module({
@@ -25,7 +26,8 @@ import { RedisModule } from './redis/redis.module';
         resendConfig,
         dbConfig,
         redisConfig,
-        jwtConfig
+        jwtConfig,
+        googleConfig
       ]
     }),
     UsersModule,

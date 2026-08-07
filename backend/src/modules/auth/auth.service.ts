@@ -20,6 +20,9 @@ import { TokenBlackListService } from "@/redis/token-blackList.service";
 import { ForgotPasswordDto} from "./dto/jwt-update";
 import { use } from "passport";
 import { date } from "joi";
+import { GoogleLoginDto } from "./dto/google-login.dto";
+import { AuthGoogleService } from "./ google-auth.service";
+import { UserEntity } from "../users/entity/user.entity";
 
 
 @Injectable()
@@ -30,6 +33,7 @@ export class AuthService {
         private configService: ConfigService,
         private resendService: ResendService,
         private tokenBlackList: TokenBlackListService,
+        private googleAuthService: AuthGoogleService,
         @Inject('REDIS_CLIENT') private readonly redis: Redis
     ){}
     private async generateTokens (dto: GenerateTokenDto):Promise<{accessToken:string , refreshToken:string}>{
@@ -65,7 +69,7 @@ export class AuthService {
             data:{
                 userId: dto.userId,
                 refreshToken: '',
-                userAgent: dto.userAgente,
+                userAgent: dto.userAgent,
                 country: region,
                 expiresAt: expireAt
             }
@@ -106,7 +110,7 @@ export class AuthService {
 
         return `${geo.city}, ${geo.country}`;
     }
-    private async sentCodigoVerification(key:string,email:string , data: Record<string, any>){
+    private async sentCodeVerification(key:string,email:string , data: Record<string, any>){
         const coolDownKey = `${key}-coolDown:${email}`
         const onCoolDown = await this.redis.get(coolDownKey)
         if(onCoolDown) throw new BadRequestException('Please wait before requesting a new code')
@@ -130,6 +134,37 @@ export class AuthService {
         await this.resendService.sendEmailVerify(email, code)
         return code
     }
+    async loginWithGoogle(dto: GoogleLoginDto, userAgent: string , ip:string){
+        const googleData = await this.googleAuthService.verifyTokenGoogle(dto);
+
+        let user= await this.prisma.user.findUnique({where:{email: googleData.email}});
+        const ipAddress = await this.getRegionWithIp(ip)
+
+        if(!user){
+            const created = await this.prisma.user.create({
+                data:{
+                    name:googleData.name ?? "",
+                    email: googleData.email,
+                    googleId: googleData.googleId,
+                    verifyEmail: true
+                }
+            });
+            user = created
+            if(!created) throw new BadRequestException('there was an problem creating the user with Google')
+        }else if (!user.googleId){
+            await this.prisma.user.update({
+                where:{id:user.id},
+                data:{googleId: googleData.googleId}
+            });
+        }
+        
+        return await this.session({
+            userId: user.id,
+            email: user.email,
+            userAgent: userAgent,
+            ip: ip
+        })
+    }
     async singUp (dto: CreateUserPendingDto){
         
         const existUser = await this.prisma.user.findUnique({
@@ -152,12 +187,12 @@ export class AuthService {
             code: randomCode
         }
         const ttlSeconds = 15 * 60;
-        await this.sentCodigoVerification('verifyEmail' , pedingData.email , pedingData)
+        await this.sentCodeVerification('verifyEmail' , pedingData.email , pedingData)
         await this.resendService.sendEmailVerify(dto.email,randomCode)
         return {message: "code sent" , email: dto.email}
         
     }
-    async verifyEmail(dto: VerifyEmailDto , userAgente: string , ip:string){
+    async verifyEmail(dto: VerifyEmailDto , userAgent: string , ip:string){
         const raw = await this.redis.get(`pending-user:${dto.email}`)
         console.log(raw)
         if(!raw) throw new BadRequestException('the code not exit or expire')
@@ -176,7 +211,7 @@ export class AuthService {
 
         await  this.redis.del(`verifyEmail:${dto.email}`)
         
-        return await this.session({userId: user.id ,email: user.email, userAgente:userAgente ,ip:ip} )
+        return await this.session({userId: user.id ,email: user.email, userAgent:userAgent ,ip:ip} )
     }
     async singIn(dto: SingInDto , userAgent: string , ip:string ){
         const user = await this.prisma.user.findUniqueOrThrow({
@@ -192,7 +227,7 @@ export class AuthService {
         return await this.session({
             userId: user.id,
             email: user.email,
-            userAgente: userAgent,
+            userAgent: userAgent,
             ip: ip
         })
     }
@@ -255,7 +290,7 @@ export class AuthService {
         if(!user) throw new BadRequestException('the email does not exist')
             
         
-        await this.sentCodigoVerification('forgotPassword' , user.email , {email:user.email})
+        await this.sentCodeVerification('forgotPassword' , user.email , {email:user.email})
 
         await this.logoutAll(user.id)
 

@@ -10,6 +10,7 @@ import { TokenBlackListService } from "@/redis/token-blackList.service";
 import { ResendModule } from "@/resend/resend.module";
 import { PrismaModule } from "@/prisma-config/prisma.module";
 import { RedisModule } from "@/redis/redis.module";
+import { AuthGoogleService } from "./ google-auth.service";
 
 
 @Module({
@@ -37,6 +38,7 @@ import { RedisModule } from "@/redis/redis.module";
         TokenBlackListService,
         JwtStrategy,
         JwtRefreshStrategy,
+        AuthGoogleService
     ],
     exports:[AuthService, JwtModule]
 })

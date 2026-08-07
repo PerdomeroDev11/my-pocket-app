@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Patch, Post , Req, Res, UseGuards} from "@nestjs/common";
+import { Body, Controller, Delete, Ip, Param, Patch, Post , Req, Res, UseGuards} from "@nestjs/common";
 import {
     CreateUserPendingDto,
     PayloadValidateDto,
@@ -12,6 +12,8 @@ import { ConfigService } from "@nestjs/config";
 import { JwtAuthGuard } from "./guards/jwt.guard";
 import { CurrentUser } from "@/common/decorator/current-user.decorator";
 import { ForgotPasswordDto} from "./dto/jwt-update";
+import { GoogleAuth } from "google-auth-library";
+import { GoogleLoginDto } from "./dto/google-login.dto";
 
 @Controller('auth')
 export class AuthController {
@@ -20,6 +22,37 @@ export class AuthController {
         private configService: ConfigService
         
     ){}
+    @Post('google')
+    async googleLogin(
+        @Body() dto: GoogleLoginDto,
+        @Req() req:Request,
+        @Res({passthrough:true}) res:Response
+    ){
+        const userAgent = req.headers['user-agent'] || 'Unknown'
+        const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || '127.0.0.1'
+        const {accessToken , refreshToken} = await this.authService.loginWithGoogle(
+            dto,
+            userAgent,
+            clientIp
+        )
+        const isProd : boolean = this.configService.get('app.nodeEnv') === 'production'
+
+        res.cookie('access_token' , accessToken , {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 15// 15 minutes
+
+        });
+
+        res.cookie('referesh_token' , refreshToken , {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60 *24 * 7 // 7 days
+        })
+        return {message: 'Google login successful'}
+    }
     @Post('sing-up')
     async singUp(
         @Body() dto: CreateUserPendingDto

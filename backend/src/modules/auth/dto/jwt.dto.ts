@@ -1,5 +1,4 @@
-import { IsEmail, IsString,IsDate ,MinLength, IsNotEmpty, Length, IsInt} from 'class-validator'
-import { Transform } from 'class-transformer'
+import {IsString,IsDate ,MinLength, IsNotEmpty, Length, IsInt} from 'class-validator'
 import { NormalizedEmail } from '@/common/decorator/normalized-email.decorator'
 import { RulesPassword } from '@/common/decorator/rules-password.decorator'
 
@@ -19,7 +18,7 @@ export class LoginDto{
     @NormalizedEmail()
     @IsNotEmpty()
     email!: string
-    userAgente?: string
+    userAgent?: string
     @IsString()
     ip?: string
 }
