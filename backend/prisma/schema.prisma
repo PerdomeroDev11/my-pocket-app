@@ -79,7 +79,6 @@ model User {
   googleId String? @unique @map("google_id")
   status statusUser? @default(ACTIVE)
   language String? @default("es")
-  passwordUpdate String? @map("password_update")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
 
