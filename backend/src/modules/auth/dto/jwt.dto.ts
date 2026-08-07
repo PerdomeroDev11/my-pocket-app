@@ -1,10 +1,13 @@
 import { IsEmail, IsString,IsDate ,MinLength, IsNotEmpty, Length, IsInt} from 'class-validator'
+import { Transform } from 'class-transformer'
+import { NormalizedEmail } from '@/common/decorator/normalized-email.decorator'
+import { RulesPassword } from '@/common/decorator/rules-password.decorator'
 
 export class GenerateTokenDto{
     @IsString()
     userId!: string
-    @IsString()
-    @IsEmail()
+    @NormalizedEmail()
+    @IsNotEmpty()
     email!: string
     @IsString()
     sessionId!: string
@@ -13,26 +16,23 @@ export class GenerateTokenDto{
 export class LoginDto{
     @IsString()
     userId!: string
-    @IsString()
-    @IsString()
-    @IsEmail()
+    @NormalizedEmail()
+    @IsNotEmpty()
     email!: string
     userAgente?: string
     @IsString()
     ip?: string
 }
 export class SingInDto {
-    @IsString()
-    @IsEmail()
+    @NormalizedEmail()
     @IsNotEmpty()
     email!: string
-    @IsString()
+    @RulesPassword()
     @IsNotEmpty()
     password!: string
 }
 export class VerifyEmailDto{
-    @IsString()
-    @IsEmail({},{message: 'invalid email format '})
+    @NormalizedEmail()
     @IsNotEmpty()
     email!: string
     @IsString()
@@ -59,8 +59,8 @@ export class CreateUserSessionDto {
 export class CreateUserPendingDto {
     @IsString()
     name!: string
-    @IsEmail()
-    @IsString()
+    @NormalizedEmail()
+    @IsNotEmpty()
     email!: string
     @IsString()
     @MinLength(7)
@@ -74,8 +74,8 @@ export class CreateUserPendingDto {
 export class PayloadValidateDto{
     @IsString()
     sub!:string
-    @IsString()
-    @IsEmail()
+    @NormalizedEmail()
+    @IsNotEmpty()
     email!: string
     @IsString()
     sessionId!: string
@@ -95,5 +95,12 @@ export class PayloadLogOutDto {
     @IsInt()
     exp!: number
 }
+export class SentEmailDto{
+    @NormalizedEmail()
+    @IsNotEmpty()
+    email!: string
+}
+
+
 
 

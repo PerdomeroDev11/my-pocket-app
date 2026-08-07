@@ -1,10 +1,17 @@
 import { Body, Controller, Delete, Param, Patch, Post , Req, Res, UseGuards} from "@nestjs/common";
-import { CreateUserPendingDto, LoginDto, PayloadValidateDto, SingInDto, VerifyEmailDto } from "./dto/jwt.dto";
+import {
+    CreateUserPendingDto,
+    PayloadValidateDto,
+    SingInDto,
+    VerifyEmailDto,
+    SentEmailDto
+} from "./dto/jwt.dto";
 import { AuthService } from "./auth.service";
 import { type Request , type Response} from "express";
 import { ConfigService } from "@nestjs/config";
 import { JwtAuthGuard } from "./guards/jwt.guard";
 import { CurrentUser } from "@/common/decorator/current-user.decorator";
+import { ForgotPasswordDto} from "./dto/jwt-update";
 
 @Controller('auth')
 export class AuthController {
@@ -119,6 +126,17 @@ export class AuthController {
     ){
         return this.authService.closeSessionRemote(sessionId, user , password)
     }
-    
+    @Post('sent-code-password')
+    async sentEmailPassword(
+        @Body() dto: SentEmailDto
+    ){
+        return this.authService.sentEmailForgotPassword(dto)
+    }
+    @Patch('reset-forgot-password')
+    async(
+        @Body() dto: ForgotPasswordDto
+    ){
+        return this.authService.resetPassword(dto)
+    }
 
 }

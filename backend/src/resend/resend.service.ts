@@ -34,9 +34,8 @@ export class ResendService {
             
         }
         catch(err){
-            throw new InternalServerErrorException(
-                'e al enviar correo: ${(err as e).message}',
-            )
+            console.log('THE PROBLEM IS: ' , err)
+            throw new InternalServerErrorException('there was an error sending the email ')
         }
     }
 

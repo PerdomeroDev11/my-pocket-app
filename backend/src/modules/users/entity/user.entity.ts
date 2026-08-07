@@ -3,7 +3,6 @@ import { Exclude } from 'class-transformer';
 import { 
     User ,
     statusUser,
-    UserPendingEmail,
     UserSession
 } from '@generated/prisma/client';
 

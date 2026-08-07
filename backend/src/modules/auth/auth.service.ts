@@ -3,21 +3,29 @@ import {JwtService} from '@nestjs/jwt'
 import { ConfigService } from "@nestjs/config";
 import * as bcrypt from 'bcrypt'
 import { PrismaService } from "@/prisma-config/prisma.service";
-import { UsersService } from "../users/users.service";
 import { randomInt , randomUUID } from "crypto";
-import { CreateUserPendingDto, GenerateTokenDto ,LoginDto, PayloadLogOutDto, SingInDto, VerifyEmailDto} from "./dto/jwt.dto";
+import { 
+    CreateUserPendingDto,
+    GenerateTokenDto ,
+    LoginDto, 
+    PayloadLogOutDto,
+    SingInDto,
+    VerifyEmailDto,
+    SentEmailDto
+    } from "./dto/jwt.dto";
 import geoip from 'geoip-lite';
 import { ResendService } from "@/resend/resend.service";
 import Redis from "ioredis";
 import { TokenBlackListService } from "@/redis/token-blackList.service";
-import { count } from "console";
+import { ForgotPasswordDto} from "./dto/jwt-update";
+import { use } from "passport";
+import { date } from "joi";
 
 
 @Injectable()
 export class AuthService {
     constructor (
         private prisma: PrismaService,
-        private usersService: UsersService,
         private jwtService: JwtService,
         private configService: ConfigService,
         private resendService: ResendService,
@@ -98,14 +106,42 @@ export class AuthService {
 
         return `${geo.city}, ${geo.country}`;
     }
+    private async sentCodigoVerification(key:string,email:string , data: Record<string, any>){
+        const coolDownKey = `${key}-coolDown:${email}`
+        const onCoolDown = await this.redis.get(coolDownKey)
+        if(onCoolDown) throw new BadRequestException('Please wait before requesting a new code')
+        const code: string = randomInt(100000, 1000000).toString()
+        const ttlSecond = 15 * 60
+        const cooldownSeconds = 60
+
+        const fullData = {
+            ...data,
+            code
+        }
+
+        await this.redis.set(
+            `${key}:${email}`, 
+            JSON.stringify(fullData),
+             'EX' , 
+             ttlSecond
+            )
+        await this.redis.set(coolDownKey, '1' , 'EX', cooldownSeconds)
+
+        await this.resendService.sendEmailVerify(email, code)
+        return code
+    }
     async singUp (dto: CreateUserPendingDto){
-        const email = dto.email.trim().toLowerCase()
-        console.log(email)
-        const existUser = await this.usersService.findByEmail(email)
+        
+        const existUser = await this.prisma.user.findUnique({
+            where:{
+                email:dto.email
+            },
+            select:{
+                email:true
+            }
+        })
         if(existUser)throw new ConflictException('The credentials already exist.')
         const randomCode: string = randomInt(100000, 1000000).toString()
-        const expireAt = new Date()
-        expireAt.setMinutes(expireAt.getMinutes() + 15)
 
         const passwordHash = await bcrypt.hash(dto.password , 10)
 
@@ -116,19 +152,12 @@ export class AuthService {
             code: randomCode
         }
         const ttlSeconds = 15 * 60;
-        await this.redis.set(
-            `pending-user:${dto.email}`,
-            JSON.stringify(pedingData),
-            'EX',
-            ttlSeconds
-        )
+        await this.sentCodigoVerification('verifyEmail' , pedingData.email , pedingData)
         await this.resendService.sendEmailVerify(dto.email,randomCode)
         return {message: "code sent" , email: dto.email}
         
     }
     async verifyEmail(dto: VerifyEmailDto , userAgente: string , ip:string){
-        const email = dto.email.trim().toLowerCase()
-        console.log(email)
         const raw = await this.redis.get(`pending-user:${dto.email}`)
         console.log(raw)
         if(!raw) throw new BadRequestException('the code not exit or expire')
@@ -137,14 +166,22 @@ export class AuthService {
 
         if(pedingData.code != dto.code) throw new BadRequestException('code incorrect')
 
-        const user = await this.usersService.createUser(pedingData)
+        const user = await this.prisma.user.create({
+            data:{
+                name: pedingData.name,
+                email: pedingData.email,
+                password: pedingData.password,
+            }
+        })
 
-        await  this.redis.del(`pending-user:${dto.email}`)
+        await  this.redis.del(`verifyEmail:${dto.email}`)
         
         return await this.session({userId: user.id ,email: user.email, userAgente:userAgente ,ip:ip} )
     }
     async singIn(dto: SingInDto , userAgent: string , ip:string ){
-        const user = await this.usersService.findByEmailOThrow(dto.email);
+        const user = await this.prisma.user.findUniqueOrThrow({
+            where:{email: dto.email}
+        });
         if(!user) throw new UnauthorizedException('user not found for sing in')
         if(!user.password) throw new UnauthorizedException('password not found')
         
@@ -187,7 +224,9 @@ export class AuthService {
         return {message: 'all session logged out', count: sessions.length}
     }
     async closeSessionRemote(sessionId : string , requestingUserId: string , password:string){
-        const user = await this.usersService.findbyId(requestingUserId)
+        const user = await this.prisma.user.findUnique({
+            where:{id: requestingUserId}
+        })
         if(!user) throw new BadRequestException('user no found')
         if(!user.password) throw new  BadRequestException('password not exist')
         const isValidPassword = bcrypt.compare(password,user.password)
@@ -202,5 +241,50 @@ export class AuthService {
         })
         return {message: 'session closed'}
 
+
+    }
+    async sentEmailForgotPassword(dto: SentEmailDto){
+        const  user= await this.prisma.user.findUnique({
+            where:{email: dto.email , status: "ACTIVE"},
+            select:{
+                id: true,
+                email:true
+            }
+        })
+
+        if(!user) throw new BadRequestException('the email does not exist')
+            
+        
+        await this.sentCodigoVerification('forgotPassword' , user.email , {email:user.email})
+
+        await this.logoutAll(user.id)
+
+        return{ message: 'code sent' , email: user.email }
+    }
+    async resetPassword(dto: ForgotPasswordDto){
+        const raw = await this.redis.get(`forgotPassword:${dto.email}`)
+
+        if(!raw) throw new BadRequestException('email not found')
+        if(!dto.passwordNew)throw new BadRequestException('there was an error to create new password')
+        
+        const rawReceived : {email:string , code:string} = JSON.parse(raw)
+
+        if(dto.code !== rawReceived.code) throw new BadRequestException('incorrect code')
+        const passwordNewHash = await bcrypt.hash(dto.passwordNew, 10)
+        
+        
+        await this.prisma.user.update({
+            where:{email: rawReceived.email, status: "ACTIVE" },
+            data:{password: passwordNewHash}
+        })
+
+        await this.redis.del(`forgotPassword:${dto.email}`)
+
+        const user = await this.prisma.user.findUnique({
+            where:{email: rawReceived.email},
+            select:{id:true}
+        })
+        if(user) await this.logoutAll(user.id)
+        return {message: 'password reset successfully'}
     }
 }
