@@ -1,14 +1,16 @@
-import { BadRequestException, ConflictException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import {JwtService} from '@nestjs/jwt'
 import { ConfigService } from "@nestjs/config";
 import * as bcrypt from 'bcrypt'
 import { PrismaService } from "@/prisma-config/prisma.service";
 import { UsersService } from "../users/users.service";
 import { randomInt , randomUUID } from "crypto";
-import { CreateUserPendingDto, GenerateTokenDto ,LoginDto, SingInDto, VerifyEmailDto} from "./dto/jwt.dto";
+import { CreateUserPendingDto, GenerateTokenDto ,LoginDto, PayloadLogOutDto, SingInDto, VerifyEmailDto} from "./dto/jwt.dto";
 import geoip from 'geoip-lite';
 import { ResendService } from "@/resend/resend.service";
 import Redis from "ioredis";
+import { TokenBlackListService } from "@/redis/token-blackList.service";
+import { count } from "console";
 
 
 @Injectable()
@@ -19,6 +21,7 @@ export class AuthService {
         private jwtService: JwtService,
         private configService: ConfigService,
         private resendService: ResendService,
+        private tokenBlackList: TokenBlackListService,
         @Inject('REDIS_CLIENT') private readonly redis: Redis
     ){}
     private async generateTokens (dto: GenerateTokenDto):Promise<{accessToken:string , refreshToken:string}>{
@@ -71,7 +74,7 @@ export class AuthService {
             data:{refreshToken: refreshHash}
         })
         const ttlSeconds = 7 * 24 * 60 * 60; // 7 días
-        await this.redis.set(`session:${session.id}`, 'active' , 'EX' , ttlSeconds )
+        await this.redis.set(`session:${session.id}`, 'ON' , 'EX' , ttlSeconds )
         return {accessToken , refreshToken}
     }
     private getRegionWithIp(ip?: string): string | null {
@@ -156,6 +159,48 @@ export class AuthService {
             ip: ip
         })
     }
+    async logOut (dto: PayloadLogOutDto){
+        await this.prisma.userSession.update({
+            where:{id: dto.sessionId },
+            data:{status: "OFF"}
+        })
 
+        await this.redis.set(`session:${dto.sessionId}`, 'OFF' , 'KEEPTTL')
 
+        await this.tokenBlackList.blackListByJti(dto.jti , dto.exp)
+
+        return {message: 'logged out successfully'}
+    }
+    async logoutAll (userId: string){
+        const sessions = await this.prisma.userSession.findMany({
+            where:{userId , status: "ON"}
+        });
+
+        await this.prisma.userSession.updateMany({
+            where:{userId , status: "ON"},
+            data:{ status: "OFF"}
+        })
+
+        await Promise.all(
+            sessions.map((s) => this.redis.set(`session:${s.id}`, 'OFF' ,'KEEPTTL'))
+        )
+        return {message: 'all session logged out', count: sessions.length}
+    }
+    async closeSessionRemote(sessionId : string , requestingUserId: string , password:string){
+        const user = await this.usersService.findbyId(requestingUserId)
+        if(!user) throw new BadRequestException('user no found')
+        if(!user.password) throw new  BadRequestException('password not exist')
+        const isValidPassword = bcrypt.compare(password,user.password)
+        if(!isValidPassword) throw new UnauthorizedException('incorrect credentials')
+        const session = await this.prisma.userSession.findUnique({where:{id: sessionId}})
+
+        if(!session || session.userId !== requestingUserId) throw new ForbiddenException('you can not close this sesision')
+        
+        await this.prisma.userSession.update({
+            where:{id: sessionId},
+            data:{status: 'OFF'}
+        })
+        return {message: 'session closed'}
+
+    }
 }

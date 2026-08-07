@@ -1,4 +1,4 @@
-import { IsEmail, IsString,IsDate ,MinLength, IsNotEmpty, Length} from 'class-validator'
+import { IsEmail, IsString,IsDate ,MinLength, IsNotEmpty, Length, IsInt} from 'class-validator'
 
 export class GenerateTokenDto{
     @IsString()
@@ -71,13 +71,29 @@ export class CreateUserPendingDto {
     expireAt!: Date
 }
 
-export class LogOutDto {
+export class PayloadValidateDto{
     @IsString()
-    @IsNotEmpty()
-    userId!: string
+    sub!:string
     @IsString()
-    @IsNotEmpty()
+    @IsEmail()
+    email!: string
+    @IsString()
     sessionId!: string
+    @IsString()
+    jti!: string
+    @IsInt()
+    exp!: number
+}
+
+export class PayloadLogOutDto {
+    @IsString()
+    sub!: string
+    @IsString()
+    sessionId!: string
+    @IsString()
+    jti!: string
+    @IsInt()
+    exp!: number
 }
 
 

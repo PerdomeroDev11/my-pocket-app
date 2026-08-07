@@ -117,17 +117,7 @@ model UserSession {
   @@map("sessions_users")
 }
 
-model UserPendingEmail {
-  id String @id @default(uuid()) @db.Uuid
-  name String
-  password String
-  email String 
-  code String @unique
-  expiresAt DateTime @map("expire_at")
-  createdAt DateTime @default(now()) @map("created_at")
-  
-  @@map("users_pending")
-}
+
 
 model PasswordForgot {
   id String @id @default(uuid()) @db.Uuid

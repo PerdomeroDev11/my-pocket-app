@@ -1,7 +1,6 @@
 import { Exclude } from 'class-transformer';
 import { 
     UserSession,
-    UserPendingEmail,
     statusSession
 } from '@generated/prisma/client';
 
@@ -25,18 +24,3 @@ export class UserSessionsEntity implements Omit<UserSession, 'refreshToken' | 'u
     }
 }
 
-export class UserPendingEntity implements Omit<UserPendingEmail , 'code' | 'password'>{
-    id!: string;
-    name!: string;
-    email!: string;
-    expiresAt!: Date;
-    createdAt!: Date;
-    
-    @Exclude()
-    password!: string;
-    code!: string
-
-    constructor(partial: Partial<UserPendingEmail>){
-        Object.assign(this , partial)
-    }
-}

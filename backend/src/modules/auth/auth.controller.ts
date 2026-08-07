@@ -1,8 +1,10 @@
-import { Body, Controller, Post , Req, Res} from "@nestjs/common";
-import { CreateUserPendingDto, LoginDto, SingInDto, VerifyEmailDto } from "./dto/jwt.dto";
+import { Body, Controller, Delete, Param, Patch, Post , Req, Res, UseGuards} from "@nestjs/common";
+import { CreateUserPendingDto, LoginDto, PayloadValidateDto, SingInDto, VerifyEmailDto } from "./dto/jwt.dto";
 import { AuthService } from "./auth.service";
 import { type Request , type Response} from "express";
 import { ConfigService } from "@nestjs/config";
+import { JwtAuthGuard } from "./guards/jwt.guard";
+import { CurrentUser } from "@/common/decorator/current-user.decorator";
 
 @Controller('auth')
 export class AuthController {
@@ -85,4 +87,38 @@ export class AuthController {
 
         return {message: 'successful sing In '}
     }
+    @Post('logout')
+    @UseGuards(JwtAuthGuard)
+    async logout(
+        @CurrentUser() dto: PayloadValidateDto,
+        @Res({passthrough : true}) res: Response
+    ){
+        await this.authService.logOut(dto)
+
+        res.clearCookie('access_token')
+        res.clearCookie('refresh_token')
+        return {message: 'logout successful'}
+    }
+    @Post('logout-all')
+    @UseGuards(JwtAuthGuard)
+    async logoutAll(
+        @CurrentUser('sub') userId: string,
+        @Res() res:Response
+    ){
+        const result = await this.authService.logoutAll(userId)
+        res.clearCookie('access_token')
+        res.clearCookie('refresh_token')
+        return result
+    }
+    @Patch('sessions/:id/close')
+    @UseGuards(JwtAuthGuard)
+    async closeSessionRemte(
+        @Param('id') sessionId: string,
+        @CurrentUser('sub') user: string,
+        @Body() password:string
+    ){
+        return this.authService.closeSessionRemote(sessionId, user , password)
+    }
+    
+
 }
