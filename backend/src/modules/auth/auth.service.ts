@@ -22,7 +22,6 @@ import { use } from "passport";
 import { date } from "joi";
 import { GoogleLoginDto } from "./dto/google-login.dto";
 import { AuthGoogleService } from "./ google-auth.service";
-import { UserEntity } from "../users/entity/user.entity";
 
 
 @Injectable()
@@ -146,7 +145,8 @@ export class AuthService {
                     name:googleData.name ?? "",
                     email: googleData.email,
                     googleId: googleData.googleId,
-                    verifyEmail: true
+                    verifyEmail: true,
+                    profilePicture: googleData.avatar
                 }
             });
             user = created

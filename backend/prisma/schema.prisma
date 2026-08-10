@@ -74,6 +74,7 @@ model User {
   name String
   email String @unique
   password String?
+  profilePicture String? @map("profile_picture")
   verifyEmail Boolean @default(false) @map("verify_email")
   timeZone String? @default("BOG") @map("time_zone")
   googleId String? @unique @map("google_id")
@@ -89,7 +90,7 @@ model User {
   financialInstitutions FinancialInstitutions[]
   userConsents UserConsent[]
   balanceAdjustments BalanceAdjustments[]
-  balanceSections balanceSection[]
+  balanceSections BalanceSection[]
   investmentAccounts investmentAccounts[]
 
 
@@ -218,7 +219,7 @@ model CategoriesItems {
   createdAt DateTime @default(now()) @map("created_at")
 
   movements Movements[]
-  balanceSections balanceSection[]
+  balanceSections BalanceSection[]
   investmentAccounts investmentAccounts[]
 
   section BudgetSections @relation(fields: [sectionId], references: [id])
@@ -249,6 +250,7 @@ model  Movements {
   institutionFinancialId String @db.Uuid @map("institution_financial_id")
   description String?
   amount Decimal @map("amount")
+  receipUrl String? @map("receip_url")
   date DateTime @map("date")
   typeMovement TypeMovement @map("type_movement")
   createdAt DateTime @default(now()) @map("created_at")
@@ -260,7 +262,7 @@ model  Movements {
   @@map("movements")
 }
 
-model balanceSection {
+model BalanceSection {
   id  String @id @default(uuid()) @db.Uuid
   userId String @db.Uuid @map("user_id")
   categoryItemId String @db.Uuid @map("category_item_id")
@@ -285,7 +287,7 @@ model investmentAccounts {
   balance Decimal @default(0.0)
   createdAt DateTime @default(now()) @map("created_at")
 
-  movements movementsInvestmentAccounts[]
+  movements MovementsInvestmentAccounts[]
 
   user User @relation(fields: [userId], references: [id])
   categoryItem CategoriesItems @relation(fields: [categoryItemId], references: [id])
@@ -293,7 +295,7 @@ model investmentAccounts {
   @@map("investment_accounts")
 }
 
-model movementsInvestmentAccounts {
+model MovementsInvestmentAccounts {
   id String @id @default(uuid()) @db.Uuid
   investmentAccountId String @db.Uuid @map("investment_account_id")
   typeMovement TypeMovement @map("type_movement")

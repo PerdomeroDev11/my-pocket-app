@@ -13,3 +13,10 @@ export class ChangePasswordDto{
     @IsNotEmpty()
     confirmPassword!: string
 }
+
+export class UpdateUserdto {
+    name?: string
+    timeZone?: string
+    lenguaje?: string
+    profilePicture?: string
+}

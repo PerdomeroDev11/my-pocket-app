@@ -20,4 +20,9 @@ export const envSchema = Joi.object({
   GOOGLE_CLIENT_ID: Joi.string().required(),
   GOOGLE_CLIENT_SECRET: Joi.string().required(),
 
+  R2_ENDPOINT: Joi.string().uri().required(),
+  R2_BUCKET: Joi.string().required(),
+  R2_ACCESS_KEY_ID: Joi.string().required(),
+  R2_SECRET_ACCESS_KEY: Joi.string().required(),
+  R2_PUBLIC_URL: Joi.string().uri().required(),
 });

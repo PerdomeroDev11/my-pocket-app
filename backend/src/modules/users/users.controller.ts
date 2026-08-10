@@ -1,12 +1,12 @@
-import { Body, Controller, Patch, Post, UseGuards , Req } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { Body, Controller, Patch ,UseGuards , Get, Put, UploadedFile} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
-import { ChangePasswordDto } from './dto/update-user.dto';
+import { ChangePasswordDto, UpdateUserdto } from './dto/update-user.dto';
 import { CurrentUser } from '@/common/decorator/current-user.decorator';
 
-@UseGuards(JwtAuthGuard)
+
 @Controller('users')
+@UseGuards(JwtAuthGuard)
 export class UsersController {
     constructor(
         private userService: UsersService
@@ -19,4 +19,37 @@ export class UsersController {
     ){
         return await this.userService.changePassword(userId,dto);
     }
+    @Get('show-user')
+    async findOneUser(
+        @CurrentUser('sub') userId: string
+    ){
+        return await this.userService.findOneUser(userId)
+    }
+    @Get('sessions')
+    async sessionsUser(
+        @CurrentUser('sub') userId: string
+    ){
+        return await this.userService.findAllSessionsUser(userId)
+    }
+    @Put('edit-user')
+    async editUser(
+        @Body() dto: UpdateUserdto,
+        @CurrentUser('sub') userId:string
+    ){
+        return await this.userService.updateUser(dto, userId)
+    }
+    @Patch('me/profile-picture')
+    async(
+        @UploadedFile() file: Express.Multer.File,
+        @CurrentUser('sub') userId:string
+    ){
+        return this.userService.uploadProfilePicture(userId, file)
+    }
+    @Get('me')
+    async getUSer(
+        @CurrentUser('sub') userId: string
+    ){
+        return await this.userService.getUser(userId)
+    }
+
 }

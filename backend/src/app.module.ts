@@ -11,7 +11,9 @@ import appConfig from '@/config/app.config';
 import jwtConfig from '@/config/jwt.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { RedisModule } from './redis/redis.module';
+import { StorageModule } from './storage/storage.module';
 import googleConfig from './config/google.config';
+import storageConfig from './config/storage.config';
 
 
 @Module({
@@ -27,13 +29,15 @@ import googleConfig from './config/google.config';
         dbConfig,
         redisConfig,
         jwtConfig,
-        googleConfig
-      ]
+        googleConfig,
+        storageConfig
+      ],
     }),
     UsersModule,
     PrismaModule,
     AuthModule,
-    RedisModule
+    RedisModule,
+    StorageModule
   ],
   
 })
