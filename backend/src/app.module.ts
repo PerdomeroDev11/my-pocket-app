@@ -14,6 +14,7 @@ import { RedisModule } from './redis/redis.module';
 import { StorageModule } from './storage/storage.module';
 import googleConfig from './config/google.config';
 import storageConfig from './config/storage.config';
+import { financialInstitutionsModule } from './modules/financial-institutions/financial-institutions.module';
 
 
 @Module({
@@ -37,7 +38,8 @@ import storageConfig from './config/storage.config';
     PrismaModule,
     AuthModule,
     RedisModule,
-    StorageModule
+    StorageModule,
+    financialInstitutionsModule,
   ],
   
 })
