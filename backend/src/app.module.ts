@@ -15,6 +15,7 @@ import { StorageModule } from './storage/storage.module';
 import googleConfig from './config/google.config';
 import storageConfig from './config/storage.config';
 import { financialInstitutionsModule } from './modules/financial-institutions/financial-institutions.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 
 
 @Module({
@@ -40,6 +41,7 @@ import { financialInstitutionsModule } from './modules/financial-institutions/fi
     RedisModule,
     StorageModule,
     financialInstitutionsModule,
+    CategoriesModule
   ],
   
 })

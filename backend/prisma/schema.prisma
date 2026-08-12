@@ -85,13 +85,13 @@ model User {
 
   sessions UserSession[]
   loginConfigurations LoginConfiguration[]
-  budgetSections BudgetSections[]
   financialPages FinancialPages[]
   financialInstitutions FinancialInstitutions[]
   userConsents UserConsent[]
   balanceAdjustments BalanceAdjustments[]
   balanceSections BalanceSection[]
   investmentAccounts investmentAccounts[]
+  categories Categories[]
 
 
   @@index([email])
@@ -133,20 +133,7 @@ model LoginConfiguration {
   @@map("login_configurations")
 }
 
-model BudgetSections {
-  id String @id @default(uuid()) @db.Uuid
-  userId String @db.Uuid @map("user_id")
-  name String
-  type String?
-  order Int?
-  isGlobalWorkforce Boolean? @default(false) @map("is_global_workforce")
-  createdAt DateTime @default(now()) @map("created_at")
 
-  categoriesItems CategoriesItems[]
-
-  user User @relation(fields: [userId], references: [id])
-  @@map("budget_sections")
-}
 
 model FinancialPages {
   id String @id @default(uuid()) @db.Uuid
@@ -209,22 +196,23 @@ model PayDays {
   @@map("paydays")
 }
 
-model CategoriesItems {
+model Categories {
   id String @id @default(uuid()) @db.Uuid
-  sectionId String @db.Uuid @map("section_id")
+  userId String @db.Uuid
   name String
-  expectedAmount Decimal? @default(0.0) @map("expected_amount")
   isRecurrent Boolean? @default(false) @map("is_recurrent")
-  order Int?
+  IsPermanent Boolean @default(false) @map("is_permanent")
+  status String @default("ACTIVE")
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("update_at")
 
   movements Movements[]
   balanceSections BalanceSection[]
   investmentAccounts investmentAccounts[]
+  
+  user User @relation(fields: [userId] , references: [id])
 
-  section BudgetSections @relation(fields: [sectionId], references: [id])
 
-  @@map("categories_items")
 }
 
 model BalanceAdjustments {
@@ -246,17 +234,19 @@ model BalanceAdjustments {
 model  Movements {
   id String @id @default(uuid()) @db.Uuid
   financialPageId String @db.Uuid @map("financial_page_id")
-  categoryItemId String @db.Uuid @map("category_item_id")
+  categoryId String @db.Uuid @map("category_id")
   institutionFinancialId String @db.Uuid @map("institution_financial_id")
   description String?
   amount Decimal @map("amount")
+  expectAmount Decimal? @map("expect_amount")
   receipUrl String? @map("receip_url")
   date DateTime @map("date")
+  isPay Boolean @default(false) @map("is_pay")
   typeMovement TypeMovement @map("type_movement")
   createdAt DateTime @default(now()) @map("created_at")
 
   financialPage FinancialPages @relation(fields: [financialPageId], references: [id])
-  categoryItem CategoriesItems @relation(fields: [categoryItemId], references: [id])
+  category Categories @relation(fields: [categoryId], references: [id])
   institutionFinancial FinancialInstitutions @relation(fields: [institutionFinancialId], references: [id])
 
   @@map("movements")
@@ -265,14 +255,14 @@ model  Movements {
 model BalanceSection {
   id  String @id @default(uuid()) @db.Uuid
   userId String @db.Uuid @map("user_id")
-  categoryItemId String @db.Uuid @map("category_item_id")
+  categoryId String @db.Uuid @map("category_item_id")
   name String
   balance Decimal @default(0.0)
   goalSavings Decimal? @default(0.0) @map("goal_savings")
   createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id])
-  categoryItem CategoriesItems @relation(fields: [categoryItemId], references: [id])
+  category Categories @relation(fields: [categoryId], references: [id])
 
   @@map("balance_sections")
 }
@@ -290,7 +280,7 @@ model investmentAccounts {
   movements MovementsInvestmentAccounts[]
 
   user User @relation(fields: [userId], references: [id])
-  categoryItem CategoriesItems @relation(fields: [categoryItemId], references: [id])
+  categoryItem Categories@relation(fields: [categoryItemId], references: [id])
 
   @@map("investment_accounts")
 }
