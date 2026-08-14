@@ -53,10 +53,6 @@ enum typeIntitution {
   BANK
   CASH
   CRYPTO
-  STOCKS
-  NEQUI
-  DAVIPLATA
-  OTHER
 }
 enum statusUser {
   ACTIVE
@@ -155,6 +151,7 @@ model FinancialPages {
 
   user User @relation(fields: [userId], references: [id])
 
+  @@index([id])
   @@index([userId])
   @@map("financial_pages")
 }
@@ -212,6 +209,8 @@ model Categories {
   
   user User @relation(fields: [userId] , references: [id])
 
+  @@index([id])
+  @@index([userId])
 
 }
 
@@ -235,7 +234,8 @@ model  Movements {
   id String @id @default(uuid()) @db.Uuid
   financialPageId String @db.Uuid @map("financial_page_id")
   categoryId String @db.Uuid @map("category_id")
-  institutionFinancialId String @db.Uuid @map("institution_financial_id")
+  institutionFinancialId String? @db.Uuid @map("institution_financial_id")
+  balanceSectionId String @db.Uuid @map("balance_section_id")
   description String?
   amount Decimal @map("amount")
   expectAmount Decimal? @map("expect_amount")
@@ -247,19 +247,24 @@ model  Movements {
 
   financialPage FinancialPages @relation(fields: [financialPageId], references: [id])
   category Categories @relation(fields: [categoryId], references: [id])
-  institutionFinancial FinancialInstitutions @relation(fields: [institutionFinancialId], references: [id])
+  institutionFinancial FinancialInstitutions? @relation(fields: [institutionFinancialId], references: [id])
+  balanceSection  BalanceSection @relation(fields: [balanceSectionId], references: [id])
 
+  @@index([categoryId])
+  @@index([date])
   @@map("movements")
 }
 
 model BalanceSection {
   id  String @id @default(uuid()) @db.Uuid
   userId String @db.Uuid @map("user_id")
-  categoryId String @db.Uuid @map("category_item_id")
+  categoryId String @db.Uuid @map("category_id")
   name String
   balance Decimal @default(0.0)
   goalSavings Decimal? @default(0.0) @map("goal_savings")
   createdAt DateTime @default(now()) @map("created_at")
+
+  movements Movements[]
 
   user User @relation(fields: [userId], references: [id])
   category Categories @relation(fields: [categoryId], references: [id])
