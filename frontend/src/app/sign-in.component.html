@@ -1,0 +1,19 @@
+<div class="auth-container">
+  <h2>Iniciar Sesión</h2>
+  
+  <form [formGroup]="signInForm" (ngSubmit)="onSubmit()">
+    <div>
+      <label>Email:</label>
+      <input type="email" formControlName="email" placeholder="ejemplo@correo.com">
+    </div>
+
+    <div>
+      <label>Contraseña:</label>
+      <input type="password" formControlName="password" placeholder="Tu contraseña">
+    </div>
+
+    <button type="submit" [disabled]="signInForm.invalid">Ingresar</button>
+  </form>
+
+  <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+</div>

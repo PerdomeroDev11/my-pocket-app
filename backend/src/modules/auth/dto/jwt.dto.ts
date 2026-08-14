@@ -1,6 +1,7 @@
-import {IsString,IsDate ,MinLength, IsNotEmpty, Length, IsInt} from 'class-validator'
+import {IsString,IsDate ,MinLength, IsNotEmpty, Length, IsInt, IsEnum} from 'class-validator'
 import { NormalizedEmail } from '@/common/decorator/normalized-email.decorator'
 import { RulesPassword } from '@/common/decorator/rules-password.decorator'
+import { typePeriod } from '@generated/prisma/enums'
 
 export class GenerateTokenDto{
     @IsString()
@@ -66,6 +67,16 @@ export class CreateUserPendingDto {
     code!: string
     @IsString()
     password!: string
+    @IsString()
+    timeZone?: string
+    @IsString()
+    language?: string
+    @IsString()
+    country?: string
+    @IsString()
+    currency!: string
+    @IsEnum(typePeriod)
+    typePeriod!: typePeriod
     @IsDate()
     expireAt!: Date
 }

@@ -53,7 +53,7 @@ export class AuthController {
         })
         return {message: 'Google login successful'}
     }
-    @Post('sing-up')
+    @Post('sign-up')
     async singUp(
         @Body() dto: CreateUserPendingDto
     ) {
@@ -94,7 +94,7 @@ export class AuthController {
 
         return {message: 'verified user, successful access'}
     }
-    @Post('sing-in')
+    @Post('sign-in')
     async singIn (
         @Body() dto:SingInDto,
         @Req() req: Request,

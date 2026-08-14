@@ -64,18 +64,29 @@ enum statusSession {
   ON
   OFF
 }
+enum nameBalance {
+  AVAILABLE
+  TOTAL
+  SAVINGS
+  INVESTMENTS
+  GOALSAVING
+}
+
 
 model User {
   id     String @id @default(uuid()) @db.Uuid
   name String
   email String @unique
   password String?
+  typePeriod typePeriod? @map("type_period")
   profilePicture String? @map("profile_picture")
   verifyEmail Boolean @default(false) @map("verify_email")
   timeZone String? @default("BOG") @map("time_zone")
   googleId String? @unique @map("google_id")
   status statusUser? @default(ACTIVE)
-  language String? @default("es")
+  language String? @default("ES")
+  country String? @default("COL")
+  currency String? @default("COP")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
 
@@ -134,22 +145,22 @@ model LoginConfiguration {
 model FinancialPages {
   id String @id @default(uuid()) @db.Uuid
   userId String @db.Uuid @map("user_id")
+  balanceSectionId String @db.Uuid @map("balance_section_id")
   startDate DateTime @map("start_date")
   endDate DateTime @map("end_date")
   typePeriod String @map("type_period")
   status statusPage? @default(ACTIVE)
   totalIncome Decimal? @default(0.0) @map("total_income")
   totalExpenses Decimal? @default(0.0) @map("total_expenses")
-  balance Decimal? @default(0.0)
-  startBalance Decimal? @default(0.0) @map("start_balance")
-  endBalance Decimal? @default(0.0) @map("end_balance")
   closedAt DateTime? @map("closed_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   balanceAdjustments BalanceAdjustments[]
   movements Movements[]
 
 
   user User @relation(fields: [userId], references: [id])
+  balanceSection BalanceSection @relation(fields: [balanceSectionId], references: [id])
 
   @@index([id])
   @@index([userId])
@@ -259,12 +270,13 @@ model BalanceSection {
   id  String @id @default(uuid()) @db.Uuid
   userId String @db.Uuid @map("user_id")
   categoryId String @db.Uuid @map("category_id")
-  name String
+  nameBalance nameBalance @map("name_balance")
   balance Decimal @default(0.0)
-  goalSavings Decimal? @default(0.0) @map("goal_savings")
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt
 
   movements Movements[]
+  financialPages FinancialPages[]
 
   user User @relation(fields: [userId], references: [id])
   category Categories @relation(fields: [categoryId], references: [id])

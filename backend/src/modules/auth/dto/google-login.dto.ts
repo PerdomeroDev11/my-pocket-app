@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator'
+import { isEnum, IsNotEmpty, IsString } from 'class-validator'
 
 export class GoogleLoginDto{
     @IsString()

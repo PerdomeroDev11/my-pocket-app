@@ -1,0 +1,25 @@
+<div class="auth-container">
+  <h2>Crear Cuenta</h2>
+  
+  <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
+    <div>
+      <label>Nombre:</label>
+      <input type="text" formControlName="name" placeholder="Tu nombre">
+    </div>
+
+    <div>
+      <label>Email:</label>
+      <input type="email" formControlName="email" placeholder="ejemplo@correo.com">
+    </div>
+
+    <div>
+      <label>Contraseña:</label>
+      <input type="password" formControlName="password" placeholder="Mínimo 6 caracteres">
+    </div>
+
+    <button type="submit" [disabled]="signUpForm.invalid">Registrarse</button>
+  </form>
+
+  <p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+  <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+</div>

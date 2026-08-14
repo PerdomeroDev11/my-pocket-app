@@ -26,7 +26,8 @@ export class AuthGoogleService {
                 name: payload.name,
                 email: payload.email,
                 googleId: payload.sub,
-                avatar: payload.picture
+                avatar: payload.picture,
+                language: payload.locale
             }
         }catch(err){
             throw new UnauthorizedException('the token could not be verified')

@@ -22,6 +22,7 @@ import { use } from "passport";
 import { date } from "joi";
 import { GoogleLoginDto } from "./dto/google-login.dto";
 import { AuthGoogleService } from "./ google-auth.service";
+import { typePeriod } from "@generated/prisma/enums";
 
 
 @Injectable()
@@ -146,7 +147,9 @@ export class AuthService {
                     email: googleData.email,
                     googleId: googleData.googleId,
                     verifyEmail: true,
-                    profilePicture: googleData.avatar
+                    profilePicture: googleData.avatar,
+                    language: (googleData as any).language || 'es',
+                    country: ipAddress
                 }
             });
             user = created
@@ -184,7 +187,12 @@ export class AuthService {
             name: dto.name,
             email: dto.email,
             password: passwordHash,
-            code: randomCode
+            code: randomCode,
+            timeZone: dto.timeZone,
+            language: dto.language,
+            country: dto.country,
+            currency: dto.currency,
+            typePeriod: dto.typePeriod
         }
         const ttlSeconds = 15 * 60;
         await this.sentCodeVerification('verifyEmail' , pedingData.email , pedingData)
@@ -197,7 +205,18 @@ export class AuthService {
         console.log(raw)
         if(!raw) throw new BadRequestException('the code not exit or expire')
         
-        const pedingData: {name: string , email:string , password: string , code:string , expireAt: Date}  = JSON.parse(raw)
+        const pedingData: {
+            name: string , 
+            email:string , 
+            password: string , 
+            code:string , 
+            expireAt: Date , 
+            timeZone:string , 
+            language: string , 
+            country:string , 
+            currency: string,
+            typePeriod: typePeriod
+        }  = JSON.parse(raw)
 
         if(pedingData.code != dto.code) throw new BadRequestException('code incorrect')
 
@@ -206,6 +225,11 @@ export class AuthService {
                 name: pedingData.name,
                 email: pedingData.email,
                 password: pedingData.password,
+                timeZone: pedingData.timeZone,
+                language: pedingData.language,
+                country: pedingData.country,
+                currency: pedingData.currency,
+                typePeriod: pedingData.typePeriod
             }
         })
 

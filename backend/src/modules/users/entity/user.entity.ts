@@ -4,7 +4,8 @@ import {
     User ,
     statusUser,
     UserSession,
-    statusSession
+    statusSession,
+    typePeriod
 } from '@generated/prisma/client';
 
 export class UserResponseEntity implements Omit<User, 'password' |  'googleId'  | 'id'> {
@@ -14,10 +15,12 @@ export class UserResponseEntity implements Omit<User, 'password' |  'googleId'  
   profilePicture!: string | null;
   timeZone!: string | null;
   status!: statusUser ;
-  language!: string | null
-  ;
+  language!: string | null;
   createdAt!: Date;
-  updatedAt!: Date  ;
+  updatedAt!: Date;
+  country!: string | null;
+  currency!: string | null;
+  typePeriod!: typePeriod | null;
 
   @Exclude()
   password?: string ;
