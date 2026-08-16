@@ -26,11 +26,12 @@ export class CategoriesController {
     ){
         return await this.categoriesService.createCategory(dto, userId);
     }
-    @Get()
+    @Get('/page/:padeId')
     async getAllCategories(
-        @CurrentUser('sub') userId:string
+        @CurrentUser('sub') userId:string,
+        @Param(':pageId') pageId: string
     ){
-        return await this.categoriesService.showCategories(userId)
+        return await this.categoriesService.showCategories(userId ,pageId )
     }
     @Put(':id')
     async updateCategory(

@@ -1,14 +1,14 @@
-import { IsBoolean, IsDate, IsDateString, IsDecimal, IsEnum, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
+import { IsBoolean, IsDate, IsDateString, IsDecimal, IsEnum, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
 import { TypeMovement } from '@generated/prisma/enums'
 
 export class CreateMovementsDto{
     @IsString()
     desciption?: string
-    @IsDecimal()
+    @IsNumber({maxDecimalPlaces: 2})
     @IsOptional()
     @IsPositive()
     amount!: number
-    @IsDecimal()
+    @IsNumber({maxDecimalPlaces: 2})
     @IsOptional()
     @IsPositive()
     expectAmount?: number

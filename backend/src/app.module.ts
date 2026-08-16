@@ -17,6 +17,7 @@ import storageConfig from './config/storage.config';
 import { financialInstitutionsModule } from './modules/financial-institutions/financial-institutions.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { MovementsModule } from './modules/movements/movements.module';
+import { FinanacialPagesModule } from './modules/financials-pages/financial-page.module';
 
 
 @Module({
@@ -43,7 +44,8 @@ import { MovementsModule } from './modules/movements/movements.module';
     StorageModule,
     financialInstitutionsModule,
     CategoriesModule,
-    MovementsModule
+    MovementsModule,
+    FinanacialPagesModule
   ],
   
 })

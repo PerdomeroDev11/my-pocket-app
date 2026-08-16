@@ -18,7 +18,8 @@ datasource db {
 enum TypeMovement {
   INCOME
   EXPENSE
-  TRANSFER
+  SAVING
+  INVESTMENT
 }
 
 enum typePeriod {
@@ -145,13 +146,13 @@ model LoginConfiguration {
 model FinancialPages {
   id String @id @default(uuid()) @db.Uuid
   userId String @db.Uuid @map("user_id")
-  balanceSectionId String @db.Uuid @map("balance_section_id")
+  name String
   startDate DateTime @map("start_date")
-  endDate DateTime @map("end_date")
-  typePeriod String @map("type_period")
+  endDate DateTime? @map("end_date")
   status statusPage? @default(ACTIVE)
   totalIncome Decimal? @default(0.0) @map("total_income")
   totalExpenses Decimal? @default(0.0) @map("total_expenses")
+  
   closedAt DateTime? @map("closed_at")
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -160,7 +161,6 @@ model FinancialPages {
 
 
   user User @relation(fields: [userId], references: [id])
-  balanceSection BalanceSection @relation(fields: [balanceSectionId], references: [id])
 
   @@index([id])
   @@index([userId])
@@ -209,7 +209,6 @@ model Categories {
   userId String @db.Uuid
   name String
   isRecurrent Boolean? @default(false) @map("is_recurrent")
-  IsPermanent Boolean @default(false) @map("is_permanent")
   status String @default("ACTIVE")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("update_at")
@@ -276,7 +275,6 @@ model BalanceSection {
   updatedAt DateTime @updatedAt
 
   movements Movements[]
-  financialPages FinancialPages[]
 
   user User @relation(fields: [userId], references: [id])
   category Categories @relation(fields: [categoryId], references: [id])

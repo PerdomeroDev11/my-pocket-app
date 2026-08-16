@@ -17,7 +17,6 @@ export class CategoriesService {
                 userId,
                 name: cat.name,
                 isRecurrent: cat.isRecurrent,
-                isPermament: cat.isPermament
             }))
         })
     }
@@ -25,13 +24,13 @@ export class CategoriesService {
     async createCategory(dto: CreateCategoryDto ,userId: string){
        const category = await this.prisma.categories.create({
         data:{
-            userId,
-            ...dto
+            ...dto,
+            userId
         }
-       });
+       })
        if(!category) throw new BadRequestException('there was an error to create a new category')
        const categoryString = JSON.stringify(category)
-       await this.redis.set(`category:${category.id}`, categoryString)
+       await this.redis.del(`category:${category.id}`)
        return category
     }
     async updateCategory(dto: UpdateCategoryDto , id:string, userId:string){
@@ -46,12 +45,19 @@ export class CategoriesService {
         await this.redis.set(`category:${id}` , updateCategoryString)
         return updateCategory       
     }
-    async showCategories(userId: string){
-        const raw = await this.redis.get(`category:${userId}`)
-        if(raw) return JSON.parse(raw)
+    async showCategories(userId: string , financialPageId: string){
+        const cacheData = await this.redis.get(`category:${userId}`)
+        if(cacheData) return JSON.parse(cacheData)
         const categories = await this.prisma.categories.findMany({
-            where:{userId: userId}
+            where:{userId: userId, status: 'ACTIVE'},
+            include:{
+                movements:{
+                    where:{financialPageId}
+                }
+            },
+            orderBy:{createdAt: 'asc'}
         })
+        await this.redis.set(`category:${userId}` , JSON.stringify(categories))
         return categories
     }
     async solfDelete(userId: string , id:string){

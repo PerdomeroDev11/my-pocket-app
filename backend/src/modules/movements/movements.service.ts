@@ -1,4 +1,4 @@
-import { Injectable, Inject, BadRequestException, NotFoundException, ForbiddenException } from "@nestjs/common";
+import { Injectable, Inject, BadRequestException, NotFoundException, ForbiddenException, NotImplementedException } from "@nestjs/common";
 import { PrismaService } from "@/prisma-config/prisma.service";
 import Redis from "ioredis";
 import { CreateMovementsDto } from "./dto/create-movements.dto";
@@ -6,6 +6,7 @@ import { UpdateMovementsDto } from "./dto/update-movements.dto";
 import { FindMovementsQueryDto } from "./dto/find-movements.dto";
 import { ImageProcessorService } from "@/storage/image-processor.service";
 import { StorageService } from "@/storage/storage.service";
+import { Prisma } from "@generated/prisma/client";
 
 @Injectable()
 export class MovementsService {
@@ -24,21 +25,23 @@ export class MovementsService {
         balanceSectionId: string
     ) {
         await this.verifyCategoryOwnership(categoryId, userId);
-        const newMovement = await this.prisma.movements.create({
-            data: {
-                ...dto,
+        const createNewMovement = await this.prisma.movements.create({
+            data:{
                 financialPageId: pageId,
-                categoryId: categoryId,
-                balanceSectionId: balanceSectionId
+                    categoryId: categoryId,
+                    balanceSectionId: balanceSectionId,
+                    institutionFinancialId: dto.institutionFinancialId,
+                    amount: dto.amount,
+                    expectAmount: dto.expectAmount,
+                    date: new Date(),
+                    typeMovement: dto.typeMovement
             }
-        });
+        })
+        await this.logicCreatedMovement( categoryId , pageId , balanceSectionId);
+        await this.redis.del(`movements:${userId}:${createNewMovement.financialPageId}`);
+        await this.redis.del(`movement:${createNewMovement.id}`);
 
-        if (!newMovement) throw new BadRequestException('There was an error creating a new movement');
-
-        await this.redis.del(`movements:${userId}:${pageId}`);
-        await this.redis.del(`verifyCategory:${categoryId}`);
-
-        return newMovement;
+        return createNewMovement;
     }
 
     async updateMovement(
@@ -51,83 +54,22 @@ export class MovementsService {
         const proccessed = await this.imaggeProccess.processReceipt(file.buffer);
         const url = await this.storageService.upload(proccessed , `avatars/${userId}`)
         
-        const updateMovement = await this.prisma.$transaction(async (tx) => {
-            let newIsPay = movements.isPay;
-
-            if (dto.isPay !== undefined && dto.isPay !== movements.isPay) {
-                newIsPay = dto.isPay;
-                const amount = movements.amount;
-
-                if (movements.typeMovement === 'EXPENSE') {
-                    if (newIsPay) {
-                        await tx.balanceSection.update({
-                            where: { id: movements.balanceSectionId },
-                            data: { balance: { decrement: amount } }
-                        });
-                        if (movements.institutionFinancialId) {
-                            await tx.financialInstitutions.update({
-                                where: { id: movements.institutionFinancialId },
-                                data: { balanceNow: { decrement: amount } }
-                            });
-                        }
-                    } else {
-                        await tx.balanceSection.update({
-                            where: { id: movements.balanceSectionId },
-                            data: { balance: { increment: amount } }
-                        });
-                        if (movements.institutionFinancialId) {
-                            await tx.financialInstitutions.update({
-                                where: { id: movements.institutionFinancialId },
-                                data: { balanceNow: { increment: amount } }
-                            });
-                        }
-                    }
-                }
-
-                if (movements.typeMovement === 'INCOME') {
-                    if (newIsPay) {
-                        await tx.balanceSection.update({
-                            where: { id: movements.balanceSectionId },
-                            data: { balance: { increment: amount } }
-                        });
-                        if (movements.institutionFinancialId) {
-                            await tx.financialInstitutions.update({
-                                where: { id: movements.institutionFinancialId },
-                                data: { balanceNow: { increment: amount } }
-                            });
-                        }
-                    } else {
-                        await tx.balanceSection.update({
-                            where: { id: movements.balanceSectionId },
-                            data: { balance: { decrement: amount } }
-                        });
-                        if (movements.institutionFinancialId) {
-                            await tx.financialInstitutions.update({
-                                where: { id: movements.institutionFinancialId },
-                                data: { balanceNow: { decrement: amount } }
-                            });
-                        }
-                    }
-                }
+        const update = await this.prisma.movements.update({
+            where:{id: movements.id },
+            data:{
+                ...dto,
+                receipUrl: url
             }
-
-            const updated = await tx.movements.update({
-                where: { id },
-                data: {
-                    ...dto,
-                    isPay: newIsPay,
-                    receipUrl: url
-                }
-            });
-            return updated;
         });
+       await this.updateIsPaied(userId , dto , id)
+        
 
-        if (!updateMovement) throw new BadRequestException('There was an error updating the movement');
+        if (!update) throw new BadRequestException('There was an error updating the movement');
 
         await this.redis.del(`movements:${userId}:${movements.financialPageId}`);
         await this.redis.del(`movement:${id}`);
 
-        return updateMovement;
+        return update;
     }
 
     async getMovements(pageId: string, query: FindMovementsQueryDto, userId: string) {
@@ -154,26 +96,22 @@ export class MovementsService {
             },
             orderBy: { date: 'desc' }
         });
-
+        if(!movements) throw new BadRequestException('there was an error to get movements')
         await this.redis.set(cacheKey, JSON.stringify(movements));
         return movements;
     }
 
-    async deleteMovement(id: string, pageId: string, categoryId: string, userId: string) {
+    async deleteMovement(id: string, userId: string , dto:UpdateMovementsDto , pageId:string , categoryId:string) {
         const movement = await this.findAndVerifyOwnership(id, userId);
-        
-        await this.prisma.movements.delete({
-            where: {
-                id,
-                financialPageId: pageId,
-                categoryId: categoryId
-            }
-        });
+        await this.deleteIsPaied(userId , dto , id)
+        const deleteMovement = await this.prisma.movements.delete({
+            where:{id:movement.id , financialPageId: pageId, categoryId:categoryId}
+        })
 
         await this.redis.del(`movements:${userId}:${pageId}`);
         await this.redis.del(`movement:${id}`);
 
-        return { message: 'Movement deleted successfully' };
+        return { message: 'Movement deleted successfully' , deleteMovement };
     }
 
     private async findAndVerifyOwnership(id: string, userId: string) {
@@ -217,5 +155,249 @@ export class MovementsService {
 
         await this.redis.set(cacheKey, JSON.stringify(category));
         return category;
+    }
+    private async logicCreatedMovement(
+        categoryId: string, 
+        pageId: string, 
+        balanceSectionId: string
+    ){
+        const newMovement = await this.prisma.$transaction(async (tx) => {
+            const financialPage = await tx.financialPages.findUnique({where:{id: pageId}})
+
+            if(!financialPage) throw new NotFoundException('financial page not found')
+
+                const incomeAggregate = await tx.movements.aggregate({
+                    where:{
+                        financialPageId : pageId ,
+                        categoryId: categoryId, 
+                        typeMovement: 'INCOME'
+                    },
+                    _sum: {
+                        amount: true
+                    }
+                });
+
+                const expenseAggregate = await tx.movements.aggregate({
+                    where:{
+                        financialPageId: pageId,
+                        categoryId: categoryId,
+                        typeMovement: 'EXPENSE',
+                        isPay: true
+                    },
+                    _sum:{amount:true}
+                })
+
+                const savingAggregate = await tx.movements.aggregate({
+                    where:{
+                        financialPageId: pageId,
+                        categoryId: categoryId,
+                        typeMovement: 'SAVING',
+                        isPay:true
+                    },
+                    _sum:{amount:true}
+                })
+                const totalIncome =  incomeAggregate._sum.amount ?? new Prisma.Decimal(0)
+                const totalExpenses = expenseAggregate._sum.amount ?? new Prisma.Decimal(0)
+                const totalSavings = savingAggregate._sum.amount ?? new Prisma.Decimal(0)
+
+                if(!totalIncome && !totalExpenses && !totalSavings) throw new BadRequestException('sss')
+
+                await tx.financialPages.update({
+                    where:{id: pageId},
+                    data:{
+                        totalIncome:  totalIncome,
+                        totalExpenses: totalExpenses,
+                    }
+                })
+        });
+        return{
+            message: 'movement correctly synchronized',
+            movement: newMovement
+        }
+    }
+    private async updateIsPaied(userId:string , dto: UpdateMovementsDto , id: string){
+        const movements = await this.findAndVerifyOwnership(id, userId);
+        const updateLogic = await this.prisma.$transaction(async (tx) => {
+            let newIsPay: boolean = movements.isPay;
+
+            if (dto.isPay !== undefined && dto.isPay !== movements.isPay) {
+                newIsPay = dto.isPay;
+                let delta:Prisma.Decimal  = movements.amount;
+                const institutoId = movements.financialInstitutionId;
+                const balanceSectionId = movements.balanceSectionId;
+
+                if(newIsPay){
+                    if(dto.typeMovement === 'EXPENSE'){
+                        delta = delta.negated()
+                        await tx.balanceSection.update({
+                            where:{userId: userId , id:balanceSectionId , nameBalance: 'AVAILABLE'},
+                            data:{balance: {decrement: delta}}
+                        })
+                        await tx.balanceSection.update({
+                            where:{userId , id: institutoId , nameBalance: 'TOTAL'},
+                            data:{balance:{decrement : delta}}
+                        })
+                    
+                        if(institutoId){
+                            await tx.financialInstitutions.update({
+                                where:{ userId , id: institutoId },
+                                data:{balanceNow: {decrement: delta}}
+                            })
+                        }
+                    }
+                    if(dto.typeMovement === 'SAVING'){
+                        await tx.balanceSection.update({
+                            where:{userId , id: balanceSectionId , nameBalance: 'SAVINGS'},
+                            data:{balance: {increment: delta}}
+                        })
+                        await tx.balanceSection.update({
+                            where:{userId: userId , id:balanceSectionId , nameBalance: 'AVAILABLE'},
+                            data:{balance: {decrement: delta}}
+                        })
+                        await tx.balanceSection.update({
+                            where:{userId , id: institutoId , nameBalance: 'TOTAL'},
+                            data:{balance:{increment : delta}}
+                        })
+                        if(institutoId){
+                            await tx.financialInstitutions.update({
+                                where:{ userId , id: institutoId },
+                                data:{balanceNow: {decrement: delta}}
+                            })
+                        }
+                    }
+
+                    if(dto.typeMovement === 'INVESTMENT'){
+                    
+                        await tx.balanceSection.update({
+                            where:{userId: userId , id:balanceSectionId , nameBalance: 'AVAILABLE'},
+                            data:{balance: {decrement: delta}}
+                        })
+                        await tx.balanceSection.update({
+                            where:{userId , id: balanceSectionId , nameBalance: 'INVESTMENTS'},
+                            data:{balance: {increment: delta}}
+                        })
+                        await tx.balanceSection.update({
+                            where:{userId , id: institutoId , nameBalance: 'TOTAL'},
+                            data:{balance:{increment : delta}}
+                        })
+                        if(institutoId){
+                            await tx.financialInstitutions.update({
+                                where:{ userId , id: institutoId },
+                                data:{balanceNow: {decrement: delta}}
+                            })
+                        }
+                    }
+                    if(dto.typeMovement === 'INCOME'){
+                        await tx.balanceSection.update({
+                            where:{userId: userId , id:balanceSectionId , nameBalance: 'AVAILABLE'},
+                            data:{balance:{increment: delta}}
+                        })
+                        await tx.balanceSection.update({
+                            where:{userId , id: institutoId , nameBalance: 'TOTAL'},
+                            data:{balance:{increment : delta}}
+                        })
+                        if(institutoId){
+                            await tx.financialInstitutions.update({
+                                where:{ userId , id: institutoId },
+                                data:{balanceNow: {decrement: delta}}
+                            })
+                        }
+                    }
+                }  
+            }
+        });
+        return updateLogic
+    }
+    private async deleteIsPaied (userId:string, dto: UpdateMovementsDto , id:string){
+         const movements = await this.findAndVerifyOwnership(id, userId);
+        const deleteLogic = await this.prisma.$transaction(async (tx) => {
+            let newIsPay: boolean = movements.isPay;
+
+            if (dto.isPay !== undefined && dto.isPay !== movements.isPay) {
+                newIsPay = dto.isPay;
+                let delta:Prisma.Decimal  = movements.amount;
+                const institutoId = movements.financialInstitutionId;
+                const balanceSectionId = movements.balanceSectionId;
+
+                if(newIsPay){
+                    if(dto.typeMovement === 'EXPENSE'){
+                        await tx.balanceSection.update({
+                            where:{userId: userId , id:balanceSectionId , nameBalance: 'AVAILABLE'},
+                            data:{balance: {increment: delta}}
+                        })
+                        await tx.balanceSection.update({
+                            where:{userId , id: institutoId , nameBalance: 'TOTAL'},
+                            data:{balance:{increment : delta}}
+                        })
+                    
+                        if(institutoId){
+                            await tx.financialInstitutions.update({
+                                where:{ userId , id: institutoId },
+                                data:{balanceNow: {increment: delta}}
+                            })
+                        }
+                    }
+                    if(dto.typeMovement === 'SAVING'){
+                        await tx.balanceSection.update({
+                            where:{userId , id: balanceSectionId , nameBalance: 'SAVINGS'},
+                            data:{balance: {decrement: delta}}
+                        })
+                        await tx.balanceSection.update({
+                            where:{userId: userId , id:balanceSectionId , nameBalance: 'AVAILABLE'},
+                            data:{balance: {increment: delta}}
+                        })
+                        await tx.balanceSection.update({
+                            where:{userId , id: institutoId , nameBalance: 'TOTAL'},
+                            data:{balance:{decrement : delta}}
+                        })
+                        if(institutoId){
+                            await tx.financialInstitutions.update({
+                                where:{ userId , id: institutoId },
+                                data:{balanceNow: {increment: delta}}
+                            })
+                        }
+                    }
+
+                    if(dto.typeMovement === 'INVESTMENT'){
+                    
+                        await tx.balanceSection.update({
+                            where:{userId: userId , id:balanceSectionId , nameBalance: 'AVAILABLE'},
+                            data:{balance: {increment: delta}}
+                        })
+                        await tx.balanceSection.update({
+                            where:{userId , id: balanceSectionId , nameBalance: 'INVESTMENTS'},
+                            data:{balance: {decrement: delta}}
+                        })
+                        await tx.balanceSection.update({
+                            where:{userId , id: institutoId , nameBalance: 'TOTAL'},
+                            data:{balance:{decrement : delta}}
+                        })
+                        if(institutoId){
+                            await tx.financialInstitutions.update({
+                                where:{ userId , id: institutoId },
+                                data:{balanceNow: {increment: delta}}
+                            })
+                        }
+                    }
+                    if(dto.typeMovement === 'INCOME'){
+                        await tx.balanceSection.update({
+                            where:{userId: userId , id:balanceSectionId , nameBalance: 'AVAILABLE'},
+                            data:{balance:{decrement: delta}}
+                        })
+                        await tx.balanceSection.update({
+                            where:{userId , id: institutoId , nameBalance: 'TOTAL'},
+                            data:{balance:{decrement : delta}}
+                        })
+                        if(institutoId){
+                            await tx.financialInstitutions.update({
+                                where:{ userId , id: institutoId },
+                                data:{balanceNow: {increment: delta}}
+                            })
+                        }
+                    }
+                }  
+            }return 
+        });
+        return deleteLogic
     }
 }
