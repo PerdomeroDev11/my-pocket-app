@@ -214,7 +214,6 @@ model Categories {
   updatedAt DateTime @updatedAt @map("update_at")
 
   movements Movements[]
-  balanceSections BalanceSection[]
   investmentAccounts investmentAccounts[]
   
   user User @relation(fields: [userId] , references: [id])
@@ -268,7 +267,6 @@ model  Movements {
 model BalanceSection {
   id  String @id @default(uuid()) @db.Uuid
   userId String @db.Uuid @map("user_id")
-  categoryId String @db.Uuid @map("category_id")
   nameBalance nameBalance @map("name_balance")
   balance Decimal @default(0.0)
   createdAt DateTime @default(now()) @map("created_at")
@@ -277,7 +275,6 @@ model BalanceSection {
   movements Movements[]
 
   user User @relation(fields: [userId], references: [id])
-  category Categories @relation(fields: [categoryId], references: [id])
 
   @@map("balance_sections")
 }

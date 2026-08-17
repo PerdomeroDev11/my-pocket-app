@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Param, Post} from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards} from "@nestjs/common";
 import { FinancialsPagesService } from "./financials-pages.service";
 import { CreateFinancialPageDto } from "./dto/create-financial-page";
 import { CurrentUser } from "@/common/decorator/current-user.decorator";
+import { JwtAuthGuard } from "../auth/guards/jwt.guard";
 
 @Controller('financial-pages')
+@UseGuards(JwtAuthGuard)
 export class FinancialPagesController{
     constructor (private financialPageService: FinancialsPagesService){}
 

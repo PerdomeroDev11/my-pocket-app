@@ -18,6 +18,7 @@ import { financialInstitutionsModule } from './modules/financial-institutions/fi
 import { CategoriesModule } from './modules/categories/categories.module';
 import { MovementsModule } from './modules/movements/movements.module';
 import { FinanacialPagesModule } from './modules/financials-pages/financial-page.module';
+import { BalanceSectionModule } from './modules/balance-section/balance-section.module';
 
 
 @Module({
@@ -45,7 +46,8 @@ import { FinanacialPagesModule } from './modules/financials-pages/financial-page
     financialInstitutionsModule,
     CategoriesModule,
     MovementsModule,
-    FinanacialPagesModule
+    FinanacialPagesModule,
+    BalanceSectionModule
   ],
   
 })

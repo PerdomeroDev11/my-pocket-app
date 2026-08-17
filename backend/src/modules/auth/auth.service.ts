@@ -18,12 +18,10 @@ import { ResendService } from "@/resend/resend.service";
 import Redis from "ioredis";
 import { TokenBlackListService } from "@/redis/token-blackList.service";
 import { ForgotPasswordDto} from "./dto/jwt-update";
-import { use } from "passport";
-import { date } from "joi";
 import { GoogleLoginDto } from "./dto/google-login.dto";
 import { AuthGoogleService } from "./ google-auth.service";
 import { typePeriod } from "@generated/prisma/enums";
-
+import { DEFAULT_BALANCE_SECTION } from "@/common/constants/balance-section";
 
 @Injectable()
 export class AuthService {
@@ -232,7 +230,12 @@ export class AuthService {
                 typePeriod: pedingData.typePeriod
             }
         })
-
+        await this.prisma.balanceSection.createMany({
+                    data: DEFAULT_BALANCE_SECTION.map((section) => ({
+                        userId: user.id,
+                        nameBalance: section.nameBalance
+                    }))
+                })
         await  this.redis.del(`verifyEmail:${dto.email}`)
         
         return await this.session({userId: user.id ,email: user.email, userAgent:userAgent ,ip:ip} )
