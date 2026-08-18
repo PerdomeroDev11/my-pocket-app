@@ -29,3 +29,8 @@ export interface User {
 export interface GoogleLoginDto{
   idToken: string
 }
+export interface RefreshTokenDto{
+  userId: string;
+  email: string;
+  sessionId: string
+}

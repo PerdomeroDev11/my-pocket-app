@@ -34,7 +34,7 @@ export class AuthService {
         private googleAuthService: AuthGoogleService,
         @Inject('REDIS_CLIENT') private readonly redis: Redis
     ){}
-    private async generateTokens (dto: GenerateTokenDto):Promise<{accessToken:string , refreshToken:string}>{
+    async generateTokens (dto: GenerateTokenDto):Promise<{accessToken:string , refreshToken:string}>{
         const accessToken = this.jwtService.sign(
             {
                 sub: dto.userId,

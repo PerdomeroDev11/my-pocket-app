@@ -4,7 +4,8 @@ import {
     PayloadValidateDto,
     SingInDto,
     VerifyEmailDto,
-    SentEmailDto
+    SentEmailDto,
+    GenerateTokenDto
 } from "./dto/jwt.dto";
 import { AuthService } from "./auth.service";
 import { type Request , type Response} from "express";
@@ -12,8 +13,8 @@ import { ConfigService } from "@nestjs/config";
 import { JwtAuthGuard } from "./guards/jwt.guard";
 import { CurrentUser } from "@/common/decorator/current-user.decorator";
 import { ForgotPasswordDto} from "./dto/jwt-update";
-import { GoogleAuth } from "google-auth-library";
 import { GoogleLoginDto } from "./dto/google-login.dto";
+import { JwtRefreshGuard } from "./guards/jwt-refresh.guard";
 
 @Controller('auth')
 export class AuthController {
@@ -41,7 +42,7 @@ export class AuthController {
             httpOnly: true,
             secure: isProd,
             sameSite: 'strict',
-            maxAge: 1000 * 60 * 15// 15 minutes
+            maxAge: 1000 * 60 * 15
 
         });
 
@@ -49,7 +50,7 @@ export class AuthController {
             httpOnly: true,
             secure: isProd,
             sameSite: 'strict',
-            maxAge: 1000 * 60 * 60 *24 * 7 // 7 days
+            maxAge: 1000 * 60 * 60 *24 * 7 
         })
         return {message: 'Google login successful'}
     }
@@ -81,7 +82,7 @@ export class AuthController {
             httpOnly: true,
             secure: isProd,
             sameSite: 'strict',
-            maxAge: 1000 * 60 * 15// 15 minutes
+            maxAge: 1000 * 60 * 15
 
         });
 
@@ -89,7 +90,7 @@ export class AuthController {
             httpOnly: true,
             secure: isProd,
             sameSite: 'strict',
-            maxAge: 1000 * 60 * 60 *24 * 7 // 7 days
+            maxAge: 1000 * 60 * 60 *24 * 7 
         })
 
         return {message: 'verified user, successful access'}
@@ -114,7 +115,7 @@ export class AuthController {
             httpOnly: true,
             secure: isProd,
             sameSite: 'strict',
-            maxAge: 1000 * 60 * 15// 15 minutes
+            maxAge: 1000 * 60 * 15
 
         });
 
@@ -122,10 +123,30 @@ export class AuthController {
             httpOnly: true,
             secure: isProd,
             sameSite: 'strict',
-            maxAge: 1000 * 60 * 60 *24 * 7 // 7 days
+            maxAge: 1000 * 60 * 60 *24 * 7 
         })
 
         return {message: 'successful sing In '}
+    }
+    @UseGuards(JwtRefreshGuard)
+    @Post('refresh')
+    async refresh (
+        @CurrentUser('sub' ,'email' , 'sessionId') dto: GenerateTokenDto,
+        @Res({passthrough: true})  res: Response
+    ){
+        const {accessToken} = await this.authService.generateTokens(dto)
+        const isProd : boolean = this.configService.get('app.nodeEnv') === 'production'
+        res.cookie('access_token' , accessToken , {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000
+        });
+
+        return {
+            success: true,
+            message: 'successlly token refresh'
+        }
     }
     @Post('logout')
     @UseGuards(JwtAuthGuard)
