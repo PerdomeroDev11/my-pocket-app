@@ -7,6 +7,7 @@ import { FindMovementsQueryDto } from "./dto/find-movements.dto";
 import { ImageProcessorService } from "@/storage/image-processor.service";
 import { StorageService } from "@/storage/storage.service";
 import { Prisma } from "@generated/prisma/client";
+import { Movements } from "@generated/prisma/browser";
 
 @Injectable()
 export class MovementsService {
@@ -72,7 +73,7 @@ export class MovementsService {
         return update;
     }
 
-    async getMovements(pageId: string, query: FindMovementsQueryDto, userId: string) {
+    async getMovements(pageId: string, query: FindMovementsQueryDto, userId: string):Promise<Movements[]>{
         const cacheKey = `movements:${userId}:${pageId}`;
         const cacheData = await this.redis.get(cacheKey);
         

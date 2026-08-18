@@ -109,7 +109,7 @@ export class AuthService {
         return `${geo.city}, ${geo.country}`;
     }
     private async sentCodeVerification(key:string,email:string , data: Record<string, any>){
-        const coolDownKey = `${key}-coolDown:${email}`
+        const coolDownKey = `${key}:${email}`
         const onCoolDown = await this.redis.get(coolDownKey)
         if(onCoolDown) throw new BadRequestException('Please wait before requesting a new code')
         const code: string = randomInt(100000, 1000000).toString()
@@ -127,10 +127,10 @@ export class AuthService {
              'EX' , 
              ttlSecond
             )
-        await this.redis.set(coolDownKey, '1' , 'EX', cooldownSeconds)
+        await this.redis.set(coolDownKey, JSON.stringify(fullData) , 'EX', cooldownSeconds)
 
-        await this.resendService.sendEmailVerify(email, code)
-        return code
+        await this.resendService.sendEmailVerify(email, fullData.code)
+        return fullData
     }
     async loginWithGoogle(dto: GoogleLoginDto, userAgent: string , ip:string){
         const googleData = await this.googleAuthService.verifyTokenGoogle(dto);
@@ -150,6 +150,12 @@ export class AuthService {
                     country: ipAddress
                 }
             });
+            await this.prisma.balanceSection.createMany({
+                    data: DEFAULT_BALANCE_SECTION.map((section) => ({
+                        userId: created.id,
+                        nameBalance: section.nameBalance
+                    }))
+                })
             user = created
             if(!created) throw new BadRequestException('there was an problem creating the user with Google')
         }else if (!user.googleId){
@@ -177,7 +183,6 @@ export class AuthService {
             }
         })
         if(existUser)throw new ConflictException('The credentials already exist.')
-        const randomCode: string = randomInt(100000, 1000000).toString()
 
         const passwordHash = await bcrypt.hash(dto.password , 10)
 
@@ -185,21 +190,18 @@ export class AuthService {
             name: dto.name,
             email: dto.email,
             password: passwordHash,
-            code: randomCode,
             timeZone: dto.timeZone,
             language: dto.language,
             country: dto.country,
             currency: dto.currency,
             typePeriod: dto.typePeriod
         }
-        const ttlSeconds = 15 * 60;
         await this.sentCodeVerification('verifyEmail' , pedingData.email , pedingData)
-        await this.resendService.sendEmailVerify(dto.email,randomCode)
         return {message: "code sent" , email: dto.email}
         
     }
     async verifyEmail(dto: VerifyEmailDto , userAgent: string , ip:string){
-        const raw = await this.redis.get(`pending-user:${dto.email}`)
+        const raw = await this.redis.get(`verifyEmail:${dto.email}`)
         console.log(raw)
         if(!raw) throw new BadRequestException('the code not exit or expire')
         
@@ -227,7 +229,8 @@ export class AuthService {
                 language: pedingData.language,
                 country: pedingData.country,
                 currency: pedingData.currency,
-                typePeriod: pedingData.typePeriod
+                typePeriod: pedingData.typePeriod,
+                verifyEmail: true
             }
         })
         await this.prisma.balanceSection.createMany({

@@ -1,4 +1,4 @@
-import {IsString,IsDate ,MinLength, IsNotEmpty, Length, IsInt, IsEnum} from 'class-validator'
+import {IsString,IsDate ,MinLength, IsNotEmpty, Length, IsInt, IsEnum, IsOptional} from 'class-validator'
 import { NormalizedEmail } from '@/common/decorator/normalized-email.decorator'
 import { RulesPassword } from '@/common/decorator/rules-password.decorator'
 import { typePeriod } from '@generated/prisma/enums'
@@ -63,22 +63,20 @@ export class CreateUserPendingDto {
     @IsNotEmpty()
     email!: string
     @IsString()
-    @MinLength(7)
-    code!: string
-    @IsString()
     password!: string
+    @IsOptional()
     @IsString()
     timeZone?: string
+    @IsOptional()
     @IsString()
     language?: string
+    @IsOptional()
     @IsString()
     country?: string
     @IsString()
     currency!: string
     @IsEnum(typePeriod)
     typePeriod!: typePeriod
-    @IsDate()
-    expireAt!: Date
 }
 
 export class PayloadValidateDto{

@@ -1,0 +1,66 @@
+<div class="auth-container">
+  <div #googleBtn class="google-btn-container"></div>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <h1>Crear cuenta</h1>
+
+    <div class="form-field">
+      <label for="name">Name</label>
+      <input id="name" type="text" formControlName="name" />
+      @if (form.get('name')?.touched && form.get('name')?.invalid) {
+        <span class="field-error">El nombre es requerido</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="email">Email</label>
+      <input id="email" type="email" formControlName="email" />
+      @if (form.get('email')?.touched && form.get('email')?.invalid) {
+        <span class="field-error">Ingresa un email válido</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="password">Password</label>
+      <input id="password" type="password" formControlName="password" />
+      @if (passwordValue().length > 0){
+        <div class="password-strength">
+          <div class="strength-bar">
+              <div
+                [style.width.%]="(passwordStrength().score / 4) * 100"
+                [class]="'strength-' + passwordStrength().score" 
+              ></div>
+          </div>
+          <span>{{passwordStrength().label}}</span>
+          <ul>
+            <li [class.valid]="passwordStrength().checks.minLength">Minimum of 8 characters</li>
+            <li [class.valid]="passwordStrength().checks.hasUppercase">An uppercase letter</li>
+            <li [class.valid]="passwordStrength().checks.hasLowercase">An lowecase letter</li>
+            <li [class.valid]="passwordStrength().checks.hasNumber">A number</li>
+            <li [class.valid]="passwordStrength().checks.hasSpecialChar">A special character</li>
+          </ul>
+        </div>
+      }
+    </div>
+    <div>
+        <label for="currency">currency</label>
+            <input type="text" formControlName="currency">
+    </div>
+    <div>
+        <select name="tipo de periodo" id="" formControlName="typePeriod">
+            <option value="FREELANCE">freelance</option>
+        </select>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="form-error">{{ errorMessage() }}</p>
+    }
+
+    <button type="submit" [disabled]="form.invalid || isLoading()">
+      {{ isLoading() ? 'Creando cuenta...' : 'Registrarme' }}
+    </button>
+
+    <p class="auth-link">
+      ¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a>
+    </p>
+  </form>
+</div>
