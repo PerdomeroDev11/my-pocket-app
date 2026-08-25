@@ -1,4 +1,3 @@
-// src/common/decorators/current-user.decorator.ts
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
 import { PayloadValidateDto } from '@/modules/auth/dto/jwt.dto';

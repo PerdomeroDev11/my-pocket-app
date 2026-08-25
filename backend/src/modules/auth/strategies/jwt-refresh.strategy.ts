@@ -29,6 +29,6 @@ export class JwtRefreshStrategy extends PassportStrategy (Strategy, 'jwt-refresh
         if (isBlackListed) throw new UnauthorizedException ('revoked token')
         const sessionActive = await this.redis.get(`session:${payload.sessionId}`)
         if(sessionActive != 'ON') throw new UnauthorizedException('session revoked')
-        return { id: payload.sub, refreshToken };
+        return { ...payload, refreshToken };
   }
 }

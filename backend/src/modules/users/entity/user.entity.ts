@@ -3,8 +3,6 @@ import { Exclude } from 'class-transformer';
 import { 
     User ,
     statusUser,
-    UserSession,
-    statusSession,
     typePeriod
 } from '@generated/prisma/client';
 
@@ -21,6 +19,7 @@ export class UserResponseEntity implements Omit<User, 'password' |  'googleId'  
   country!: string | null;
   currency!: string | null;
   typePeriod!: typePeriod | null;
+  withGoogle!: boolean;
 
   @Exclude()
   password?: string ;
@@ -33,24 +32,6 @@ export class UserResponseEntity implements Omit<User, 'password' |  'googleId'  
   }
 }
 
-export class UserSessionResponseEntity implements Omit< UserSession, 'id' | 'userId' | 'refreshToken' | 'craateAt'>{
-  status!: statusSession | null;
-  country!: string | null;
-  ipAddress!: string | null;
-  updatedAt!: Date;
-  userAgent!: string | null;
-  expiresAt!: Date;
-
-  @Exclude()
-  id!: string
-  userId!:string
-  refreshToken!: string
-  createdAt!: Date;
-
-  constructor(partial: Partial<UserSession>){
-    Object.assign(this , partial)
-  }
-}
 
 
 

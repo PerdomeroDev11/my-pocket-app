@@ -1,8 +1,10 @@
-import { Body, Controller, Patch ,UseGuards , Get, Put, UploadedFile} from '@nestjs/common';
+import { Body, Controller, Patch ,UseGuards , Get, Put, UploadedFile, UseInterceptors} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { ChangePasswordDto, UpdateUserdto } from './dto/update-user.dto';
 import { CurrentUser } from '@/common/decorator/current-user.decorator';
+import { PayloadValidateDto } from '../auth/dto/jwt.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 
 @Controller('users')
@@ -27,9 +29,9 @@ export class UsersController {
     }
     @Get('sessions')
     async sessionsUser(
-        @CurrentUser('sub') userId: string
+        @CurrentUser() paylod: PayloadValidateDto,
     ){
-        return await this.userService.findAllSessionsUser(userId)
+        return await this.userService.findAllSessionsUser(paylod.sub,paylod.jti)
     }
     @Put('edit-user')
     async editUser(
@@ -39,7 +41,8 @@ export class UsersController {
         return await this.userService.updateUser(dto, userId)
     }
     @Patch('me/profile-picture')
-    async(
+    @UseInterceptors(FileInterceptor('file'))
+    async profilePicture(
         @UploadedFile() file: Express.Multer.File,
         @CurrentUser('sub') userId:string
     ){
@@ -47,7 +50,7 @@ export class UsersController {
     }
     @Get('me')
     async getUSer(
-        @CurrentUser('sub') userId: string
+        @CurrentUser('sub') userId: string,
     ){
         return await this.userService.getUser(userId)
     }

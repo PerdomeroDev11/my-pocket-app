@@ -4,7 +4,6 @@ import { JwtAuthGuard } from "../auth/guards/jwt.guard";
 import { CreateFinancialInstitutionDto } from "./dto/create-financial-institutions.dto";
 import { CurrentUser } from "@/common/decorator/current-user.decorator";
 import { UpdateFinancialInstitutionsDto } from "./dto/update-financial-institutions.dto";
-import path from "path";
 
 
 @Controller('financial-institutions')

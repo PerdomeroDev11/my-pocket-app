@@ -17,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt'){
         if(!secret) throw new Error('JWT_ACCESS_SECRET it is not defined')
         super({
             jwtFromRequest:(req: Request) => {
-                const accessToken = req?.cookies?.access_token || req?.cookies?.acces_token || null
+                const accessToken = req?.cookies?.access_token || req?.cookies?.access_token || null
                 return accessToken
             },
             ignoreExpiration: false,

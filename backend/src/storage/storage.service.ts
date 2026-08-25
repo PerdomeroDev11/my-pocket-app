@@ -15,7 +15,7 @@ export class StorageService{
 
         this.S3Client = new S3Client({
             region: 'auto',
-            endpoint: this.configService.get<string>('storage.endpoiny'),
+            endpoint: this.configService.get<string>('storage.endpoint'),
             credentials: {
                 accessKeyId: this.configService.get<string>('storage.accessKeyId')!,
                 secretAccessKey: this.configService.get<string>('storage.secretAccessKey')!,

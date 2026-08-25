@@ -1,11 +1,20 @@
-import { Body, Controller, Delete, Ip, Param, Patch, Post , Req, Res, UseGuards} from "@nestjs/common";
+import { 
+    Body, 
+    Controller,
+    Param, 
+    Patch, 
+    Post , 
+    Req, 
+    Res, 
+    UseGuards
+} from "@nestjs/common";
 import {
     CreateUserPendingDto,
-    PayloadValidateDto,
     SingInDto,
     VerifyEmailDto,
     SentEmailDto,
-    GenerateTokenDto
+    GenerateTokenDto,
+    PayloadLogOutDto
 } from "./dto/jwt.dto";
 import { AuthService } from "./auth.service";
 import { type Request , type Response} from "express";
@@ -31,14 +40,14 @@ export class AuthController {
     ){
         const userAgent = req.headers['user-agent'] || 'Unknown'
         const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || '127.0.0.1'
-        const {accessToken , refreshToken} = await this.authService.loginWithGoogle(
+        const googleLogin= await this.authService.loginWithGoogle(
             dto,
             userAgent,
             clientIp
         )
         const isProd : boolean = this.configService.get('app.nodeEnv') === 'production'
 
-        res.cookie('access_token' , accessToken , {
+        res.cookie('access_token' , googleLogin.accessToken , {
             httpOnly: true,
             secure: isProd,
             sameSite: 'strict',
@@ -46,13 +55,13 @@ export class AuthController {
 
         });
 
-        res.cookie('referesh_token' , refreshToken , {
+        res.cookie('refresh_token' , googleLogin.refreshToken, {
             httpOnly: true,
             secure: isProd,
             sameSite: 'strict',
             maxAge: 1000 * 60 * 60 *24 * 7 
         })
-        return {message: 'Google login successful'}
+        return googleLogin.user
     }
     @Post('sign-up')
     async singUp(
@@ -65,7 +74,7 @@ export class AuthController {
     async emailVerify(
         @Body() dto: VerifyEmailDto,
         @Req() req: Request,
-        @Res({passthrough: true}) res:Response 
+        @Res({passthrough: true}) res:Response,
     ){
         const userAgent = req.headers['user-agent'] || 'Unknown'
         const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || '127.0.0.1'
@@ -73,7 +82,7 @@ export class AuthController {
         const {accessToken,refreshToken} = await this.authService.verifyEmail(
             dto,
             userAgent,
-            clientIp
+            clientIp,
         )
 
         const isProd : boolean = this.configService.get('app.nodeEnv') === 'production'
@@ -86,7 +95,7 @@ export class AuthController {
 
         });
 
-        res.cookie('referesh_token' , refreshToken , {
+        res.cookie('refresh_token' , refreshToken , {
             httpOnly: true,
             secure: isProd,
             sameSite: 'strict',
@@ -99,6 +108,7 @@ export class AuthController {
     async singIn (
         @Body() dto:SingInDto,
         @Req() req: Request,
+        @CurrentUser('jti') jti: string,
         @Res({passthrough: true}) res: Response
     ){
         const userAgent = req.headers['user-agent'] || 'Unknown'
@@ -107,7 +117,8 @@ export class AuthController {
         const {accessToken  , refreshToken} = await this.authService.singIn(
             dto,
             userAgent,
-            clientIp
+            clientIp,
+            jti
         )
         const isProd : boolean = this.configService.get('app.nodeEnv') === 'production'
 
@@ -119,7 +130,7 @@ export class AuthController {
 
         });
 
-        res.cookie('referesh_token' , refreshToken , {
+        res.cookie('refresh_token' , refreshToken , {
             httpOnly: true,
             secure: isProd,
             sameSite: 'strict',
@@ -131,27 +142,34 @@ export class AuthController {
     @UseGuards(JwtRefreshGuard)
     @Post('refresh')
     async refresh (
-        @CurrentUser('sub' ,'email' , 'sessionId') dto: GenerateTokenDto,
+        @CurrentUser() dto: GenerateTokenDto,
         @Res({passthrough: true})  res: Response
     ){
-        const {accessToken} = await this.authService.generateTokens(dto)
+
+        const {accessToken  , refreshToken} = await this.authService.refreshToken(dto)
         const isProd : boolean = this.configService.get('app.nodeEnv') === 'production'
+
         res.cookie('access_token' , accessToken , {
             httpOnly: true,
             secure: isProd,
             sameSite: 'strict',
-            maxAge: 15 * 60 * 1000
+            maxAge: 1000 * 60  * 15 
+
         });
 
-        return {
-            success: true,
-            message: 'successlly token refresh'
-        }
+        res.cookie('refresh_token' , refreshToken , {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60 *24 * 7 
+        })
+
+        return {success: true ,message: 'successful refresh token '}
     }
     @Post('logout')
     @UseGuards(JwtAuthGuard)
     async logout(
-        @CurrentUser() dto: PayloadValidateDto,
+        @CurrentUser() dto: PayloadLogOutDto,
         @Res({passthrough : true}) res: Response
     ){
         await this.authService.logOut(dto)
@@ -163,22 +181,22 @@ export class AuthController {
     @Post('logout-all')
     @UseGuards(JwtAuthGuard)
     async logoutAll(
-        @CurrentUser('sub') userId: string,
+        @CurrentUser() dto: PayloadLogOutDto,
         @Res() res:Response
     ){
-        const result = await this.authService.logoutAll(userId)
+        const result = await this.authService.logoutAll(dto)
         res.clearCookie('access_token')
         res.clearCookie('refresh_token')
         return result
     }
-    @Patch('sessions/:id/close')
+    @Patch('sessions-close/:sessionId')
     @UseGuards(JwtAuthGuard)
     async closeSessionRemte(
-        @Param('id') sessionId: string,
-        @CurrentUser('sub') user: string,
-        @Body() password:string
+        @CurrentUser() dto: PayloadLogOutDto,
+        @Param('sessionId') sessionId: string,
+        @Body('password') password?:string
     ){
-        return this.authService.closeSessionRemote(sessionId, user , password)
+        return this.authService.closeSessionRemote(dto,sessionId, password)
     }
     @Post('sent-code-password')
     async sentEmailPassword(
@@ -187,10 +205,22 @@ export class AuthController {
         return this.authService.sentEmailForgotPassword(dto)
     }
     @Patch('reset-forgot-password')
-    async(
-        @Body() dto: ForgotPasswordDto
+    async resetPassword(
+        @Body() dto: ForgotPasswordDto,
     ){
         return this.authService.resetPassword(dto)
+    }
+    @Post('resend-code-email')
+    async resendCodeVerifyEmail(
+        @Body('email') email: string
+    ){
+        return this.authService.resendCode('verifyEmail' , email)
+    }
+    @Post('resend-code-password')
+    async resendCodeForgotPassword(
+        @Body('email') email: string
+    ){
+        return this.authService.resendCode('forgotPassword' , email)
     }
 
 }

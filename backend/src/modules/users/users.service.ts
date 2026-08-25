@@ -1,14 +1,18 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '@/prisma-config/prisma.service';
-import { UserResponseEntity, UserSessionResponseEntity } from './entity/user.entity';
+import { UserResponseEntity} from './entity/user.entity';
+import { UserSessionsEntity } from '../auth/entity/jwt.entity';
 import { ChangePasswordDto, UpdateUserdto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt'
 import { ImageProcessorService } from '@/storage/image-processor.service';
 import { StorageService } from '@/storage/storage.service';
 import 'multer'
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { UAParser } from 'ua-parser-js';
 
 @Injectable()
 export class UsersService {
+    private readonly logger = new Logger(UsersService.name);
     constructor(
         private prisma: PrismaService,
         private imageProccessor: ImageProcessorService,
@@ -39,11 +43,29 @@ export class UsersService {
         if(!user) throw new BadRequestException('user not found')
         return new UserResponseEntity(user)
     }
-    async findAllSessionsUser(userId: string):Promise<UserSessionResponseEntity[]>{
-        const sessionUser = await this.prisma.userSession.findMany({where:{userId: userId , status: "ON"}})
-        return sessionUser.map(session => new UserSessionResponseEntity(session))
+    async findAllSessionsUser(userId: string , jti: string):Promise<UserSessionsEntity[]>{
+        const sessionUser = await this.prisma.userSession.findMany(
+            {
+                where:{
+                    userId: userId , status:"ON"
+                }
+        })
+        return sessionUser.map(session => {
+            const parser = new UAParser(session.userAgent ?? '')
+            const {browser, os , device} = parser.getResult()
+
+            const deviceLabel = device.type === 'mobile' ? 'Móvil' : device.type === 'tablet' ? 'Tablet' : 'Desktop';
+            const friendLyName = `${browser.name ?? 'Navegador desconocido'} on ${os.name ?? 'SO desconocido'} (${deviceLabel})`;
+
+            return new UserSessionsEntity({
+                ...session,
+                userAgent: friendLyName,
+                isCurrent: session.jti === jti
+            })
+        })
     }
     async updateUser(dto: UpdateUserdto , userId: string):Promise<UserResponseEntity>{
+        console.log('DTO validado con éxito:', dto);
         const update = await this.prisma.user.update({
             where:{id: userId},
             data:{...dto, updatedAt: new Date()}
@@ -65,6 +87,26 @@ export class UsersService {
         if(!user) throw new BadRequestException('user not found')
         const {password , ...withoutPassword} = user
         return withoutPassword
+    }
+    @Cron(CronExpression.EVERY_DAY_AT_11AM)
+    private async cleanSessionExpiresOrOff(){
+        this.logger.log(' Starting cleaning to sessions expires or off')
+        const now = new Date()
+        try{
+            const deleteSession = await this.prisma.userSession.deleteMany({
+                where:{
+                    OR:[
+                        {expiresAt:{
+                            lt: now
+                        }},
+                        {status: 'OFF'}
+                    ]
+                }
+            })
+            this.logger.log(`Successly clenaup ${deleteSession.count} session(expire or off)`)
+        }catch(err){
+            this.logger.error(`Error clearing sessions: ` , err)
+        }
     }
     
 }

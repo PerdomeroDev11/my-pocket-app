@@ -20,8 +20,10 @@ import { TokenBlackListService } from "@/redis/token-blackList.service";
 import { ForgotPasswordDto} from "./dto/jwt-update";
 import { GoogleLoginDto } from "./dto/google-login.dto";
 import { AuthGoogleService } from "./ google-auth.service";
-import { typePeriod } from "@generated/prisma/enums";
+import { statusUser, typePeriod } from "@generated/prisma/enums";
 import { DEFAULT_BALANCE_SECTION } from "@/common/constants/balance-section";
+import { AuthResponseInterface } from "./entity/jwt.entity";
+
 
 @Injectable()
 export class AuthService {
@@ -34,13 +36,13 @@ export class AuthService {
         private googleAuthService: AuthGoogleService,
         @Inject('REDIS_CLIENT') private readonly redis: Redis
     ){}
-    async generateTokens (dto: GenerateTokenDto):Promise<{accessToken:string , refreshToken:string}>{
+     private async generateTokens (dto: GenerateTokenDto):Promise<{accessToken:string , refreshToken:string}>{
         const accessToken = this.jwtService.sign(
             {
-                sub: dto.userId,
+                sub: dto.sub,
                 email: dto.email,
-                sesionId: dto.sessionId,
-                jti: randomUUID(),
+                sessionId: dto.sessionId,
+                jti: dto.jti ,
             },
             {
                 secret: this.configService.get('jwt.secret'),
@@ -48,7 +50,7 @@ export class AuthService {
             }
         );
         const refreshToken = this.jwtService.sign(
-            {sub: dto.userId , sessionId: dto.sessionId},
+            {sub: dto.sub , sessionId: dto.sessionId , jti: dto.jti },
             {
                 secret: this.configService.get('jwt.secretRefresh'),
                 expiresIn: this.configService.get('jwt.expiresInRefresh')
@@ -56,12 +58,31 @@ export class AuthService {
         );
         return {accessToken , refreshToken}
     }
-    async session (dto: LoginDto): Promise<{accessToken:string , refreshToken: string}>{
+    async refreshToken(dto: GenerateTokenDto){
+        const newJti = randomUUID()
+        const {accessToken, refreshToken} = await this.generateTokens({
+            sub: dto.sub ,
+            email: dto.email,
+            sessionId: dto.sessionId,
+            jti: newJti
+            });
+
+        const refreshHash = await bcrypt.hash(refreshToken , 10);
+        await this.prisma.userSession.update({
+            where:{id: dto.sessionId},
+            data:{refreshToken: refreshHash , jti: newJti}
+        })
+        const ttlSeconds = 7 * 24 * 60 * 60; // 7 días
+        await this.redis.set(`session:${dto.sessionId}`, 'ON' , 'EX' , ttlSeconds )
+        return {accessToken , refreshToken}
+    }
+    private async session (dto: LoginDto ): Promise<{accessToken:string , refreshToken: string}>{
 
 
         
         const region = this.getRegionWithIp(dto.ip)
         const expireAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        const jti = randomUUID()
 
         const session = await this.prisma.userSession.create({
             data:{
@@ -69,19 +90,21 @@ export class AuthService {
                 refreshToken: '',
                 userAgent: dto.userAgent,
                 country: region,
-                expiresAt: expireAt
+                expiresAt: expireAt,
+                jti: jti
             }
         });
         const {accessToken, refreshToken} = await this.generateTokens({
-            userId: dto.userId ,
+            sub: dto.userId ,
             email: dto.email,
-            sessionId: session.id
+            sessionId: session.id,
+            jti: jti
             });
 
         const refreshHash = await bcrypt.hash(refreshToken , 10);
         await this.prisma.userSession.update({
             where:{id: session.id},
-            data:{refreshToken: refreshHash}
+            data:{refreshToken: refreshHash , jti}
         })
         const ttlSeconds = 7 * 24 * 60 * 60; // 7 días
         await this.redis.set(`session:${session.id}`, 'ON' , 'EX' , ttlSeconds )
@@ -109,7 +132,7 @@ export class AuthService {
         return `${geo.city}, ${geo.country}`;
     }
     private async sentCodeVerification(key:string,email:string , data: Record<string, any>){
-        const coolDownKey = `${key}:${email}`
+        const coolDownKey = `${key}-coolDown:${email}`
         const onCoolDown = await this.redis.get(coolDownKey)
         if(onCoolDown) throw new BadRequestException('Please wait before requesting a new code')
         const code: string = randomInt(100000, 1000000).toString()
@@ -132,12 +155,11 @@ export class AuthService {
         await this.resendService.sendEmailVerify(email, fullData.code)
         return fullData
     }
-    async loginWithGoogle(dto: GoogleLoginDto, userAgent: string , ip:string){
+    async loginWithGoogle(dto: GoogleLoginDto, userAgent: string , ip:string):Promise<AuthResponseInterface>{
         const googleData = await this.googleAuthService.verifyTokenGoogle(dto);
 
         let user= await this.prisma.user.findUnique({where:{email: googleData.email}});
         const ipAddress = await this.getRegionWithIp(ip)
-
         if(!user){
             const created = await this.prisma.user.create({
                 data:{
@@ -147,7 +169,8 @@ export class AuthService {
                     verifyEmail: true,
                     profilePicture: googleData.avatar,
                     language: (googleData as any).language || 'es',
-                    country: ipAddress
+                    country: ipAddress,
+                    withGoogle: true
                 }
             });
             await this.prisma.balanceSection.createMany({
@@ -159,20 +182,40 @@ export class AuthService {
             user = created
             if(!created) throw new BadRequestException('there was an problem creating the user with Google')
         }else if (!user.googleId){
-            await this.prisma.user.update({
+             const userGoogle = await this.prisma.user.update({
                 where:{id:user.id},
-                data:{googleId: googleData.googleId}
+                data:{googleId: googleData.googleId , profilePicture: googleData.avatar}
             });
+            user = userGoogle
         }
         
-        return await this.session({
+        const sessionToken = await this.session({
             userId: user.id,
             email: user.email,
             userAgent: userAgent,
-            ip: ip
+            ip: ip,
         })
+        return {
+            accessToken: sessionToken.accessToken,
+            refreshToken: sessionToken.refreshToken,
+            user: {
+                name: user.name,
+                country: user.country,
+                createdAt: user.createdAt,
+                currency: user.currency,
+                email: user.email,
+                typePeriod: user.typePeriod,
+                timeZone: user.timeZone,
+                profilePicture: user.profilePicture,
+                language: user.language,
+                verifyEmail: user.verifyEmail,
+                status: user.status ?? statusUser.ACTIVE,
+                updatedAt: user.updatedAt ?? new Date(),
+                withGoogle: user.withGoogle
+            }
+        }
     }
-    async singUp (dto: CreateUserPendingDto){
+    async singUp (dto: CreateUserPendingDto ){
         
         const existUser = await this.prisma.user.findUnique({
             where:{
@@ -200,7 +243,7 @@ export class AuthService {
         return {message: "code sent" , email: dto.email}
         
     }
-    async verifyEmail(dto: VerifyEmailDto , userAgent: string , ip:string){
+    async verifyEmail(dto: VerifyEmailDto , userAgent: string , ip:string ){
         const raw = await this.redis.get(`verifyEmail:${dto.email}`)
         console.log(raw)
         if(!raw) throw new BadRequestException('the code not exit or expire')
@@ -241,9 +284,9 @@ export class AuthService {
                 })
         await  this.redis.del(`verifyEmail:${dto.email}`)
         
-        return await this.session({userId: user.id ,email: user.email, userAgent:userAgent ,ip:ip} )
+        return await this.session({userId: user.id ,email: user.email, userAgent:userAgent ,ip:ip } )
     }
-    async singIn(dto: SingInDto , userAgent: string , ip:string ){
+    async singIn(dto: SingInDto , userAgent: string , ip:string , jti: string){
         const user = await this.prisma.user.findUniqueOrThrow({
             where:{email: dto.email}
         });
@@ -258,7 +301,7 @@ export class AuthService {
             userId: user.id,
             email: user.email,
             userAgent: userAgent,
-            ip: ip
+            ip: ip,
         })
     }
     async logOut (dto: PayloadLogOutDto){
@@ -266,44 +309,57 @@ export class AuthService {
             where:{id: dto.sessionId },
             data:{status: "OFF"}
         })
-
         await this.redis.set(`session:${dto.sessionId}`, 'OFF' , 'KEEPTTL')
 
-        await this.tokenBlackList.blackListByJti(dto.jti , dto.exp)
+        await this.tokenBlackList.blackListByJti(dto.jti, dto.exp)
 
         return {message: 'logged out successfully'}
     }
-    async logoutAll (userId: string){
+    async logoutAll (dto: PayloadLogOutDto){
+        const userId = dto.sub
         const sessions = await this.prisma.userSession.findMany({
-            where:{userId , status: "ON"}
+            where:{userId , status: 'ON'}
         });
-
+        if(!sessions) throw new ForbiddenException('sessions not found')
         await this.prisma.userSession.updateMany({
             where:{userId , status: "ON"},
             data:{ status: "OFF"}
         })
 
         await Promise.all(
-            sessions.map((s) => this.redis.set(`session:${s.id}`, 'OFF' ,'KEEPTTL'))
+            sessions.map((s) => {
+                this.redis.set(`session:${s.id}`, 'OFF' ,'KEEPTTL'),
+
+                this.tokenBlackList.blackListByJti(dto.jti, dto.exp)
+            })
         )
         return {message: 'all session logged out', count: sessions.length}
     }
-    async closeSessionRemote(sessionId : string , requestingUserId: string , password:string){
+    async closeSessionRemote(dto: PayloadLogOutDto ,sessionId:string, password?: string){
+        console.log('sub:' , dto.sub)
+        console.log('sessioId' , sessionId)
+        console.log('jtisessionLocal:' , dto.jti)
+        console.log('sessionLocal: ', dto.sessionId)
         const user = await this.prisma.user.findUnique({
-            where:{id: requestingUserId}
+            where:{id: dto.sub }
         })
         if(!user) throw new BadRequestException('user no found')
-        if(!user.password) throw new  BadRequestException('password not exist')
-        const isValidPassword = bcrypt.compare(password,user.password)
-        if(!isValidPassword) throw new UnauthorizedException('incorrect credentials')
         const session = await this.prisma.userSession.findUnique({where:{id: sessionId}})
-
-        if(!session || session.userId !== requestingUserId) throw new ForbiddenException('you can not close this sesision')
+        if(!user.withGoogle){
+            if(!user.password) throw new  BadRequestException('password not exist')
+            if(!password) throw new BadRequestException('password requerid')
+            const isValidPassword = bcrypt.compare(password,user.password)
+            if(!isValidPassword) throw new UnauthorizedException('incorrect credentials')
+        }
+        if(!session || session.userId !== dto.sub) throw new ForbiddenException('you can not close this sesision')
         
         await this.prisma.userSession.update({
-            where:{id: sessionId},
+            where:{id: session.id},
             data:{status: 'OFF'}
         })
+        console.log('jti:' ,session.jti)
+        await this.redis.set(`session:${session.id}`, 'OFF' , 'KEEPTTL')
+        await this.tokenBlackList.blackListByJti(session.jti , dto.exp)
         return {message: 'session closed'}
 
 
@@ -322,11 +378,12 @@ export class AuthService {
         
         await this.sentCodeVerification('forgotPassword' , user.email , {email:user.email})
 
-        await this.logoutAll(user.id)
-
         return{ message: 'code sent' , email: user.email }
     }
-    async resetPassword(dto: ForgotPasswordDto){
+    async resetPassword(dto: ForgotPasswordDto ,){
+        console.log("email: " ,dto.email)
+        console.log('code: ' , dto.code)
+        console.log('passwordNew: ' , dto.passwordNew)
         const raw = await this.redis.get(`forgotPassword:${dto.email}`)
 
         if(!raw) throw new BadRequestException('email not found')
@@ -345,11 +402,17 @@ export class AuthService {
 
         await this.redis.del(`forgotPassword:${dto.email}`)
 
-        const user = await this.prisma.user.findUnique({
-            where:{email: rawReceived.email},
-            select:{id:true}
-        })
-        if(user) await this.logoutAll(user.id)
         return {message: 'password reset successfully'}
+    }
+    async resendCode(key: 'forgotPassword' | 'verifyEmail',email: string){
+        const raw = await this.redis.get(`${key}:${email}`)
+        if(!raw) throw new BadRequestException('email not found')
+        const data = JSON.parse(raw);
+        
+        await this.sentCodeVerification('forgotPassword' , email ,data)
+        return {
+            message: 'resend code',
+            email: email
+        }
     }
 }

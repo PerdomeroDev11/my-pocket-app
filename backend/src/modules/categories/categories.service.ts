@@ -29,7 +29,6 @@ export class CategoriesService {
         }
        })
        if(!category) throw new BadRequestException('there was an error to create a new category')
-       const categoryString = JSON.stringify(category)
        await this.redis.del(`category:${category.id}`)
        return category
     }

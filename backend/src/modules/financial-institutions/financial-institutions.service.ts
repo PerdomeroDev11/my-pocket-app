@@ -35,11 +35,13 @@ export class FinancialInstitutionsService {
             where:{userId , id},
             data:{status: 'DESACTIVE'}
         })
+        return desactive
     }
     async active(userId:string , id: string){
-        const desactive =  await this.prisma.financialInstitutions.update({
+        const active =  await this.prisma.financialInstitutions.update({
             where:{userId , id},
             data:{status: 'ACTIVE'}
         })
+        return active
     }
 }

@@ -83,6 +83,7 @@ model User {
   profilePicture String? @map("profile_picture")
   verifyEmail Boolean @default(false) @map("verify_email")
   timeZone String? @default("BOG") @map("time_zone")
+  withGoogle Boolean @default(false) @map("with_google")
   googleId String? @unique @map("google_id")
   status statusUser? @default(ACTIVE)
   language String? @default("ES")
@@ -111,6 +112,8 @@ model UserSession {
   id String @id @default(uuid()) @db.Uuid
   userId String  @db.Uuid @map("user_id")
   refreshToken String @map("refresh_token")
+  jti String
+  isCurrent Boolean? @map("is_current")
   userAgent String? @map("user_agent")
   ipAddress String?
   country String? 

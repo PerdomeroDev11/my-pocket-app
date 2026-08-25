@@ -5,12 +5,14 @@ import { typePeriod } from '@generated/prisma/enums'
 
 export class GenerateTokenDto{
     @IsString()
-    userId!: string
+    sub!: string
     @NormalizedEmail()
     @IsNotEmpty()
     email!: string
     @IsString()
     sessionId!: string
+    @IsString()
+    jti!: string
 }
 
 export class LoginDto{
