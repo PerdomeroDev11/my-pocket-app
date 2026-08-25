@@ -58,7 +58,7 @@ export class LoginComponent {
         this.authService.google({idToken: idToken}).subscribe({
             next: (res) => [
                 this.toastr.success('login successlly'),
-                this.router.navigate(['/'])
+                this.router.navigate(['/sessions'])
             ],
             error:(err) => {
                 this.isLoading.set(false)
@@ -80,7 +80,7 @@ export class LoginComponent {
         }
         this.authService.login(dto as any).subscribe({
             next: () => {
-                this.router.navigate(['/'])
+                this.router.navigate(['/sessions'])
                 this.toastr.success('login successlly')
             },
             error: (err) => {

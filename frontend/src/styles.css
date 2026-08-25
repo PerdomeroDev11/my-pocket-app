@@ -2,3 +2,4 @@
 
 @import 'tailwindcss';
 @import 'ngx-toastr/toastr';
+@import '@angular/cdk/overlay-prebuilt.css';

@@ -1,0 +1,68 @@
+<div class="bg-slate-900 border border-cyan-500/20 rounded-2xl p-6 shadow-2xl w-80 sm:w-96 text-slate-100">
+        <h3 class="text-lg font-bold mb-4 text-cyan-400 capitalize">Editar {{ config.fieldName }}</h3>
+        
+        <form [formGroup]="form" (ngSubmit)="ladingEditDate()" class="space-y-4">
+          
+          @if (config.fieldType === 'text') {
+            <input 
+              type="text" 
+              [formControlName]="config.fieldName" 
+              class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-cyan-500 transition" 
+            />
+          }
+
+          @if (config.fieldType === 'select') {
+            <select 
+              [formControlName]="config.fieldName" 
+              class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-cyan-500 transition">
+              @for (option of config.options; track option.value) {
+                <option [value]="option.value" class="bg-slate-900 text-slate-100">{{ option.label }}</option>
+              }
+            </select>
+          }
+          
+          <div class="mt-6 flex justify-end gap-3">
+            <button 
+              type="button" 
+              class="px-4 py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition text-sm font-medium" 
+              (click)="modalRef.close(false)">
+              Cancelar
+            </button>
+            <button 
+              type="submit" 
+              class="px-4 py-2 bg-cyan-500 text-slate-950 rounded-xl hover:bg-cyan-400 transition text-sm font-semibold disabled:opacity-50 shadow-lg shadow-cyan-500/20" 
+              [disabled]="form.invalid || isLoading()">
+              {{ isLoading() ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+          @if (config.fieldType === 'file') {
+            <div class="space-y-4">
+
+              @if (config.initialValue && !previewImage) {
+                <div class="flex flex-col items-center space-y-1">
+                  <span class="text-xs text-slate-400">Foto actual:</span>
+                  <img [src]="config.initialValue" alt="Current Avatar" class="w-16 h-16 rounded-full object-cover border border-slate-700 opacity-80" />
+                </div>
+              }
+
+              <label class="flex flex-col items-center justify-center border-2 border-dashed border-slate-700 hover:border-cyan-500/50 rounded-xl p-4 cursor-pointer bg-slate-950/50 transition">
+                <span class="text-sm text-slate-400 mb-2">Selecciona una nueva imagen</span>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  (change)="onFileSelected($event)"
+                  class="hidden" 
+                />
+                <span class="px-3 py-1.5 bg-slate-800 text-cyan-400 text-xs font-semibold rounded-lg border border-slate-700">Explorar archivos</span>
+              </label>
+
+              @if (previewImage) {
+                <div class="flex flex-col items-center space-y-2">
+                  <span class="text-xs text-cyan-400 font-medium">Nueva vista previa:</span>
+                  <img [src]="previewImage" alt="Preview" class="w-20 h-20 rounded-full object-cover border-2 border-cyan-500 shadow-lg" />
+                </div>
+              }
+            </div>
+          }
+        </form>
+      </div>

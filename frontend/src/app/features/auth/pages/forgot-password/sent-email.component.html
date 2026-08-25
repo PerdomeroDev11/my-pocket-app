@@ -1,0 +1,17 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div>
+        <label for="email"> email:
+            <input 
+            type="email"
+            formControlName="email"
+            >
+        </label>
+        @if (errMessage()) {
+            <p>{{errMessage()}}</p>
+        }
+        <button
+            type="submit" 
+            [disabled]="form.invalid || isLoading()"
+        >{{isLoading() ? 'sending...': 'send code'}}</button>
+    </div>
+</form>

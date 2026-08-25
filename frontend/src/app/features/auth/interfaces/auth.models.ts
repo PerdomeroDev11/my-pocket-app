@@ -19,7 +19,6 @@ export interface AuthResponse {
 }
 
 export interface User {
-  id: string;
   name: string;
   email: string;
   verifyEmail: boolean;
@@ -34,3 +33,4 @@ export interface RefreshTokenDto{
   email: string;
   sessionId: string
 }
+

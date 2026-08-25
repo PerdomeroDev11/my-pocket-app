@@ -1,0 +1,70 @@
+  <div class="w-full">
+    <div class="w-full rounded-[28px] border border-cyan-500/15 bg-slate-900/80 p-4 shadow-[0_20px_50px_rgba(8,15,30,0.5)] backdrop-blur-sm sm:p-5">
+      <div class="mb-4">
+        <h2 class="mt-2 text-2xl font-bold tracking-tight text-cyan-50 sm:text-3xl">Active Sessions</h2>
+      </div>
+
+      @if (isLoading()) {
+        <div class="flex min-h-[120px] items-center justify-center rounded-2xl border border-cyan-500/15 bg-slate-950/50 text-sm font-medium text-slate-300 shadow-inner shadow-cyan-950/20">
+          Loading sessions...
+        </div>
+      } @else {
+        <div
+          class="max-h-[30vh] overflow-y-auto rounded-2xl border border-slate-700/80 bg-slate-950/50 p-2 shadow-inner shadow-slate-950/30 [scrollbar-width:thin] [scrollbar-color:rgba(103,232,249,0.7)_transparent] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-cyan-400/70"
+        >
+          <div class="flex flex-col gap-3">
+            @for (session of sessions(); track session.id) {
+              <div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-700/80 bg-slate-800/80 p-3 shadow-sm transition duration-200 hover:border-cyan-500/30 hover:bg-slate-800">
+                <div class="flex min-w-0 items-center gap-3">
+                  <div class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-cyan-500/20 bg-slate-900 shadow-sm">
+                    <img [src]="session.browserIcon" alt="Browser icon" class="h-8 w-8 rounded-lg object-cover" />
+                  </div>
+
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-semibold text-slate-100">{{ session.userAgent || 'Unknown device' }}</p>
+                    <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-300">
+                      <span>IP: {{ session.ipAddress || 'Unknown' }}</span>
+                      <span>•</span>
+                      <span>Started: {{ session.createdAt | date: 'd MMMM' }}</span>
+                      <span>•</span>
+                      <span>Expires: {{ session.expiresAt | date: 'd MMMM' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex shrink-0 items-center gap-2">
+                  @if (session.isCurrent) {
+                    <span class="inline-flex items-center rounded-full border border-cyan-400/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-cyan-200">
+                      Current
+                    </span>
+                  }
+
+                  @if (!session.isCurrent) {
+                    <button
+                      type="button"
+                      (click)="openModalForSession(session.id)"
+                      class="inline-flex items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-[11px] font-semibold text-red-200 shadow-sm transition hover:border-red-400 hover:bg-red-500/20 hover:text-white focus:outline-none focus:ring-4 focus:ring-red-500/20"
+                    >
+                      Logout
+                    </button>
+                  }
+                </div>
+              </div>
+            } @empty {
+              <div class="flex w-full items-center justify-center rounded-2xl border border-dashed border-cyan-500/20 bg-slate-950/50 p-8 text-center text-sm text-slate-300 shadow-sm">
+                No active sessions.
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (isModalOpen()) {
+        <app-session-close
+          [sessionId]="selectedSessionId"
+          (closeModalEvent)="closeModal()"
+          (sessionClosedEvent)="onSessionClosed()"
+        />
+      }
+    </div>
+  </div>

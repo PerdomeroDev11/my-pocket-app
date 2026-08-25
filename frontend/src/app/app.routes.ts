@@ -1,8 +1,26 @@
 // app.routes.ts
 import { Routes } from '@angular/router';
+import { SessionComponent } from './features/users/components/session/session.component';
+import { authGuard } from './core/guard/auth.guard';
+import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
+import { SettingComponent } from './pages/settings/setting-page.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'signup', pathMatch: 'full' },
+  { path: '',
+    component: MainLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'sessions',
+        component: SessionComponent,
+      },
+      {
+        path: 'setting',
+        component: SettingComponent
+      },
+  
+    ]
+  },
   { 
     path: '',
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.authRoutes) 

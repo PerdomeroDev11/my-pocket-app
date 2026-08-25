@@ -3,11 +3,12 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../auth.service';
 import { ToastrService } from 'ngx-toastr';
+import { VerifyCodeComponent } from '../../../../shared/components/verify-code/verify-code.component';
 
 @Component({
   selector: 'app-verify-email',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule,VerifyCodeComponent],
   templateUrl: './verify-email.component.html',
 
 })
@@ -31,6 +32,26 @@ export class VerifyEmailComponent implements OnInit {
     if (email) {
       this.form.patchValue({ email });
     }
+  }
+   onCodeChange(code: string) {
+    this.form.patchValue({ code });
+  }
+
+  onResendEmail(){
+    const email = this.form.get('email')?.value;
+    
+    if (!email) {
+      this.toastr.error('El correo es requerido para reenviar el código');
+      return;
+    }
+    this.authService.resendCodeEmailVerify(this.form.value.email as any).subscribe({
+      next: () => {
+        this.toastr.success('successlly resend code')
+      },
+      error: (err) =>{
+        this.toastr.error(err.error?.message ?? 'Código incorrecto')
+      }
+    })
   }
 
   onSubmit() {

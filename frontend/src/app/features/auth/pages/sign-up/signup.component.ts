@@ -69,7 +69,7 @@ export class SignupComponent {
         this.authService.google({ idToken: idToken }).subscribe({
             next: (res) => {
                 this.toastr.success('¡Bienvenido con Google!');
-                this.router.navigate(['/dashboard']);
+                this.router.navigate(['/sessions']);
             },
             error: (err) => {
                 this.isLoading.set(false);

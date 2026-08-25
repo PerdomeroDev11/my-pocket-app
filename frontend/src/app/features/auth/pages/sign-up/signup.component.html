@@ -1,66 +1,83 @@
-<div class="auth-container">
-  <div #googleBtn class="google-btn-container"></div>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <h1>Crear cuenta</h1>
-
-    <div class="form-field">
-      <label for="name">Name</label>
-      <input id="name" type="text" formControlName="name" />
-      @if (form.get('name')?.touched && form.get('name')?.invalid) {
-        <span class="field-error">El nombre es requerido</span>
-      }
+<div class="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10 sm:px-6 lg:px-8">
+  <div class="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/80">
+    <div class="mb-6 flex justify-center">
+      <div #googleBtn class="w-full flex justify-center items-center"></div>
     </div>
 
-    <div class="form-field">
-      <label for="email">Email</label>
-      <input id="email" type="email" formControlName="email" />
-      @if (form.get('email')?.touched && form.get('email')?.invalid) {
-        <span class="field-error">Ingresa un email válido</span>
-      }
-    </div>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
+      <div class="text-center">
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900">Crear cuenta</h1>
+        <p class="mt-2 text-sm text-slate-500">Regístrate para empezar a organizar tus finanzas</p>
+      </div>
 
-    <div class="form-field">
-      <label for="password">Password</label>
-      <input id="password" type="password" formControlName="password" />
-      @if (passwordValue().length > 0){
-        <div class="password-strength">
-          <div class="strength-bar">
-              <div
-                [style.width.%]="(passwordStrength().score / 4) * 100"
-                [class]="'strength-' + passwordStrength().score" 
-              ></div>
-          </div>
-          <span>{{passwordStrength().label}}</span>
-          <ul>
-            <li [class.valid]="passwordStrength().checks.minLength">Minimum of 8 characters</li>
-            <li [class.valid]="passwordStrength().checks.hasUppercase">An uppercase letter</li>
-            <li [class.valid]="passwordStrength().checks.hasLowercase">An lowecase letter</li>
-            <li [class.valid]="passwordStrength().checks.hasNumber">A number</li>
-            <li [class.valid]="passwordStrength().checks.hasSpecialChar">A special character</li>
-          </ul>
+      <div class="grid gap-5 md:grid-cols-2">
+        <div class="space-y-2 md:col-span-2">
+          <label for="name" class="block text-sm font-medium text-slate-700">Nombre</label>
+          <input id="name" type="text" formControlName="name" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 shadow-sm outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100" />
+          @if (form.get('name')?.touched && form.get('name')?.invalid) {
+            <span class="block text-xs text-red-600">El nombre es requerido</span>
+          }
         </div>
+
+        <div class="space-y-2 md:col-span-2">
+          <label for="email" class="block text-sm font-medium text-slate-700">Correo electrónico</label>
+          <input id="email" type="email" formControlName="email" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 shadow-sm outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100" />
+          @if (form.get('email')?.touched && form.get('email')?.invalid) {
+            <span class="block text-xs text-red-600">Ingresa un email válido</span>
+          }
+        </div>
+
+        <div class="space-y-2 md:col-span-2">
+          <label for="password" class="block text-sm font-medium text-slate-700">Contraseña</label>
+          <input id="password" type="password" formControlName="password" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 shadow-sm outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100" />
+          @if (passwordValue().length > 0) {
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+              <div class="mb-2 flex items-center justify-between text-xs font-medium text-slate-500">
+                <span>Seguridad</span>
+                <span>{{ passwordStrength().label }}</span>
+              </div>
+              <div class="h-2 w-full overflow-hidden rounded-full bg-slate-200">
+                <div
+                  [style.width.%]="(passwordStrength().score / 4) * 100"
+                  [class]="'h-full rounded-full ' + (passwordStrength().score >= 3 ? 'bg-emerald-500' : passwordStrength().score >= 2 ? 'bg-amber-500' : 'bg-red-500')"
+                ></div>
+              </div>
+              <ul class="mt-3 space-y-1 text-xs">
+                <li [class.text-emerald-600]="passwordStrength().checks.minLength">• Mínimo 8 caracteres</li>
+                <li [class.text-emerald-600]="passwordStrength().checks.hasUppercase">• Al menos una mayúscula</li>
+                <li [class.text-emerald-600]="passwordStrength().checks.hasLowercase">• Al menos una minúscula</li>
+                <li [class.text-emerald-600]="passwordStrength().checks.hasNumber">• Al menos un número</li>
+                <li [class.text-emerald-600]="passwordStrength().checks.hasSpecialChar">• Al menos un carácter especial</li>
+              </ul>
+            </div>
+          }
+        </div>
+
+        <div class="space-y-2">
+          <label for="currency" class="block text-sm font-medium text-slate-700">Moneda</label>
+          <input type="text" formControlName="currency" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 shadow-sm outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100">
+        </div>
+
+        <div class="space-y-2">
+          <label for="typePeriod" class="block text-sm font-medium text-slate-700">Tipo de periodo</label>
+          <select id="typePeriod" formControlName="typePeriod" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 shadow-sm outline-none transition focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100">
+            <option value="FREELANCE">Freelance</option>
+          </select>
+        </div>
+      </div>
+
+      @if (errorMessage()) {
+        <p class="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">{{ errorMessage() }}</p>
       }
-    </div>
-    <div>
-        <label for="currency">currency</label>
-            <input type="text" formControlName="currency">
-    </div>
-    <div>
-        <select name="tipo de periodo" id="" formControlName="typePeriod">
-            <option value="FREELANCE">freelance</option>
-        </select>
-    </div>
 
-    @if (errorMessage()) {
-      <p class="form-error">{{ errorMessage() }}</p>
-    }
+      <button type="submit" [disabled]="form.invalid || isLoading()" class="w-full rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-600/20 transition hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-200 disabled:cursor-not-allowed disabled:opacity-50">
+        {{ isLoading() ? 'Creando cuenta...' : 'Registrarme' }}
+      </button>
 
-    <button type="submit" [disabled]="form.invalid || isLoading()">
-      {{ isLoading() ? 'Creando cuenta...' : 'Registrarme' }}
-    </button>
-
-    <p class="auth-link">
-      ¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a>
-    </p>
-  </form>
+      <p class="text-center text-sm text-slate-600">
+        ¿Ya tienes cuenta?
+        <a routerLink="/login" class="font-semibold text-sky-600 transition hover:text-sky-700">Inicia sesión</a>
+      </p>
+    </form>
+  </div>
 </div>

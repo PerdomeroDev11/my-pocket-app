@@ -1,0 +1,41 @@
+<div>
+    <h2>Settings</h2>
+    <div>
+        <div>
+            <h3 class="mb-4 text-lg font-semibold text-slate-100">Security</h3>
+            <app-session/>
+
+            <div class="mt-5 w-full rounded-[28px] border border-cyan-500/15 bg-slate-900/80 p-4 shadow-[0_20px_50px_rgba(8,15,30,0.5)] backdrop-blur-sm sm:p-5">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-3 text-xl font-semibold tracking-tight text-cyan-50">
+                            <span class="inline-flex items-center justify-center rounded-lg border border-cyan-500/15 bg-slate-950/50 p-1.5 text-cyan-300 shadow-inner shadow-cyan-950/30">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <rect x="5" y="11" width="14" height="9" rx="2"></rect>
+                                    <path d="M8 11V8a4 4 0 1 1 8 0v3"></path>
+                                </svg>
+                            </span>
+                            <span class="flex items-center gap-2 leading-none text-slate-300">
+                                <span class="inline-flex items-center leading-none">Password:</span>
+                                <span class="inline-flex items-center leading-none font-mono tracking-[0.22em] text-cyan-100">*********</span>
+                            </span>
+                        </div>
+                        <p class="mt-1 text-sm text-slate-300">Keep your account protected by using a strong, unique password.</p>
+                    </div>
+
+                    <button
+                        type="button"
+                        (click)="openChangePasswordModal()"
+                        class="inline-flex items-center justify-center rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-400"
+                    >
+                        Change password
+                    </button>
+                </div>
+            </div>
+            <div class="my-4">
+                <h3 class="text-3xl text-white my-10">User</h3>
+                <app-user-data/>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,6 +1,7 @@
-// features/auth/auth.routes.ts
-import { Routes } from '@angular/router';
 
+import { Routes } from '@angular/router';
+import { SentEmailForgotPasswordComponent } from './pages/forgot-password/sent-email.component';
+import { ResetPasswordComponent } from './pages/forgot-password/reset-password.component';
 export const authRoutes: Routes = [
   {
     path: 'login',
@@ -14,4 +15,12 @@ export const authRoutes: Routes = [
     path: 'verify-email', 
     loadComponent: () => import('./pages/verify-email/verify-email.component').then(m => m.VerifyEmailComponent) 
   },
+  {
+    path: 'sent-email',
+    component: SentEmailForgotPasswordComponent
+  },
+  {
+    path: 'reset-password',
+    component: ResetPasswordComponent
+  }
 ];
