@@ -84,9 +84,9 @@ export class SignupComponent {
         if(this.form.invalid) return;
 
         this.isLoading.set(true)
-        const dto= {
+        const dto = {
             ...this.form.value,
-            lenguage: navigator.language.split('')[0],
+            language: navigator.language.split('-')[0] || 'es',
             timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
         }
 

@@ -23,6 +23,11 @@ export class InfoUseComponent implements OnInit{
     languageOptions = enumToOptions(LanguageEnum, LanguageLabels);
     periodOptions = enumToOptions(TypePeriodEnum);
 
+    getLanguageLabel(language?: string | null): string {
+        if (!language) return 'No definido';
+        return LanguageLabels[language as LanguageEnum] ?? language;
+    }
+
     ngOnInit() {
         this.loadUserData();
     }

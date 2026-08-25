@@ -57,12 +57,12 @@
             <div class="flex justify-between items-center border-b pb-2">
                 <div>
                     <label class="text-sm text-gray-500">Language</label>
-                    <p class="font-medium text-amber-50">{{ userData()?.lenguge }}</p>
+                    <p class="font-medium text-amber-50">{{ getLanguageLabel(userData()?.language) }}</p>
                 </div>
                 <button
                      class="px-3 py-1.5 rounded-xl border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition text-sm font-medium" 
                     type="button" 
-                    (click)="openEditModal('lenguge', 'select', userData()?.lenguge, languageOptions)">
+                    (click)="openEditModal('language', 'select', userData()?.language, languageOptions)">
                     Editar
                 </button>
             </div>

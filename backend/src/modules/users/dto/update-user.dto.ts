@@ -1,7 +1,6 @@
 import { RulesPassword } from '@/common/decorator/rules-password.decorator'
 import { typePeriod } from '@generated/prisma/enums'
-import { IsEnum, IsNotEmpty, IsOptional, isString, IsString } from 'class-validator'
-import { string } from 'joi'
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator'
 
 export class ChangePasswordDto{
     @RulesPassword()

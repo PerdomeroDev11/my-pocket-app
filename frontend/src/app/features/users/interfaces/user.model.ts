@@ -76,7 +76,7 @@ export interface UserResponse {
   profilePicture: string | null
   timeZone: TimezoneEnum
   status: string
-  lenguge: LanguageEnum | null
+  language: LanguageEnum | null
   country: CountryEnum
   createdAt: Date
   updatedAt: Date
