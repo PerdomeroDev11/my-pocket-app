@@ -1,8 +1,8 @@
 import { Injectable, inject, signal} from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { UserResponse , ChangePassword, UpdateUser} from "./interfaces/user.model";
+import { UserResponse , User, ChangePassword, UpdateUser, updateProfilePicture} from "./interfaces/user.model";
 import { UserSessionsResponse } from "./interfaces/sessios.model";
-import {  Observable, tap } from "rxjs";
+import { catchError, Observable, tap, throwError } from "rxjs";
 import { environment } from "../../../environments/environment";
 
 
