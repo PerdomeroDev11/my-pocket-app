@@ -10,9 +10,7 @@ export class FinancialsPagesService {
         @Inject('REDIS_CLIENT') private redis: Redis
     ){}
     async createPage (dto:CreateFinancialPageDto,userId: string){
-        if(dto.previusPageId){
-            await this.closePage(userId, dto.previusPageId)
-        }
+        const lastPageId: string = await this.findLastPage(userId)
         const page = await this.prisma.financialPages.create({
             data:{
                 userId: userId,
@@ -20,8 +18,8 @@ export class FinancialsPagesService {
                 name: dto.name
             }
         })
-        if(dto.previusPageId){
-            await this.cloneCategories(userId , dto.previusPageId , page.id)
+        if(lastPageId){
+            await this.cloneCategories(userId , lastPageId, page.id)
         }
         return page
         
@@ -110,5 +108,18 @@ export class FinancialsPagesService {
         if(!pageFound) throw new NotFoundException('page not found')
         await this.redis.set(`financialPage${id}` , JSON.stringify(pageFound))
         return pageFound
+    }
+    private async findLastPage (userId: string){
+        const cacheData = await this.redis.get(`lastPage:${userId}`)
+        if(cacheData){
+            return JSON.parse(cacheData)
+        }
+        const lastPage = await this.prisma.financialPages.findFirst({
+            where:{userId},
+            orderBy: {createdAt: 'desc'},
+            select: {id:true}
+        })
+        await this.redis.set(`lastPage:${userId}` , JSON.stringify(lastPage))
+        return lastPage
     }
 }
