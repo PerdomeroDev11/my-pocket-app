@@ -21,39 +21,72 @@ export class FinancialsPagesService {
         if(lastPageId){
             await this.cloneCategories(userId , lastPageId, page.id)
         }
+        await this.redis.del(`financialPage${page.id}`)
+        await this.redis.del(`userPages:${userId}`)
+        await this.redis.del(`lastPage:${userId}`)
         return page
         
     }
-    async getFinancialPages(userId:string , id:string){
-        return await this.prisma.financialPages.findUnique({
+    async findLastPage (userId: string){
+        const cacheData = await this.redis.get(`lastPage:${userId}`)
+        if(cacheData){
+            return JSON.parse(cacheData)
+        }
+        const lastPage = await this.prisma.financialPages.findFirst({
+            where:{userId},
+            orderBy: {createdAt: 'desc'},
+            select: {id:true}
+        })
+        await this.redis.set(`lastPage:${userId}` , JSON.stringify(lastPage))
+        return lastPage
+    }
+    async getFinancialPages(userId:string ){
+        const cacheData = await this.redis.get(`userPages:${userId}`)
+        if(cacheData) {
+            return JSON.parse(cacheData)
+        }
+        const userPages = await this.prisma.financialPages.findMany({
             where:{
-                id,
                 userId,
             },
-            include:{
-                
-            }
+            orderBy: {createdAt: 'desc'}
         })
+        await this.redis.set(`userPages:${userId}`, JSON.stringify(userId))
+        return userPages
     }
-    private async closePage(userId:string , id:string){
-        return await this.prisma.$transaction(async(tx) =>{
+
+    async changeStatusPage(userId:string , id:string){
+        const changeStatus = await this.prisma.$transaction(async(tx) =>{
             const pageFound = await this.findPage(userId,id)
             const endDate = pageFound.endDate ? new Date(pageFound.endDate) : null
 
             if(endDate){
                 return
             }
-            const ClosedPage = await  tx.financialPages.update({
-                where:{id, userId},
-                data:{
-                    endDate: new Date(),
-                    closedAt: new Date(),
-                    status: 'CLOSED'
-                }
-            })
-            await this.redis.del(`financialPage${id}`)
-            return ClosedPage
+            if(pageFound.status === 'CLOSED'){
+                const activePage= await  tx.financialPages.update({
+                    where:{id, userId},
+                    data:{
+                        status: 'ACTIVE'
+                    }
+                })
+                return activePage
+            }else{
+                const ClosedPage = await  tx.financialPages.update({
+                    where:{id, userId},
+                    data:{
+                        endDate: new Date(),
+                        closedAt: new Date(),
+                        status: 'CLOSED'
+                    }
+                })
+                return ClosedPage
+            }
         })
+        await this.redis.del(`financialPage${id}`)
+        await this.redis.del(`userPages:${userId}`)
+        await this.redis.del(`lastPage:${userId}`)
+        return changeStatus
     }
     private async cloneCategories(userId: string ,previusPageId:string, newPageId: string ){
         const recurrentCategories = await this.prisma.categories.findMany({
@@ -109,17 +142,5 @@ export class FinancialsPagesService {
         await this.redis.set(`financialPage${id}` , JSON.stringify(pageFound))
         return pageFound
     }
-    private async findLastPage (userId: string){
-        const cacheData = await this.redis.get(`lastPage:${userId}`)
-        if(cacheData){
-            return JSON.parse(cacheData)
-        }
-        const lastPage = await this.prisma.financialPages.findFirst({
-            where:{userId},
-            orderBy: {createdAt: 'desc'},
-            select: {id:true}
-        })
-        await this.redis.set(`lastPage:${userId}` , JSON.stringify(lastPage))
-        return lastPage
-    }
+    
 }

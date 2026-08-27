@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards} from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post, UseGuards} from "@nestjs/common";
 import { FinancialsPagesService } from "./financials-pages.service";
 import { CreateFinancialPageDto } from "./dto/create-financial-page";
 import { CurrentUser } from "@/common/decorator/current-user.decorator";
@@ -16,11 +16,23 @@ export class FinancialPagesController{
     ){
         return await this.financialPageService.createPage(dto,userId)
     }
-    @Get(':id')
-    async page(
+    @Get('list')
+    async allPage(
+        @CurrentUser('sub') userId: string,
+    ){
+        return await this.financialPageService.getFinancialPages(userId)
+    }
+    @Get('last')
+    async lastPage (
+        @CurrentUser('sub') userId: string
+    ){
+        return await this.financialPageService.findLastPage(userId)
+    }
+    @Patch('change-status-page/:id')
+    async changeStatus(
         @CurrentUser('sub') userId: string,
         @Param('id') id: string
     ){
-        return await this.financialPageService.getFinancialPages(userId,id)
+        return await this.financialPageService.changeStatusPage(userId, id)
     }
 }
