@@ -1,9 +1,9 @@
-// app.routes.ts
 import { Routes } from '@angular/router';
 import { SessionComponent } from './features/users/components/session/session.component';
 import { authGuard } from './core/guard/auth.guard';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { SettingComponent } from './pages/settings/setting-page.component';
+import { FinancialPage } from './pages/financial-pages/financial-page.component';
 
 export const routes: Routes = [
   { path: '',
@@ -18,7 +18,10 @@ export const routes: Routes = [
         path: 'setting',
         component: SettingComponent
       },
-  
+      {
+        path: 'financial-pages/:id',
+        component: FinancialPage
+      },
     ]
   },
   { 

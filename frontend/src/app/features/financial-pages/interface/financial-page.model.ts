@@ -1,3 +1,9 @@
+export enum StatusPageEnum {
+    ACTIVE = 'ACTIVE',
+    CLOSED = 'CLOSED'
+}
+
+
 export interface CreateFinancialPageInterface {
     name: string
     previusPageId?: string
@@ -14,4 +20,10 @@ export interface financialPageResponseInterface {
     closedAt: Date | null
     createdAt: Date
     userId:string
+}
+export interface LastPageResponseIdInterfaces{
+    id: string
+}
+export interface StatusPagesInerface {
+    status: StatusPageEnum
 }
