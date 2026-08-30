@@ -1,4 +1,4 @@
-import { Injectable , Inject, NotFoundException } from "@nestjs/common";
+import { Injectable , Inject, NotFoundException, ForbiddenException } from "@nestjs/common";
 import { PrismaService } from "@/prisma-config/prisma.service";
 import Redis from "ioredis";
 import { CreateFinancialPageDto } from "./dto/create-financial-page";
@@ -10,35 +10,38 @@ export class FinancialsPagesService {
         @Inject('REDIS_CLIENT') private redis: Redis
     ){}
     async createPage (dto:CreateFinancialPageDto,userId: string){
-        const lastPageId: string = await this.findLastPage(userId)
+        
+        const lastPageId = await this.findLastPage(userId)
         const page = await this.prisma.financialPages.create({
             data:{
                 userId: userId,
-                startDate:  new Date(),
                 name: dto.name
             }
         })
         if(lastPageId){
-            await this.cloneCategories(userId , lastPageId, page.id)
+            await this.cloneCategories(userId , lastPageId.id, page.id)
         }
         await this.redis.del(`financialPage${page.id}`)
         await this.redis.del(`userPages:${userId}`)
         await this.redis.del(`lastPage:${userId}`)
+        
         return page
         
     }
-    async findLastPage (userId: string){
+    async findLastPage (userId: string):Promise<{id: string} | null>{
         const cacheData = await this.redis.get(`lastPage:${userId}`)
         if(cacheData){
-            return JSON.parse(cacheData)
+            const parsed = JSON.parse(cacheData)
+            return parsed
         }
         const lastPage = await this.prisma.financialPages.findFirst({
             where:{userId},
             orderBy: {createdAt: 'desc'},
             select: {id:true}
         })
-        await this.redis.set(`lastPage:${userId}` , JSON.stringify(lastPage))
-        return lastPage
+        const lastPageId = lastPage || null
+        await this.redis.set(`lastPage:${userId}` , JSON.stringify(lastPageId))
+        return lastPageId
     }
     async getFinancialPages(userId:string ){
         const cacheData = await this.redis.get(`userPages:${userId}`)
@@ -51,18 +54,14 @@ export class FinancialsPagesService {
             },
             orderBy: {createdAt: 'desc'}
         })
-        await this.redis.set(`userPages:${userId}`, JSON.stringify(userId))
+        await this.redis.set(`userPages:${userId}`, JSON.stringify(userPages))
         return userPages
     }
 
     async changeStatusPage(userId:string , id:string){
         const changeStatus = await this.prisma.$transaction(async(tx) =>{
             const pageFound = await this.findPage(userId,id)
-            const endDate = pageFound.endDate ? new Date(pageFound.endDate) : null
 
-            if(endDate){
-                return
-            }
             if(pageFound.status === 'CLOSED'){
                 const activePage= await  tx.financialPages.update({
                     where:{id, userId},
@@ -75,7 +74,6 @@ export class FinancialsPagesService {
                 const ClosedPage = await  tx.financialPages.update({
                     where:{id, userId},
                     data:{
-                        endDate: new Date(),
                         closedAt: new Date(),
                         status: 'CLOSED'
                     }
@@ -86,7 +84,8 @@ export class FinancialsPagesService {
         await this.redis.del(`financialPage${id}`)
         await this.redis.del(`userPages:${userId}`)
         await this.redis.del(`lastPage:${userId}`)
-        return changeStatus
+        console.log(changeStatus.status)
+        return {status: changeStatus.status}
     }
     private async cloneCategories(userId: string ,previusPageId:string, newPageId: string ){
         const recurrentCategories = await this.prisma.categories.findMany({

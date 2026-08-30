@@ -51,7 +51,7 @@ export class CategoriesService {
             where:{userId: userId, status: 'ACTIVE'},
             include:{
                 movements:{
-                    where:{financialPageId}
+                    where:{id: financialPageId}
                 }
             },
             orderBy:{createdAt: 'asc'}
