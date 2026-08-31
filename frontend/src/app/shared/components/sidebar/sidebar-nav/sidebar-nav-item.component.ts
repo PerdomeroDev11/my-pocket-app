@@ -1,6 +1,6 @@
 import { Router, RouterLink, RouterLinkActive } from "@angular/router";
 import { Component, inject } from "@angular/core";
-import { FinancialPageService } from "../../../../features/financial-pages/financial-pages.service";
+import { FinancialPageService } from "../../../../features/financial-pages/fin-page/financial-pages.service";
 import { LastPageResponseIdInterfaces } from "../../../../features/financial-pages/fin-page/interface/financial-page.model";
 
 @Component({

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from "@angular/core";
-import { FinancialPageService } from "../../financial-pages.service";
+import { FinancialPageService } from "../financial-pages.service";
 import { ActivatedRoute } from "@angular/router";
 import { ToastrService } from "ngx-toastr";
 import { CommonModule } from "@angular/common";

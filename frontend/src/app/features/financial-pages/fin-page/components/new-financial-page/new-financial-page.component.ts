@@ -1,5 +1,5 @@
 import { ToastrService } from "ngx-toastr";
-import { FinancialPageService} from "../../../financial-pages.service";
+import { FinancialPageService} from "../../financial-pages.service";
 import { Component, inject, signal } from "@angular/core";
 import { financialPageResponseInterface } from "../../interface/financial-page.model";
 import { Router } from "@angular/router";
