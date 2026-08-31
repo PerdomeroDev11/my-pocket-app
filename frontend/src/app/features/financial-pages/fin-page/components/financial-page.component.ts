@@ -1,11 +1,11 @@
 import { Component, inject, OnInit, signal } from "@angular/core";
-import { FinancialPageService } from "../financial-pages.service";
+import { FinancialPageService } from "../../financial-pages.service";
 import { ActivatedRoute } from "@angular/router";
 import { ToastrService } from "ngx-toastr";
 import { CommonModule } from "@angular/common";
 import { ListFinancialPageComponent } from "./list-financial-page.component";
 import { StatusPagesInerface , StatusPageEnum } from "../interface/financial-page.model";
-import { StatusToggleComponent } from "../../../shared/components/togglet/status-togglet.component";
+import { StatusToggleComponent } from "../../../../shared/components/togglet/status-togglet.component";
 
 @Component({
     standalone: true,

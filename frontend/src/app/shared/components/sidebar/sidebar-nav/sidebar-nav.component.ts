@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { SidebarNavItemComponent } from './sidebar-nav-item.component';
-import { ButtonNewPageComponent} from "../../../../features/financial-pages/components/new-financial-page/button-new-page.component";
+import { ButtonNewPageComponent} from "../../../../features/financial-pages/fin-page/components/new-financial-page/button-new-page.component";
 
 @Component({
   selector: 'app-sidebar-nav',

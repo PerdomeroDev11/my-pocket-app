@@ -1,10 +1,10 @@
 import { ToastrService } from "ngx-toastr";
-import { FinancialPageService} from "../../financial-pages.service";
+import { FinancialPageService} from "../../../financial-pages.service";
 import { Component, inject, signal } from "@angular/core";
 import { financialPageResponseInterface } from "../../interface/financial-page.model";
 import { Router } from "@angular/router";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { MODAL_REF, ModalRef, ModalService } from "../../../../shared/services/modal.service";
+import { MODAL_REF, ModalRef, ModalService } from "../../../../../shared/services/modal.service";
 
 @Component({
     selector: 'app-new-financial-page',

@@ -1,5 +1,5 @@
 import { Component, inject } from "@angular/core";
-import { FinancialPageComponent } from "../../features/financial-pages/components/financial-page.component";
+import { FinancialPageComponent } from "../../features/financial-pages/fin-page/components/financial-page.component";
 
 @Component({
     selector: 'financial-page',

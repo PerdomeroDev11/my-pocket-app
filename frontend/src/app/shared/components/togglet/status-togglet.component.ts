@@ -1,6 +1,6 @@
 // status-toggle.component.ts
 import { Component, input, output, computed } from "@angular/core";
-import { StatusPageEnum } from "../../../features/financial-pages/interface/financial-page.model";
+import { StatusPageEnum } from "../../../features/financial-pages/fin-page/interface/financial-page.model";
 
 @Component({
   selector: 'app-status-toggle',
