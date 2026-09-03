@@ -29,7 +29,7 @@ export class CategoriesService {
         }
        })
        if(!category) throw new BadRequestException('there was an error to create a new category')
-       await this.redis.del(`category:${category.id}`)
+       await this.redis.del(`category:${userId}`)
        return category
     }
     async updateCategory(dto: UpdateCategoryDto , id:string, userId:string){
@@ -41,7 +41,7 @@ export class CategoriesService {
        });
        if(!updateCategory) throw new BadRequestException('there was an error to update category')
        const updateCategoryString = JSON.stringify(updateCategory)
-        await this.redis.set(`category:${id}` , updateCategoryString)
+        await this.redis.del(`category:${userId}`)
         return updateCategory       
     }
     async showCategories(userId: string , financialPageId: string){

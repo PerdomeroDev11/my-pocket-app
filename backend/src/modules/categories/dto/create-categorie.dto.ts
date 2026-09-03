@@ -5,6 +5,4 @@ export class CreateCategoryDto{
     name!: string
     @IsBoolean()
     isRecurrent?: boolean
-    @IsBoolean()
-    IsPermanent!: boolean
 }
