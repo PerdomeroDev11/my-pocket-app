@@ -1,7 +1,7 @@
 import { Component, inject, input } from "@angular/core";
-import { ModalService } from "../../../../shared/services/modal.service";
+import { ModalService } from "../../../../../shared/services/modal.service";
 import { DeleteCategoryComponent } from "./ delete-category.component";
-import { FinancialPageService } from "../../fin-page/financial-pages.service";
+import { FinancialPageService } from "../../../fin-page/financial-pages.service";
 
 @Component({
     selector: 'app-button-delete-category',

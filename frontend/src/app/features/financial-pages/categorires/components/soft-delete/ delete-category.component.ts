@@ -1,9 +1,9 @@
 import { Component,inject, input } from "@angular/core";
-import { CategoriesService } from '../categories.service'
+import { CategoriesService } from '../../categories.service'
 import { ToastrService } from "ngx-toastr";
 import { HttpErrorResponse } from "@angular/common/http";
-import { MODAL_REF, ModalRef } from "../../../../shared/services/modal.service";
-import { MODAL_DATA } from "../../../../shared/tokens/modal-data.token";
+import { MODAL_REF, ModalRef } from "../../../../../shared/services/modal.service";
+import { MODAL_DATA } from "../../../../../shared/tokens/modal-data.token";
 
 @Component({
     selector: 'app-delete-category',

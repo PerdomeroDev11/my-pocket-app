@@ -10,7 +10,7 @@ import { Subscription } from "rxjs/internal/Subscription";
 import { tap } from "rxjs/internal/operators/tap";
 import { ButtonNewCategoryComponent } from "../../categorires/components/create/button-new-category.component";
 import { ButtonUpdateCategoryComponent } from "../../categorires/components/update/ button-update-category.component";
-import { ButtonDeleteCategoryComponent } from "../../categorires/soft-delete/button-category.component";
+import { ButtonDeleteCategoryComponent } from "../../categorires/components/soft-delete/button-category.component";
 
 @Component({
     standalone: true,
