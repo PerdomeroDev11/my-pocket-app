@@ -1,0 +1,14 @@
+<div>
+    <h3>Create a new Category</h3>
+    <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+        <div class="p-6 *:bg-gray-100, rounded-lg shadow-md, mb-4">
+            <label for="name">Category Name</label>
+            <input type="text" id="name" formControlName="name" class="form-control">
+        </div>
+        <div class="form-check">
+            <input type="checkbox" id="isRecurrent" formControlName="isRecurrent" >
+            <label for="isRecurrent" class="text-amber-50">Is Recurrent</label>
+        </div>
+        <button type="submit" [disabled]="categoryForm.invalid" class="btn btn-primary">{{isLoading() ? 'Creating...' : 'Create Category'}}</button>
+    </form>
+</div>

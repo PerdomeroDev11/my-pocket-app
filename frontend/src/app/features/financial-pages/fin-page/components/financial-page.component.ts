@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit, signal } from "@angular/core";
 import { FinancialPageService } from "../financial-pages.service";
 import { ActivatedRoute } from "@angular/router";
 import { ToastrService } from "ngx-toastr";
@@ -6,31 +6,52 @@ import { CommonModule } from "@angular/common";
 import { ListFinancialPageComponent } from "./list-financial-page.component";
 import { StatusPagesInerface , StatusPageEnum } from "../interface/financial-page.model";
 import { StatusToggleComponent } from "../../../../shared/components/togglet/status-togglet.component";
+import { Subscription } from "rxjs/internal/Subscription";
+import { tap } from "rxjs/internal/operators/tap";
+import { ButtonNewCategoryComponent } from "../../categorires/components/create/button-new-category.component";
+import { ButtonUpdateCategoryComponent } from "../../categorires/components/update/ button-update-category.component";
+import { ButtonDeleteCategoryComponent } from "../../categorires/soft-delete/button-category.component";
 
 @Component({
     standalone: true,
     selector: 'app-financial-page-component',
-    imports: [CommonModule,ListFinancialPageComponent,StatusToggleComponent],
+    imports: [
+        CommonModule,
+        ListFinancialPageComponent,
+        StatusToggleComponent,
+        ButtonNewCategoryComponent,
+        ButtonUpdateCategoryComponent,
+        ButtonDeleteCategoryComponent
+    ],
     templateUrl: 'financial-page.component.html'
 })
-export class FinancialPageComponent implements OnInit {
+export class FinancialPageComponent implements OnInit , OnDestroy {
     private financialPageService = inject(FinancialPageService)
     private route = inject(ActivatedRoute)
     private toastr = inject(ToastrService)
 
     isLoading = signal<boolean>(false)
     dateFinancialPage = signal<any | null>(null)
+    private sub$ = new Subscription()
     pageId = signal<string>('')
     statusPage = signal<StatusPagesInerface>({status: StatusPageEnum.ACTIVE})
 
-
+    
 
     ngOnInit(): void {
         this.route.paramMap.subscribe((params) => {
             this.pageId.set(params.get('id') || '')
             this.loadDatePage()
+            this.sub$ = this.financialPageService.pageFinancialDate$.pipe(
+                tap(() =>{
+                    this.loadDatePage()
+                })
+            ).subscribe()
             this.loadCurrentPageStatus()
         })
+    }
+    findCategoryById(id: string) {
+        return this.dateFinancialPage()?.categories?.find((category: any) => category.id === id) || null
     }
 
     changeToggletStatus(){
@@ -71,8 +92,10 @@ export class FinancialPageComponent implements OnInit {
         this.isLoading.set(true)
 
         const financialPageId : string= this.pageId()
+        console.log('FinancialPageComponent: loading page with id:', financialPageId)
         this.financialPageService.pageFInancialDate(financialPageId).subscribe({
             next: (response : any) => {
+                console.log('FinancialPageComponent: pageFInancialDate response:', response)
                 this.dateFinancialPage.set(response)
                 this.isLoading.set(false)
             },
@@ -81,5 +104,8 @@ export class FinancialPageComponent implements OnInit {
                 this.toastr.error('error: ' , err)
             }
         })
+    }
+    ngOnDestroy(): void {
+        this.sub$.unsubscribe()
     }
 }

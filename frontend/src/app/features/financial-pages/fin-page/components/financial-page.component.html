@@ -22,10 +22,17 @@
                 </li>
               }
             </ul>
+
           } @else {
             <p class="no-movements">Sin movimientos en esta página.</p>
           }
         </div>
+        <app-button-update-category
+              [category]="category"
+        ></app-button-update-category>
+        <app-button-delete-category
+              [categoryId]="category.id"
+        ></app-button-delete-category>
       }
     </div>
   }
@@ -40,5 +47,6 @@
     [status]="statusPage().status"
     (toggle)="changeToggletStatus()"
   />
+  <app-button-new-category (categoryCreated)="loadDatePage()"/>
 
 </div>

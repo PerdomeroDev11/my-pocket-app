@@ -2,12 +2,19 @@ import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { environment } from "../../../../environments/environment";
 import { CreateFinancialPageInterface, financialPageResponseInterface, LastPageResponseIdInterfaces, StatusPagesInerface } from "./interface/financial-page.model";
-import { Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 
 @Injectable({providedIn: 'root'})
 export class FinancialPageService {
     private http = inject(HttpClient)
     private baseUrl = `${environment.apiUrl}`
+
+    private pageFinancialDate = new Subject<void>()
+    pageFinancialDate$ = this.pageFinancialDate.asObservable()
+
+    emitPageFinancialDate(){
+        this.pageFinancialDate.next()
+    }
 
     createPage(data: CreateFinancialPageInterface): Observable<financialPageResponseInterface>{
         return this.http.post<financialPageResponseInterface>(`${this.baseUrl}/financial-pages/new-page` , data , {withCredentials: true})
