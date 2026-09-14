@@ -41,15 +41,15 @@ export class VerifyEmailComponent implements OnInit {
     const email = this.form.get('email')?.value;
     
     if (!email) {
-      this.toastr.error('El correo es requerido para reenviar el código');
+      this.toastr.error('Email is required to resend the code');
       return;
     }
     this.authService.resendCodeEmailVerify(this.form.value.email as any).subscribe({
       next: () => {
-        this.toastr.success('successlly resend code')
+        this.toastr.success('Code resent successfully')
       },
       error: (err) =>{
-        this.toastr.error(err.error?.message ?? 'Código incorrecto')
+        this.toastr.error(err.error?.message ?? 'Invalid code')
       }
     })
   }
@@ -65,7 +65,7 @@ export class VerifyEmailComponent implements OnInit {
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
-        this.errorMessage.set(err.error?.message ?? 'Código incorrecto');
+        this.errorMessage.set(err.error?.message ?? 'Invalid code');
         this.isLoading.set(false);
       },
     });

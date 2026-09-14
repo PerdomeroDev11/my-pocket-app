@@ -33,7 +33,7 @@ import { LastPageResponseIdInterfaces } from "../../../../features/financial-pag
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
                       />
             </svg>
-          <span class="mx-4 font-medium">Última página</span>
+          <span class="mx-4 font-medium">Last page</span>
         </button>
     `
 })

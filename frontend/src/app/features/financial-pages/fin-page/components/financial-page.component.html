@@ -2,7 +2,7 @@
 
   @if (isLoading()) {
     <div class="loading-state">
-      <p>Cargando información...</p>
+      <p>Loading information...</p>
     </div>
   }
 
@@ -10,13 +10,17 @@
     <div class="categories-list">
       @for (category of dateFinancialPage(); track category.id) {
         <div class="category-box">
-          <h3>{{ category.name }}</h3>
+          <div class="flex items-center justify-between gap-3">
+            <h3>{{ category.name }}</h3>
+            <app-button-new-movement [pageId]="pageId()" [categoryId]="category.id"></app-button-new-movement>
+          </div>
 
           @if (category.movements.length > 0) {
             <ul class="movements-list">
               @for (movement of category.movements; track movement.id) {
                 <li>
-                  <span>{{ movement.description || 'Sin descripción' }}</span>
+                  <span>{{ movement.name || movement.description || 'No name' }}</span>
+                  <span>{{ movement.description || 'No description' }}</span>
                   <span>{{ movement.amount | currency:'COP' }}</span>
                   <span>{{ movement.date | date:'dd/MM/yyyy' }}</span>
                 </li>
@@ -24,7 +28,7 @@
             </ul>
 
           } @else {
-            <p class="no-movements">Sin movimientos en esta página.</p>
+            <p class="no-movements">No movements on this page.</p>
           }
         </div>
         <app-button-update-category
@@ -39,7 +43,7 @@
 
   @if (!isLoading() && (!dateFinancialPage() || dateFinancialPage()!.length === 0)) {
     <div class="empty-state">
-      <p>No hay categorías para mostrar.</p>
+      <p>No categories to display.</p>
     </div>
   }
   <app-list-financial-page/>

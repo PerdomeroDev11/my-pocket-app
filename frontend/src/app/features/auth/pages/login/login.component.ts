@@ -57,12 +57,12 @@ export class LoginComponent {
 
         this.authService.google({idToken: idToken}).subscribe({
             next: (res) => [
-                this.toastr.success('login successlly'),
+                this.toastr.success('Signed in successfully'),
                 this.router.navigate(['/sessions'])
             ],
             error:(err) => {
                 this.isLoading.set(false)
-                const msg = err.error?.message || 'cannot login';
+                const msg = err.error?.message || 'Unable to sign in';
                 this.errorMessage.set(msg)
                 this.toastr.error(msg , 'Error')
             }
@@ -81,13 +81,13 @@ export class LoginComponent {
         this.authService.login(dto as any).subscribe({
             next: () => {
                 this.router.navigate(['/sessions'])
-                this.toastr.success('login successlly')
+                this.toastr.success('Signed in successfully')
             },
             error: (err) => {
                 this.isLoading.set(false)
-                const msg = err.error?.message || 'cannot login'
+                const msg = err.error?.message || 'Unable to sign in'
                 this.errorMessage.set(msg)
-                this.toastr.error('error')
+                this.toastr.error('Error')
             }
         })
     }

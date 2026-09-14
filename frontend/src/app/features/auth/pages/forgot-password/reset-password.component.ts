@@ -44,17 +44,17 @@ export class ResetPasswordComponent implements OnInit{
 
     this.authService.resendCodePassword(this.email()!).subscribe({
         next: () => {
-            this.toastr.success('successly resend code')
+            this.toastr.success('Code resent successfully')
         },
         error: (err) => {
-            this.toastr.error(err.error?.message || 'Espera un momento para volver a solicitar el código')
+            this.toastr.error(err.error?.message || 'Please wait a moment before requesting the code again')
         }
     })
   }
 
   onSubmit() {
-    console.log('Estado del formulario:', this.form.value);
-     console.log('¿Es inválido?', this.form.invalid);
+    console.log('Form state:', this.form.value);
+     console.log('Is invalid?', this.form.invalid);
     if (this.form.invalid) return;
 
     this.isLoading.set(true);
@@ -66,12 +66,12 @@ export class ResetPasswordComponent implements OnInit{
     ).subscribe({
       next: () => {
         this.router.navigate(['/login']);
-        this.toastr.success('successly change password')
+        this.toastr.success('Password changed successfully')
       },
       error: (err) => {
-        this.errorMessage.set(err.error?.message ?? 'Código incorrecto o expirado');
+        this.errorMessage.set(err.error?.message ?? 'Invalid or expired code');
         this.isLoading.set(false);
-        this.toastr.error('error: ' , err)
+        this.toastr.error('Error: ', err)
       },
     });
   }

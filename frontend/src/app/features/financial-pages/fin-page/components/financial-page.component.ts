@@ -11,6 +11,7 @@ import { tap } from "rxjs/internal/operators/tap";
 import { ButtonNewCategoryComponent } from "../../categorires/components/create/button-new-category.component";
 import { ButtonUpdateCategoryComponent } from "../../categorires/components/update/ button-update-category.component";
 import { ButtonDeleteCategoryComponent } from "../../categorires/components/soft-delete/button-category.component";
+import { ButtonNewMovementComponent } from "../../ movements/components/create/button-new-movement.component";
 
 @Component({
     standalone: true,
@@ -21,7 +22,8 @@ import { ButtonDeleteCategoryComponent } from "../../categorires/components/soft
         StatusToggleComponent,
         ButtonNewCategoryComponent,
         ButtonUpdateCategoryComponent,
-        ButtonDeleteCategoryComponent
+        ButtonDeleteCategoryComponent,
+        ButtonNewMovementComponent,
     ],
     templateUrl: 'financial-page.component.html'
 })

@@ -9,7 +9,7 @@ import { financialPageResponseInterface } from "../interface/financial-page.mode
     template: `
         <div class="inline-flex flex-col gap-1 min-w-[220px]">
       <label for="page-select" class="text-xs font-semibold uppercase tracking-wide text-gray-500">
-        Período
+        Period
       </label>
       <select
         id="page-select"
@@ -17,7 +17,7 @@ import { financialPageResponseInterface } from "../interface/financial-page.mode
         class="appearance-none bg-white bg-[url('data:image/svg+xml;utf8,<svg_xmlns=%27http://www.w3.org/2000/svg%27_width=%2712%27_height=%278%27_viewBox=%270_0_12_8%27_fill=%27none%27><path_d=%27M1_1.5L6_6.5L11_1.5%27_stroke=%27%23374151%27_stroke-width=%271.5%27_stroke-linecap=%27round%27_stroke-linejoin=%27round%27/></svg>')] bg-no-repeat bg-[right_14px_center] border border-gray-300 rounded-lg px-3.5 py-2.5 pr-10 text-sm font-medium text-gray-900 cursor-pointer transition-colors hover:border-gray-400 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/15 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
       >
         @if (isLoading()) {
-          <option>Cargando...</option>
+          <option>Loading...</option>
         } @else {
           @for (page of allPageOptions(); track page.id) {
             <option [value]="page.id" [selected]="page.id === financialPageId()">

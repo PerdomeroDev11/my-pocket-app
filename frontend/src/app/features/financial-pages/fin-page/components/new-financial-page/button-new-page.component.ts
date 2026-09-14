@@ -5,7 +5,7 @@ import { FinancialPageComponent} from "./new-financial-page.component";
 @Component({
   selector: 'app-button-create-financial-page',
   standalone: true,
-  template: `<button (click)="abrirModal()">Nueva página</button>`
+  template: `<button (click)="abrirModal()">New page</button>`
 })
 export class ButtonNewPageComponent {
   private modalService = inject(ModalService);

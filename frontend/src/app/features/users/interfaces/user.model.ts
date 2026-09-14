@@ -46,25 +46,25 @@ export enum CountryEnum {
 
 // Dictionaries for displaying customer-readable names
 export const LanguageLabels: Record<LanguageEnum, string> = {
-  [LanguageEnum.Spanish]: 'Español',
+  [LanguageEnum.Spanish]: 'Spanish',
   [LanguageEnum.English]: 'English',
-  [LanguageEnum.Portuguese]: 'Português',
-  [LanguageEnum.French]: 'Français',
-  [LanguageEnum.German]: 'Deutsch',
-  [LanguageEnum.Italian]: 'Italiano',
-  [LanguageEnum.Japanese]: '日本語',
-  [LanguageEnum.Chinese]: '中文',
+  [LanguageEnum.Portuguese]: 'Portuguese',
+  [LanguageEnum.French]: 'French',
+  [LanguageEnum.German]: 'German',
+  [LanguageEnum.Italian]: 'Italian',
+  [LanguageEnum.Japanese]: 'Japanese',
+  [LanguageEnum.Chinese]: 'Chinese',
 };
 
 export const CountryLabels: Record<CountryEnum, string> = {
   [CountryEnum.Colombia]: 'Colombia',
-  [CountryEnum.Mexico]: 'México',
+  [CountryEnum.Mexico]: 'Mexico',
   [CountryEnum.Argentina]: 'Argentina',
   [CountryEnum.Chile]: 'Chile',
-  [CountryEnum.Peru]: 'Perú',
-  [CountryEnum.Spain]: 'España',
-  [CountryEnum.UnitedStates]: 'Estados Unidos',
-  [CountryEnum.Brazil]: 'Brasil',
+  [CountryEnum.Peru]: 'Peru',
+  [CountryEnum.Spain]: 'Spain',
+  [CountryEnum.UnitedStates]: 'United States',
+  [CountryEnum.Brazil]: 'Brazil',
   [CountryEnum.Ecuador]: 'Ecuador',
   [CountryEnum.Uruguay]: 'Uruguay',
 };

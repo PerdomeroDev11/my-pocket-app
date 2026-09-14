@@ -34,13 +34,13 @@ export class SentEmailForgotPasswordComponent{
                 this.router.navigate(['/reset-password'],{
                     queryParams: {email}
                 })
-                this.toastr.success('successlly sent code')
+                this.toastr.success('Code sent successfully')
 
             },
             error: (err) => {
                 this.isLoading.set(false)
                 this.errMessage.set(err.error.message ?? 'Error')
-                this.toastr.error('error')
+                this.toastr.error('Error')
             },
         })
     }
