@@ -16,10 +16,9 @@ export class MovementsController{
         @Body() dto: CreateMovementsDto,
         @CurrentUser('sub') userId: string,
         @Param('pageId') pageId: string,
-        @Param('balanceSectionId') balanceSectioId: string,
         @Param('categoryId') categoryId: string,
     ){
-        return await this.movementsService.createMovement(dto, categoryId,pageId,userId,balanceSectioId)
+        return await this.movementsService.createMovement(dto, categoryId,pageId,userId)
     }
     @Put('update/:pageId/categories/:categoryId/balanceSection/:balanceSectionId/movement/:id')
     async updateMovement(

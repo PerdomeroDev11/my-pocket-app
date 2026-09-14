@@ -112,7 +112,7 @@ export class FinancialsPagesService {
                 financialPageId: newPageId,
                 categoryId: cat.id,
                 institutionFinancialId: lastMovement.institutionFinancialId,
-                balanceSectionId: lastMovement.balanceSectionId,
+                name: lastMovement.name,
                 description: lastMovement.description,
                 amount: lastMovement.amount,
                 expectAmount: lastMovement.expectAmount,

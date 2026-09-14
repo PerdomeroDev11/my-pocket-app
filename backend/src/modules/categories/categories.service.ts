@@ -12,6 +12,7 @@ export class CategoriesService {
         @Inject('REDIS_CLIENT') private readonly redis: Redis
     ){}
     async createTemplateDefault(userId:string){
+        await this.redis.del(`category:${userId}`)
         return this.prisma.categories.createMany({
             data: DEFAULT_CATEGORIES.map((cat) => ({
                 userId,
@@ -40,23 +41,23 @@ export class CategoriesService {
         }
        });
        if(!updateCategory) throw new BadRequestException('there was an error to update category')
-       const updateCategoryString = JSON.stringify(updateCategory)
         await this.redis.del(`category:${userId}`)
         return updateCategory       
     }
     async showCategories(userId: string , financialPageId: string){
-        const cacheData = await this.redis.get(`category:${userId}`)
+        const cacheKey = `category:${userId}:${financialPageId}`
+        const cacheData = await this.redis.get(cacheKey)
         if(cacheData) return JSON.parse(cacheData)
         const categories = await this.prisma.categories.findMany({
             where:{userId: userId, status: 'ACTIVE'},
             include:{
                 movements:{
-                    where:{id: financialPageId}
+                    where:{financialPageId: financialPageId}
                 }
             },
             orderBy:{createdAt: 'asc'}
         })
-        await this.redis.set(`category:${userId}` , JSON.stringify(categories))
+        await this.redis.set(cacheKey , JSON.stringify(categories))
         return categories
     }
     async solfDelete(userId: string , id:string){
@@ -65,7 +66,6 @@ export class CategoriesService {
             where:{userId , id},
             data:{status: "DELETED"}
         });
-        
     }
 
 }

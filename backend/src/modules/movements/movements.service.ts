@@ -23,26 +23,35 @@ export class MovementsService {
         categoryId: string, 
         pageId: string, 
         userId: string, 
-        balanceSectionId: string
     ) {
         await this.verifyCategoryOwnership(categoryId, userId);
+
+        const movementDescription = dto.description ?? dto.name ?? 'Movimiento';
+
         const createNewMovement = await this.prisma.movements.create({
             data:{
                 financialPageId: pageId,
-                    categoryId: categoryId,
-                    balanceSectionId: balanceSectionId,
-                    institutionFinancialId: dto.institutionFinancialId,
-                    amount: dto.amount,
-                    expectAmount: dto.expectAmount,
-                    date: new Date(),
-                    typeMovement: dto.typeMovement
+                categoryId: categoryId,
+                institutionFinancialId: dto.institutionFinancialId,
+                name: dto.name,
+                description: movementDescription,
+                amount: dto.amount,
+                date: dto.date ? new Date(dto.date) : new Date(),
+                isPay: dto.isPay,
+                typeMovement: dto.typeMovement
             }
         })
-        await this.logicCreatedMovement( categoryId , pageId , balanceSectionId);
+        await this.logicCreatedMovement( categoryId , pageId);
         await this.redis.del(`movements:${userId}:${createNewMovement.financialPageId}`);
         await this.redis.del(`movement:${createNewMovement.id}`);
+        await this.redis.del(`category:${userId}`);
+        await this.redis.del(`category:${userId}:${pageId}`);
 
-        return createNewMovement;
+        return {
+            ...createNewMovement,
+            name: dto.name ?? movementDescription,
+            description: movementDescription,
+        };
     }
 
     async updateMovement(
@@ -160,7 +169,6 @@ export class MovementsService {
     private async logicCreatedMovement(
         categoryId: string, 
         pageId: string, 
-        balanceSectionId: string
     ){
         const newMovement = await this.prisma.$transaction(async (tx) => {
             const financialPage = await tx.financialPages.findUnique({where:{id: pageId}})
