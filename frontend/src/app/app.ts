@@ -5,10 +5,10 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-root',
   imports: [RouterOutlet],
   template: `
-    <main>
-      <router-outlet/>
+    <main class="app-shell">
+      <router-outlet />
     </main>
-  `
+  `,
 })
 export class App {
   protected readonly title = signal('frontend');

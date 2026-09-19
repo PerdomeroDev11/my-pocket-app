@@ -1,98 +1,126 @@
-<div>
+<div class="w-full">
+  <div class="relative overflow-hidden rounded-[28px] border border-white/10 border-t-white/20 bg-black-russian-950/40 p-6 backdrop-blur-3xl shadow-[0_30px_70px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.1)]">
+    
+    <div class="absolute -top-24 left-1/2 -translate-x-1/2 h-24 w-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
+
     @if (isLading()) {
-        <p>Loading...</p>
+      <div class="flex min-h-200px items-center justify-center rounded-2xl border border-white/10 bg-black-russian-900/40 backdrop-blur-xl text-sm font-medium text-black-russian-300">
+        <div class="flex items-center gap-3">
+          <div class="h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+          Loading information...
+        </div>
+      </div>
     } 
     @else if (!userData()) {
-        <p>Oops, there was an error loading your information.</p>
+      <div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 p-8 text-center text-sm text-red-300 shadow-sm">
+        <svg class="mb-2 h-8 w-8 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        Oops, there was an error loading your information.
+      </div>
     } 
     @else {
-        <div class=" p-5">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-5 mb-4">
-                <div class="flex items-center gap-3">
-                    @if (userData()?.profilePicture) {
-                        <img [src]="userData()?.profilePicture" class="w-12 h-12 rounded-full object-cover border border-cyan-500/30 shadow-md" alt="Avatar">
-                    } @else {
-                        <div class="w-12 h-12 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-cyan-400 font-bold">
-                            {{ userData()?.name?.charAt(0) || 'U' }}
-                        </div>
-                    }
-                    <div>
-                        <label class="text-sm text-slate-400">Profile Picture</label>
-                        <p class="font-medium text-slate-200">Update your avatar</p>
-                    </div>
-                </div>
-                <button 
-                class="px-3 py-1.5 rounded-xl border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition text-sm font-medium"
-                (click)="openEditModal('profilePicture', 'file', userData()?.profilePicture)">
-                Editar
-                </button>
-            </div>
-            
-            <div class="flex justify-between items-center border-b pb-2">
-                <div>
-                    <label class="text-sm text-gray-500">Name:</label>
-                    <p class="font-medium text-amber-50">{{ userData()?.name }}</p>
-                </div>
-                <button
-                    class="px-3 py-1.5 rounded-xl border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition text-sm font-medium" 
-                    type="button" 
-                    (click)="openEditModal('name', 'text', userData()?.name)">
-                    Editar
-                </button>
-            </div>
+      <!-- Section header -->
+      <div class="mb-6 border-b border-white/10 pb-4">
+        <h2 class="text-xl font-bold tracking-tight text-black-russian-50">Profile Settings</h2>
+        <p class="text-xs text-black-russian-400">Manage your personal account details and preferences.</p>
+      </div>
 
-            <div class="flex justify-between items-center border-b pb-2">
-                <div>
-                    <label class="text-sm text-gray-500">Country</label>
-                    <p class="font-medium text-amber-50">{{ userData()?.country }}</p>
-                </div>
-                <button
-                     class="px-3 py-1.5 rounded-xl border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition text-sm font-medium" 
-                    type="button" 
-                    (click)="openEditModal('country', 'select', userData()?.country, countryOptions)">
-                    Editar
-                </button>
+      <div class="space-y-4">
+        <!-- Profile picture section -->
+        <div class="group flex items-center justify-between rounded-2xl border border-white/5 bg-black-russian-900/30 backdrop-blur-md p-4 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
+          <div class="flex items-center gap-4">
+            @if (userData()?.profilePicture) {
+              <img [src]="userData()?.profilePicture" class="h-13 w-13 rounded-full object-cover border border-blue-400/35 shadow-md" alt="Avatar">
+            } @else {
+              <div class="flex h-13 w-13 items-center justify-center rounded-full border border-white/10 bg-black-russian-900 font-bold text-blue-400 shadow-inner">
+                {{ userData()?.name?.charAt(0) || 'U' }}
+              </div>
+            }
+            <div>
+              <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-black-russian-400">Profile Picture</span>
+              <p class="text-sm font-medium text-black-russian-50">Update your avatar</p>
             </div>
-
-            <div class="flex justify-between items-center border-b pb-2">
-                <div>
-                    <label class="text-sm text-gray-500">Language</label>
-                    <p class="font-medium text-amber-50">{{ getLanguageLabel(userData()?.language) }}</p>
-                </div>
-                <button
-                     class="px-3 py-1.5 rounded-xl border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition text-sm font-medium" 
-                    type="button" 
-                    (click)="openEditModal('language', 'select', userData()?.language, languageOptions)">
-                    Editar
-                </button>
-            </div>
-
-            <div class="flex justify-between items-center border-b pb-2">
-                <div>
-                    <label class="text-sm text-gray-500">Timezone</label>
-                    <p class="font-medium text-amber-50">{{ userData()?.timeZone }}</p>
-                </div>
-                <button
-                    class="px-3 py-1.5 rounded-xl border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition text-sm font-medium"  
-                    type="button" 
-                    (click)="openEditModal('timeZone', 'select', userData()?.timeZone, timezoneOptions)">
-                    Editar
-                </button>
-            </div>
-
-            <div class="flex justify-between items-center border-b pb-2">
-                <div>
-                    <label class="text-sm text-gray-500">Period Type</label>
-                    <p class="font-medium text-amber-50">{{ userData()?.typePeriod }}</p>
-                </div>
-                <button
-                    class="px-3 py-1.5 rounded-xl border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition text-sm font-medium" 
-                    type="button" 
-                    (click)="openEditModal('typePeriod', 'select', userData()?.typePeriod, periodOptions)">
-                    Editar
-                </button>
-            </div>
-
+          </div>
+          <button 
+            type="button"
+            class="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-semibold text-blue-300 shadow-sm transition-all duration-200 hover:border-blue-400 hover:bg-blue-500/20 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.25)]"
+            (click)="openEditModal('profilePicture', 'file', userData()?.profilePicture)">
+            Editar
+          </button>
         </div>
+        
+        <!-- Field component helper template style for rows -->
+        <!-- Name -->
+        <div class="group flex items-center justify-between rounded-2xl border border-white/5 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
+          <div>
+            <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-black-russian-400">Name</span>
+            <p class="text-sm font-medium text-black-russian-50">{{ userData()?.name }}</p>
+          </div>
+          <button
+            class="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-semibold text-blue-300 shadow-sm transition-all duration-200 hover:border-blue-400 hover:bg-blue-500/20 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.25)]" 
+            type="button" 
+            (click)="openEditModal('name', 'text', userData()?.name)">
+            Editar
+          </button>
+        </div>
+
+        <!-- Country -->
+        <div class="group flex items-center justify-between rounded-2xl border border-white/5 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
+          <div>
+            <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-black-russian-400">Country</span>
+            <p class="text-sm font-medium text-black-russian-50">{{ userData()?.country }}</p>
+          </div>
+          <button
+            class="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-semibold text-blue-300 shadow-sm transition-all duration-200 hover:border-blue-400 hover:bg-blue-500/20 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.25)]" 
+            type="button" 
+            (click)="openEditModal('country', 'select', userData()?.country, countryOptions)">
+            Editar
+          </button>
+        </div>
+
+        <!-- Language -->
+        <div class="group flex items-center justify-between rounded-2xl border border-white/5 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
+          <div>
+            <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-black-russian-400">Language</span>
+            <p class="text-sm font-medium text-black-russian-50">{{ getLanguageLabel(userData()?.language) }}</p>
+          </div>
+          <button
+            class="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-semibold text-blue-300 shadow-sm transition-all duration-200 hover:border-blue-400 hover:bg-blue-500/20 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.25)]" 
+            type="button" 
+            (click)="openEditModal('language', 'select', userData()?.language, languageOptions)">
+            Editar
+          </button>
+        </div>
+
+        <!-- Timezone -->
+        <div class="group flex items-center justify-between rounded-2xl border border-white/5 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
+          <div>
+            <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-black-russian-400">Timezone</span>
+            <p class="text-sm font-medium text-black-russian-50">{{ userData()?.timeZone }}</p>
+          </div>
+          <button
+            class="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-semibold text-blue-300 shadow-sm transition-all duration-200 hover:border-blue-400 hover:bg-blue-500/20 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.25)]"  
+            type="button" 
+            (click)="openEditModal('timeZone', 'select', userData()?.timeZone, timezoneOptions)">
+            Editar
+          </button>
+        </div>
+
+        <!-- Period Type -->
+        <div class="group flex items-center justify-between rounded-2xl border border-white/5 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
+          <div>
+            <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-black-russian-400">Period Type</span>
+            <p class="text-sm font-medium text-black-russian-50">{{ userData()?.typePeriod }}</p>
+          </div>
+          <button
+            class="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-semibold text-blue-300 shadow-sm transition-all duration-200 hover:border-blue-400 hover:bg-blue-500/20 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.25)]" 
+            type="button" 
+            (click)="openEditModal('typePeriod', 'select', userData()?.typePeriod, periodOptions)">
+            Editar
+          </button>
+        </div>
+      </div>
     }
+  </div>
 </div>

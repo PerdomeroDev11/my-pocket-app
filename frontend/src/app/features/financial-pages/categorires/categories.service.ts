@@ -8,7 +8,7 @@ import { Observable, Subject } from "rxjs";
 export class CategoriesService{
     private http = inject(HttpClient)
     private baseUrl = `${environment.apiUrl}/categories`
-     private categoryDate = new Subject<void>()
+    private categoryDate = new Subject<void>()
     categoryDate$ = this.categoryDate.asObservable()
 
     emitCategoryDate(){

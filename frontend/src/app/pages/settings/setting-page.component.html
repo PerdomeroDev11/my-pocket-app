@@ -1,41 +1,75 @@
-<div>
-    <h2>Settings</h2>
-    <div>
-        <div>
-            <h3 class="mb-4 text-lg font-semibold text-slate-100">Security</h3>
+<div class="w-full space-y-8">
+    <!-- Main settings header -->
+    <div class="border-b border-white/10 pb-5">
+        <h2 class="text-3xl font-extrabold tracking-tight text-black-russian-50">Settings</h2>
+        <p class="mt-1 text-sm text-black-russian-400">Manage your account preferences, security credentials, and profile details.</p>
+    </div>
+
+    <!-- General content section -->
+    <div class="space-y-8">
+        
+        <!-- Security block -->
+        <div class="space-y-5">
+            <div class="flex items-center gap-3">
+                <div class="flex h-9 w-9 items-center justify-center rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold tracking-tight text-black-russian-50">Security</h3>
+            </div>
+
+            <!-- Active sessions component -->
             <app-session/>
 
-            <div class="mt-5 w-full rounded-[28px] border border-cyan-500/15 bg-slate-900/80 p-4 shadow-[0_20px_50px_rgba(8,15,30,0.5)] backdrop-blur-sm sm:p-5">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <!-- Password management card -->
+            <div class="relative mt-5 overflow-hidden rounded-[28px] border border-white/10 border-t-white/20 bg-black-russian-950/40 p-5 shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-3xl sm:p-6">
+                <!-- Subtle ambient light -->
+                <div class="absolute -top-16 right-0 h-20 w-60 rounded-full bg-blue-500/10 blur-2xl pointer-events-none"></div>
+
+                <div class="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                     <div class="min-w-0">
-                        <div class="flex items-center gap-3 text-xl font-semibold tracking-tight text-cyan-50">
-                            <span class="inline-flex items-center justify-center rounded-lg border border-cyan-500/15 bg-slate-950/50 p-1.5 text-cyan-300 shadow-inner shadow-cyan-950/30">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black-russian-900 text-blue-400 shadow-inner">
                                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                     <rect x="5" y="11" width="14" height="9" rx="2"></rect>
                                     <path d="M8 11V8a4 4 0 1 1 8 0v3"></path>
                                 </svg>
                             </span>
-                            <span class="flex items-center gap-2 leading-none text-slate-300">
-                                <span class="inline-flex items-center leading-none">Password:</span>
-                                <span class="inline-flex items-center leading-none font-mono tracking-[0.22em] text-cyan-100">*********</span>
-                            </span>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="text-sm font-semibold text-black-russian-300 uppercase tracking-widest">Password:</span>
+                                <span class="font-mono text-base tracking-[0.25em] text-black-russian-50">*********</span>
+                            </div>
                         </div>
-                        <p class="mt-1 text-sm text-slate-300">Keep your account protected by using a strong, unique password.</p>
+                        <p class="mt-2 text-xs text-black-russian-400">Keep your account protected by using a strong, unique password.</p>
                     </div>
 
                     <button
                         type="button"
                         (click)="openChangePasswordModal()"
-                        class="inline-flex items-center justify-center rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-400"
+                        class="group relative inline-flex shrink-0 items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(37,99,235,0.4)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-[0_15px_30px_rgba(37,99,235,0.6)] active:translate-y-0"
                     >
                         Change password
                     </button>
                 </div>
             </div>
-            <div class="my-4">
-                <h3 class="text-3xl text-white my-10">User</h3>
-                <app-user-data/>
-            </div>
         </div>
+
+        <!-- User block -->
+        <div class="space-y-5 pt-4">
+            <div class="flex items-center gap-3">
+                <div class="flex h-9 w-9 items-center justify-center rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold tracking-tight text-black-russian-50">User Profile</h3>
+            </div>
+
+            <!-- User data component -->
+            <app-user-data/>
+        </div>
+
     </div>
 </div>

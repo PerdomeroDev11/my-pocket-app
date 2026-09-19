@@ -1,41 +1,51 @@
-import { Router, RouterLink, RouterLinkActive } from "@angular/router";
-import { Component, inject } from "@angular/core";
-import { FinancialPageService } from "../../../../features/financial-pages/fin-page/financial-pages.service";
-import { LastPageResponseIdInterfaces } from "../../../../features/financial-pages/fin-page/interface/financial-page.model";
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { FinancialPageService } from '../../../../features/financial-pages/fin-page/financial-pages.service';
+import { LastPageResponseIdInterfaces } from '../../../../features/financial-pages/fin-page/interface/financial-page.model';
 
 @Component({
-    selector: 'app-sidebar-nav-item',
-    standalone: true,
-    imports: [RouterLink, RouterLinkActive],
-    template: `
-        <a
-          routerLink="/setting"
-          routerLinkActive="bg-sky-500/15 text-sky-100 ring-1 ring-sky-500/30"
-          class="flex items-center px-4 py-2 text-gray-700 bg-gray-100 rounded-md dark:bg-gray-800 dark:text-gray-200"
-        >
-           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M19 11H5M19 11C20.1046 11 21 11.8954 21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13C3 11.8954 3.89543 11 5 11M19 11V9C19 7.89543 18.1046 7 17 7M5 11V9C5 7.89543 5.89543 7 7 7M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7M7 7H17"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
-                      />
-            </svg>
-          <span class="mx-4 font-medium">settings</span>
-        </a>
-        <button
-          type="button"
-          (click)="goToLastPage()"
-          routerLinkActive="bg-sky-500/15 text-sky-100 ring-1 ring-sky-500/30"
-          class="flex items-center w-full px-4 py-2 text-left text-gray-700 bg-gray-100 rounded-md dark:bg-gray-800 dark:text-gray-200"
-        >
-           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M19 11H5M19 11C20.1046 11 21 11.8954 21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13C3 11.8954 3.89543 11 5 11M19 11V9C19 7.89543 18.1046 7 17 7M5 11V9C5 7.89543 5.89543 7 7 7M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7M7 7H17"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
-                      />
-            </svg>
-          <span class="mx-4 font-medium">Last page</span>
-        </button>
-    `
+  selector: 'app-sidebar-nav-item',
+  standalone: true,
+  imports: [RouterLink, RouterLinkActive],
+  template: `
+    <div class="space-y-2">
+      <a
+        routerLink="/sessions"
+        routerLinkActive="border-blue-400 bg-blue-500/15 text-white shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="flex items-center rounded-r-xl border-l-4 border-transparent px-6 py-2.5 text-sm font-medium text-black-russian-300 transition-all duration-300 hover:border-blue-400/60 hover:bg-blue-500/10 hover:text-white"
+      >
+        <svg class="h-5 w-5 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h18M12 3v18" />
+        </svg>
+        <span class="mx-4">Sessions</span>
+      </a>
+
+      <a
+        routerLink="/setting"
+        routerLinkActive="border-blue-400 bg-blue-500/15 text-white shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="flex items-center rounded-r-xl border-l-4 border-transparent px-6 py-2.5 text-sm font-medium text-black-russian-300 transition-all duration-300 hover:border-blue-400/60 hover:bg-blue-500/10 hover:text-white"
+      >
+        <svg class="h-5 w-5 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.208.042 2.573-1.066z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+        <span class="mx-4">Settings</span>
+      </a>
+
+      <button
+        type="button"
+        (click)="goToLastPage()"
+        class="flex w-full items-center rounded-r-xl border-l-4 border-transparent px-6 py-2.5 text-left text-sm font-medium text-black-russian-300 transition-all duration-300 hover:border-blue-400/60 hover:bg-blue-500/10 hover:text-white"
+      >
+        <svg class="h-5 w-5 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M3 10h18M5 5h14a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" />
+        </svg>
+        <span class="mx-4">Last page</span>
+      </button>
+    </div>
+  `,
 })
 export class SidebarNavItemComponent {
   private router = inject(Router);
@@ -44,13 +54,11 @@ export class SidebarNavItemComponent {
   goToLastPage(): void {
     this.financialPageService.getLastPage().subscribe({
       next: (pageId: LastPageResponseIdInterfaces) => {
-          console.log('id obtenido de la cunsulta al endpoint lasPages: ' , pageId.id)
-          this.router.navigate(['/financial-pages', pageId.id]);
+        this.router.navigate(['/financial-pages', pageId.id]);
       },
-      error: (err) => {
-        console.error('error al hacer la consulta lastPage: ' , err)
+      error: () => {
         this.router.navigate(['/financial-pages']);
-      }
+      },
     });
   }
 }

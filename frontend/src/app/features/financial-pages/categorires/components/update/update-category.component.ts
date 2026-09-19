@@ -11,21 +11,58 @@ import { HttpErrorResponse } from "@angular/common/http";
     imports: [ReactiveFormsModule],
     standalone: true,
     template: `
-        <div>
+        <div class="w-[min(32rem,92vw)] rounded-2xl bg-white p-6 ">
+            <div class="mb-5 flex items-center justify-between gap-3">
+                <h2 class="text-xl font-semibold text-slate-900">Edit category</h2>
+                <button type="button" class="text-sm text-slate-500 hover:text-slate-800" (click)="modaleRef.close(false)">
+                    Close
+                </button>
+            </div>
+
             @if(messageError()){
-                <p class="text-red-500">{{messageError()}}</p>
+                <p class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                    {{messageError()}}
+                </p>
             }
-            <h3>Update Category</h3>
-            <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
-                <div class="form-group">
-                    <label for="name">Category Name</label>
-                    <input type="text" id="name" formControlName="name" class="form-control">
+
+            <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="space-y-4">
+                <div>
+                    <label for="name" class="mb-1 block text-sm font-medium text-slate-700">Category name</label>
+                    <input
+                        type="text"
+                        id="name"
+                        formControlName="name"
+                        class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                        placeholder="e.g. Food"
+                    >
                 </div>
-                <div class="form-check">
-                    <input type="checkbox" id="isRecurrent" formControlName="isRecurrent" class="form-check-input">
-                    <label for="isRecurrent" class="form-check-label">Is Recurrent</label>
+
+                <label for="isRecurrent" class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                    <input
+                        type="checkbox"
+                        id="isRecurrent"
+                        formControlName="isRecurrent"
+                        class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    >
+                    Is recurrent
+                </label>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button
+                        type="button"
+                        class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                        (click)="modaleRef.close(false)"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        [disabled]="categoryForm.invalid || isLoading()"
+                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-blue-300"
+                    >
+                        {{isLoading() ? 'Updating...' : 'Save changes'}}
+                    </button>
                 </div>
-                <button type="submit" [disabled]="categoryForm.invalid" class="btn btn-primary">{{isLoading() ? 'Updating...' : 'Update Category'}}</button>
             </form>
         </div>
     `   
@@ -33,7 +70,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 export class UpdateCategoryComponent implements OnInit{
     private fb = inject(FormBuilder)
     private categoryService = inject(CategoriesService)
-    private modaleRef = inject(MODAL_REF) as ModalRef<boolean>
+    modaleRef = inject(MODAL_REF) as ModalRef<boolean>
     private modaData = inject(MODAL_DATA ) as {category?: CategoriesResponse} 
 
     isLoading = signal<boolean>(false)

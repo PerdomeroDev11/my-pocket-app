@@ -1,5 +1,85 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
 @import 'ngx-toastr/toastr';
 @import '@angular/cdk/overlay-prebuilt.css';
+
+:root {
+  --color-black-russian-50: #f0f3fd;
+  --color-black-russian-100: #e3e9fc;
+  --color-black-russian-200: #ccd6f9;
+  --color-black-russian-300: #adbbf4;
+  --color-black-russian-400: #8c97ed;
+  --color-black-russian-500: #7075e4;
+  --color-black-russian-600: #5954d7;
+  --color-black-russian-700: #4c45bd;
+  --color-black-russian-800: #3e3a99;
+  --color-black-russian-900: #36357a;
+  --color-black-russian-950: #14132b;
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #141414; 
+  background-image: 
+    radial-gradient(circle at 90% 50%, rgba(34, 34, 34, 0.464) 0%, transparent 20%),
+    radial-gradient(circle at 10% 10%, rgba(67, 65, 65, 0.246) 0%, transparent 10%);
+  background-attachment: fixed;
+  color: #f0f3fd;
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.auth-shell {
+  animation: authFadeIn 0.45s ease-out both;
+}
+
+.auth-card {
+  animation: authSlideUp 0.45s ease-out both;
+}
+
+.auth-illustration {
+  filter: drop-shadow(0 25px 35px rgba(14, 165, 233, 0.18));
+}
+
+@keyframes authFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes authSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.custom-select-arrow {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23cbd5e1' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+.bg-denim-texture {
+  background-color: #464647;
+  background-image: 
+    linear-gradient(135deg, rgba(82, 82, 82, 0.34) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(79, 78, 78, 0.04) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(255, 255, 255, 0.04) 25%, transparent #292929);
+  background-position: 10px 0, 10px 0, 0 0, 0 0;
+  background-size: 4px 4px;
+  background-repeat: repeat;
+}

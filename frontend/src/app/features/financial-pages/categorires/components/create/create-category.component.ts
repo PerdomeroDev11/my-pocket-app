@@ -31,7 +31,13 @@ export class CreateCategoryComponent{
         if(this.categoryForm.invalid) return
 
         this.isLoading.set(true)
-        const form: CreateCategoriesInterface = this.categoryForm.getRawValue()
+        const rawValues = this.categoryForm.getRawValue()
+
+        // 2. Creamos el objeto convirtiendo el nombre a mayúsculas
+        const form: CreateCategoriesInterface = {
+            ...rawValues,
+            name: rawValues.name.toUpperCase()
+        }
         this.categoriesService.createCategory(form).subscribe({
             next: (response: CategoriesResponse) =>{
                 this.handleSuccess(response)

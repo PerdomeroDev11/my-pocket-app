@@ -20,6 +20,10 @@ export const authRoutes: Routes = [
     component: SentEmailForgotPasswordComponent
   },
   {
+    path: 'forgot-password',
+    component: SentEmailForgotPasswordComponent
+  },
+  {
     path: 'reset-password',
     component: ResetPasswordComponent
   }

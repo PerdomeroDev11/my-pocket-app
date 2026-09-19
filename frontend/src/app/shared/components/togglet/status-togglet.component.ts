@@ -1,4 +1,3 @@
-// status-toggle.component.ts
 import { Component, input, output, computed } from "@angular/core";
 import { StatusPageEnum } from "../../../features/financial-pages/fin-page/interface/financial-page.model";
 
@@ -22,11 +21,11 @@ import { StatusPageEnum } from "../../../features/financial-pages/fin-page/inter
       </button>
 
       <span
-        class="text-sm font-medium"
-        [class.text-green-600]="isActive()"
-        [class.text-gray-500]="!isActive()"
+        class="text-sm font-medium tracking-wide"
+        [class.text-emerald-500]="isActive()"
+        [class.text-[#5c4e4e]]="!isActive()"
       >
-        {{ isActive() ? 'Activa' : 'Cerrada' }}
+        {{ isActive() ? 'Active' : 'Closed' }}
       </span>
     </div>
   `

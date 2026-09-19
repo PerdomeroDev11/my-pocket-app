@@ -17,15 +17,16 @@ import { ButtonNewMovementComponent } from "../../ movements/components/create/b
     standalone: true,
     selector: 'app-financial-page-component',
     imports: [
-        CommonModule,
-        ListFinancialPageComponent,
-        StatusToggleComponent,
-        ButtonNewCategoryComponent,
-        ButtonUpdateCategoryComponent,
-        ButtonDeleteCategoryComponent,
-        ButtonNewMovementComponent,
-    ],
-    templateUrl: 'financial-page.component.html'
+    CommonModule,
+    ListFinancialPageComponent,
+    StatusToggleComponent,
+    ButtonNewCategoryComponent,
+    ButtonUpdateCategoryComponent,
+    ButtonDeleteCategoryComponent,
+    ButtonNewMovementComponent,
+],
+    templateUrl: 'financial-page.component.html',
+    styleUrl: 'financial-page.style.css'
 })
 export class FinancialPageComponent implements OnInit , OnDestroy {
     private financialPageService = inject(FinancialPageService)
@@ -38,9 +39,8 @@ export class FinancialPageComponent implements OnInit , OnDestroy {
     pageId = signal<string>('')
     statusPage = signal<StatusPagesInerface>({status: StatusPageEnum.ACTIVE})
 
-    
 
-    ngOnInit(): void {
+  ngOnInit(): void {
         this.route.paramMap.subscribe((params) => {
             this.pageId.set(params.get('id') || '')
             this.loadDatePage()

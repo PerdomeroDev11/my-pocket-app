@@ -9,10 +9,12 @@ import { CreateMovementComponent } from './create-movement.component';
   template: `
     <button
       type="button"
-      class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2"
+      class="rounded-lg  px-1 py-1 p-0 m-0 text-sm font-semibold text-white transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2"
       (click)="openModal()"
     >
-      New movement
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+  </svg>
     </button>
   `,
 })

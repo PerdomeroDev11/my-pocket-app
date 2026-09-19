@@ -46,7 +46,8 @@ export class LoginComponent {
                 google.accounts.id.renderButton(container,{
                     theme: 'outline',
                     size: 'large',
-                    width: '400px'
+                    width: '100%',
+                    text: 'continue_with',
                 })
             }
         }
