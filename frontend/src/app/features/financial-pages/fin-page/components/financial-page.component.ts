@@ -12,6 +12,10 @@ import { ButtonNewCategoryComponent } from "../../categorires/components/create/
 import { ButtonUpdateCategoryComponent } from "../../categorires/components/update/ button-update-category.component";
 import { ButtonDeleteCategoryComponent } from "../../categorires/components/soft-delete/button-category.component";
 import { ButtonNewMovementComponent } from "../../ movements/components/create/button-new-movement.component";
+import { ButtonUpdateMovementComponent } from "../../ movements/components/update/button-update-movement.component";
+import { MovementResponseInterface, UpdateMovementInterface } from "../../ movements/interfaces/movements.interface";
+import { MovementsService } from "../../ movements/movemets.service";
+import { ButtonDeleteMovementComponent } from "../../ movements/components/delete/button-delete-movement.component";
 
 @Component({
     standalone: true,
@@ -24,12 +28,16 @@ import { ButtonNewMovementComponent } from "../../ movements/components/create/b
     ButtonUpdateCategoryComponent,
     ButtonDeleteCategoryComponent,
     ButtonNewMovementComponent,
+    ButtonUpdateMovementComponent,
+    ButtonNewMovementComponent,
+    ButtonDeleteMovementComponent
 ],
     templateUrl: 'financial-page.component.html',
     styleUrl: 'financial-page.style.css'
 })
 export class FinancialPageComponent implements OnInit , OnDestroy {
     private financialPageService = inject(FinancialPageService)
+    private movementsService = inject(MovementsService)
     private route = inject(ActivatedRoute)
     private toastr = inject(ToastrService)
 
@@ -62,10 +70,10 @@ export class FinancialPageComponent implements OnInit , OnDestroy {
             next: (response : StatusPagesInerface) =>{
                 this.statusPage.set({status: response.status as StatusPageEnum})
                 this.loadCurrentPageStatus()
-                this.toastr.success('Status actualizado', response.status)
+                this.toastr.success('Status updated successfully', response.status)
             },
             error:(err) => {
-                this.toastr.error('No se pudo cambiar el estado')
+                this.toastr.error('Could not change the status')
                 console.log(err)
             }
         })
@@ -103,9 +111,45 @@ export class FinancialPageComponent implements OnInit , OnDestroy {
             },
             error: (err) => {
                 console.log('error: ' , err)
-                this.toastr.error('error: ' , err)
+                this.toastr.error('Error loading financial page data')
             }
         })
+    }
+
+    toggleMovementPaid(categoryId: string, movement: MovementResponseInterface, event: Event): void {
+        const checked = (event.target as HTMLInputElement).checked;
+
+        const payload: UpdateMovementInterface = {
+            isPay: checked,
+            typeMovement: movement.typeMovement,
+            ...(movement.name !== undefined && movement.name !== null ? { name: movement.name } : {}),
+            ...(movement.description !== undefined && movement.description !== null ? { description: movement.description } : {}),
+            ...(movement.amount !== undefined && movement.amount !== null ? { amount: movement.amount } : {}),
+            ...(movement.date ? { date: new Date(movement.date).toISOString().slice(0, 10) } : {}),
+            ...(movement.institutionFinancial?.id ? { institutionFinancialId: movement.institutionFinancial.id } : {}),
+        };
+
+        this.movementsService.updateMovement(payload, this.pageId(), categoryId, movement.id).subscribe({
+            next: () => {
+                const current = this.dateFinancialPage();
+                if (!current) return;
+
+                const updated = current.map((category: any) => ({
+                    ...category,
+                    movements: category.movements.map((item: MovementResponseInterface) =>
+                        item.id === movement.id ? { ...item, isPay: checked } : item,
+                    ),
+                }));
+
+                this.dateFinancialPage.set(updated);
+                this.toastr.success(checked ? 'Movement marked as paid' : 'Movement marked as unpaid');
+            },
+            error: () => {
+                this.toastr.error('Could not update the movement status');
+                const input = event.target as HTMLInputElement;
+                input.checked = !checked;
+            },
+        });
     }
     ngOnDestroy(): void {
         this.sub$.unsubscribe()

@@ -6,13 +6,10 @@ import { ToastrService } from 'ngx-toastr';
 import { MODAL_DATA } from '../../../../../shared/tokens/modal-data.token';
 import { MODAL_REF, ModalRef } from '../../../../../shared/services/modal.service';
 import { FinancialInstitutionOption, FinancialInstitutionsService } from '../../../financial-institutions.service';
-import { CreateMovementInterface, TypeMovementEnum } from '../../interfaces/movements.interface';
+import { CreateMovementInterface, ModalMovementData, TypeMovementEnum } from '../../interfaces/movements.interface';
 import { MovementsService } from '../../movemets.service';
 
-interface ModalMovementData {
-  pageId?: string;
-  categoryId?: string;
-}
+
 
 @Component({
   selector: 'app-create-movement',

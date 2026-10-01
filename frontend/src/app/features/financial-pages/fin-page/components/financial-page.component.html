@@ -46,10 +46,30 @@
               <ul class="max-h-87.5 overflow-y-auto px-4 py-2 space-y-2">
                 @for (movement of category.movements; track movement.id) {
                   <li class="flex justify-between items-start px-3 py-2.5 rounded-xl border border-white/5 bg-black-russian-900/30 backdrop-blur-md hover:bg-black-russian-900/60 hover:border-white/15 transition-all duration-300 text-black-russian-100 text-sm">
-                    <span><input type="checkbox" class="accent-black-russian-600 rounded"></span>
+                    <span>
+                      <input
+                        type="checkbox"
+                        class="accent-black-russian-600 rounded"
+                        [checked]="movement.isPay"
+                        (change)="toggleMovementPaid(category.id, movement, $event)"
+                      >
+                    </span>
                     <span class="font-medium text-black-russian-50">{{ movement.name || movement.description || 'No name' }}</span>
                     <span class="text-black-russian-400 text-xs">{{ movement.date | date:'dd/MM/yyyy' }}</span>
                     <span class="font-semibold text-emerald-400">{{ movement.amount | currency:'$ ' }}</span>
+                    <app-button-Update-movement
+                      [movement]="movement"
+                      [categoryId]="category.id"
+                      [id]="movement.id"
+                      [pageId]="pageId()"
+                    />
+                    <app-button-delete-movement
+                    [categoryId]="category.id"
+                    [movementId]="movement.id"
+                    [pageId]="pageId()"
+                    [isPay]="movement.isPay"
+                    [typeMovement]="movement.typeMovement"
+                    />
                   </li>
                 }
               </ul>
