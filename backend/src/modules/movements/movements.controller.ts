@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import { MovementsService } from "./movements.service";
 import { JwtAuthGuard } from "../auth/guards/jwt.guard";
 import { CreateMovementsDto } from "./dto/create-movements.dto";
 import { CurrentUser } from "@/common/decorator/current-user.decorator";
-import { UpdateMovementsDto } from "./dto/update-movements.dto";
+import { DeleteMovementDto, UpdateMovementsDto } from "./dto/update-movements.dto";
 import { FindMovementsQueryDto } from "./dto/find-movements.dto";
 
 @Controller('movements')
@@ -11,7 +12,7 @@ import { FindMovementsQueryDto } from "./dto/find-movements.dto";
 export class MovementsController{
     constructor (private movementsService: MovementsService){}
 
-    @Post('create/:pageId/categories/:categoryId/balanceSection/:balanceSectionId')
+    @Post('create/:pageId/categories/:categoryId')
     async createMovement(
         @Body() dto: CreateMovementsDto,
         @CurrentUser('sub') userId: string,
@@ -20,12 +21,12 @@ export class MovementsController{
     ){
         return await this.movementsService.createMovement(dto, categoryId,pageId,userId)
     }
-    @Put('update/:pageId/categories/:categoryId/balanceSection/:balanceSectionId/movement/:id')
+    @Put('update/:pageId/categories/:categoryId/movement/:id')
+    @UseInterceptors(FileInterceptor('file'))
     async updateMovement(
         @Body() dto: UpdateMovementsDto,
         @CurrentUser('sub') userId: string,
         @Param('pageId') pageId: string,
-        @Param('balanceSectionId') balanceSectioId: string,
         @Param('categoryId') categoryId: string,
         @Param('id') id: string,
         @UploadedFile() file: Express.Multer.File
@@ -40,13 +41,14 @@ export class MovementsController{
     ){
         return await this.movementsService.getMovements(pageId, dto, userId)
     }
-    @Delete(':id/page/:pageId/categories/:categoryId')
+    @Patch(':id/page/:pageId/categories/:categoryId')
     async deleteMovement(
         @Param('id') id: string,
         @Param('pageId') pageId: string,
-        @Param('categoryId') catregoryId: string,
-        @CurrentUser('sub') userId: string
+        @Param('categoryId') categoryId: string,
+        @CurrentUser('sub') userId: string,
+        @Body() dto: DeleteMovementDto
     ){
-        return await this.deleteMovement(id,pageId,catregoryId,userId)
+         return await this.movementsService.deleteMovement(id, userId, dto, pageId, categoryId);
     }
 }
