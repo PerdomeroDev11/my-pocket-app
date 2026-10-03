@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from "@angular/core";
 import { FinancialPageService } from "../financial-pages.service";
 import { ActivatedRoute, Router } from "@angular/router";
 import { financialPageResponseInterface } from "../interface/financial-page.model";
+import { HttpErrorResponse } from "@angular/common/http";
 
 @Component({
     selector: 'app-list-financial-page',
@@ -58,17 +59,27 @@ export class ListFinancialPageComponent implements OnInit{
     }
 
     listPagesOption(){
-        this.isLoading.set(true)
+        this.getFinancialList()
+    }
+    private getFinancialList(){
+      this.isLoading.set(true)
         this.financialPageService.getFiancianPages().subscribe({
             next: (response : financialPageResponseInterface[]) => {
-                this.isLoading.set(false)
-                this.allPageOptions.set(response)
+              this.handleSuccess(response)
             },
-            error: (err) => {
-                this.isLoading.set(false)
-                this.errMesagge.set(err.error?.message || 'error to get list pages')
+            error: (err: HttpErrorResponse) => {
+                this.handleError(err)
             }
         })
+    }
+    private handleSuccess(response: financialPageResponseInterface[]){
+        this.isLoading.set(false)
+        this.allPageOptions.set(response)
+    }
+    private handleError(err: HttpErrorResponse){
+        this.isLoading.set(false)
+        this.errMesagge.set(err.error?.message || 'Error fetching financial pages')
+        console.error('ListFinancialPageComponent: error fetching financial pages:', err)
     }
 
 }

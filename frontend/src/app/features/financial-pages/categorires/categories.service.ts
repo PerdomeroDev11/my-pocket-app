@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { environment } from "../../../../environments/environment";
-import { CategoriesResponse, CreateCategoriesInterface, UpdateCategoryInterface } from "./interface/categorie.interface";
+import { CategoriesJoinResponseInterface, CategoriesResponse, CreateCategoriesInterface, UpdateCategoryInterface } from "./interface/categorie.interface";
 import { Observable, Subject } from "rxjs";
 
 @Injectable({providedIn: 'root'})
@@ -24,5 +24,8 @@ export class CategoriesService{
     }
     solfDeleteCategory(id:string){
         return this.http.patch(`${this.baseUrl}/delete/${id}` , {},{withCredentials:true})
+    }
+    getCategories(id: string):Observable<CategoriesJoinResponseInterface[]>{
+        return this.http.get<CategoriesJoinResponseInterface[]>(`${this.baseUrl}/page/${id}` , {withCredentials:true})
     }
 }

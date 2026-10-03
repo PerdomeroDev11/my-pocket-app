@@ -1,0 +1,28 @@
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12 p-2 w-full">
+    @if (isLoading() && !categoriesDate()) {
+        <div class="loading-state">
+            <p>Loading information...</p>
+        </div>
+    }
+
+    @for (category of categoriesDate() ?? []; track category.id) {
+        <div class="pro-card animate-fade-in-up bg-transparent bg-blend-saturation elative pb-10 bg-black-russian-950/30 backdrop-blur-3xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-visible hover:-translate-y-1.5 border border-white/10 hover:border-white/30 hover:shadow-[0_30px_70px_rgba(0,0,0,0.9),0_0_50px_rgba(70,117,228,0.25)] transition-all duration-500">
+            <div class="grid grid-cols-3 items-center p-3 border-b border-white/10 rounded-t-2xl backdrop-blur-2xl">
+              <h3 class="text-center text-xl font-medium tracking-wide text-black-russian-50 uppercase">{{ category.name }}</h3>
+              <div></div>
+              <div class="flex justify-end">
+                <app-button-new-movement
+                  [pageId]="pageId()"
+                  [categoryId]="category.id"
+                ></app-button-new-movement>
+              </div>
+            </div>
+
+            <app-movement
+              [pageId]="pageId()"
+              [categoryId]="category.id"
+              [categoryDate]="categoriesDate() ?? []"
+            ></app-movement>
+        </div>
+    }
+</div>

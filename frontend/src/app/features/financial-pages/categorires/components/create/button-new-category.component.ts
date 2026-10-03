@@ -1,8 +1,6 @@
 import {Component, inject} from "@angular/core";
 import { CreateCategoryComponent } from "./create-category.component";
 import { ModalService } from "../../../../../shared/services/modal.service";
-import { filter } from "rxjs/internal/operators/filter";
-import { tap } from "rxjs/internal/operators/tap";
 import { FinancialPageService } from "../../../fin-page/financial-pages.service";
 
 @Component({

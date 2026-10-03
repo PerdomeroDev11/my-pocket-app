@@ -1,3 +1,4 @@
+import { MovementResponseInterface} from "../../ movements/interfaces/movements.interface";
 
 export interface CreateCategoriesInterface{
     name: string
@@ -16,4 +17,8 @@ export interface CategoriesResponse{
 export interface UpdateCategoryInterface {
     name?: string | null
     isRecurrent?: boolean | null
+}
+
+export interface CategoriesJoinResponseInterface extends  CategoriesResponse{
+    movements: MovementResponseInterface[]
 }

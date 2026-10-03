@@ -70,11 +70,11 @@ import { HttpErrorResponse } from "@angular/common/http";
 export class UpdateCategoryComponent implements OnInit{
     private fb = inject(FormBuilder)
     private categoryService = inject(CategoriesService)
-    modaleRef = inject(MODAL_REF) as ModalRef<boolean>
     private modaData = inject(MODAL_DATA ) as {category?: CategoriesResponse} 
 
     isLoading = signal<boolean>(false)
     messageError = signal<string | null>(null)
+    modaleRef = inject(MODAL_REF) as ModalRef<boolean>
 
     categoryForm = this.fb.group({
         name: [this.modaData?.category?.name ?? ''],
@@ -82,7 +82,6 @@ export class UpdateCategoryComponent implements OnInit{
     })
 
     ngOnInit(): void {
-        console.log('UpdateCategoryComponent modaData:', this.modaData)
         if (this.modaData?.category) {
             this.categoryForm.patchValue({
                 name: this.modaData.category.name ?? '',
@@ -92,6 +91,12 @@ export class UpdateCategoryComponent implements OnInit{
     }
 
     onSubmit(){
+        this.updateCategory()
+    }
+    private getCategoryId():string{
+        return this.modaData?.category?.id ?? ''
+    }
+    private updateCategory(){
         if(this.categoryForm.invalid) return
 
         this.isLoading.set(true)
@@ -113,13 +118,9 @@ export class UpdateCategoryComponent implements OnInit{
             }
         })
     }
-    private getCategoryId():string{
-        return this.modaData?.category?.id ?? ''
-    }
 
     private handleSuccess(response: UpdateCategoryInterface){
         this.isLoading.set(false)
-        console.log('UpdateCategoryComponent: update response:', response)
         this.modaleRef.close(true)
     }
 

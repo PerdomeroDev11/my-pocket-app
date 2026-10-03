@@ -26,14 +26,18 @@ export class CreateCategoryComponent{
         name: ['' , [Validators.required]],
         isRecurrent: [false]
     })
-    
+    onCancel(){
+        this.modalRef.close(false)
+    }
     onSubmit(){
+        this.createCategory()
+    }
+    private createCategory(){
         if(this.categoryForm.invalid) return
 
         this.isLoading.set(true)
         const rawValues = this.categoryForm.getRawValue()
 
-        // 2. Creamos el objeto convirtiendo el nombre a mayúsculas
         const form: CreateCategoriesInterface = {
             ...rawValues,
             name: rawValues.name.toUpperCase()
@@ -47,9 +51,7 @@ export class CreateCategoryComponent{
             }
         })
     }
-    onCancel(){
-        this.modalRef.close(false)
-    }
+    
     private handleSuccess(response: CategoriesResponse){
         this.isLoading.set(false)
         this.toastr.success('successlly created category')
@@ -58,6 +60,7 @@ export class CreateCategoryComponent{
     private handleError(err: HttpErrorResponse){
         this.isLoading.set(false)
         this.errMesagge.set(err.error.message)
+        console.error('CreateCategoryComponent: error creating category:', err)
         this.toastr.error('Oops!, cannot craate to category')
     }
     

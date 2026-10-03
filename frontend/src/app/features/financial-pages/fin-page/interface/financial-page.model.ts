@@ -24,6 +24,6 @@ export interface financialPageResponseInterface {
 export interface LastPageResponseIdInterfaces{
     id: string
 }
-export interface StatusPagesInerface {
+export interface StatusPagesInterface {
     status: StatusPageEnum
 }

@@ -48,6 +48,9 @@ export class DeleteCategoryComponent {
 
 
     onDelete(){
+        this.deleteCategory()
+    }
+    private deleteCategory() {
         const categoryId = this.modalData?.categoryId;
         if (!categoryId) {
             this.toastr.error('Category ID is missing');
@@ -56,15 +59,22 @@ export class DeleteCategoryComponent {
         }
         this.categoryService.solfDeleteCategory(categoryId).subscribe({
             next: () => {
-                this.toastr.success('Category deleted successfully');
-                this.categoryService.emitCategoryDate()
-                this.modalRef.close(true)
+                this.handleSuccess()
             },
             error: (err: HttpErrorResponse) => {
-                this.toastr.error('Failed to delete category');
-                this.modalRef.close(false)
+                this.handleError(err)
             }
         })
+    }
+    private handleSuccess(){
+        this.toastr.success('Category deleted successfully');
+        this.categoryService.emitCategoryDate()
+        this.modalRef.close(true)
+    }
+    private handleError(err: HttpErrorResponse){
+        this.toastr.error('Failed to delete category');
+        console.error('DeleteCategoryComponent: delete error:', err)
+        this.modalRef.close(false)
     }
 
 }
