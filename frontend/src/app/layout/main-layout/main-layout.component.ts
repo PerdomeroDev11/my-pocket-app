@@ -7,10 +7,9 @@ import { SidebarComponent } from '../../shared/components/sidebar/sidebar.compon
   standalone: true,
   imports: [RouterOutlet, SidebarComponent],
   template: `
-    <!-- CAMBIO CLAVE: h-screen y overflow-hidden para bloquear el scroll global y fijar la estructura -->
     <div class="flex h-screen w-screen overflow-hidden bg-black-russian-950 text-black-russian-50">
       
-      <!-- Backdrop para móviles -->
+      <!-- Backdrop for mobile -->
       <div
         class="fixed inset-0 z-20 bg-black-russian-950/70 backdrop-blur-[2px] transition-opacity duration-300 lg:hidden"
         [class.block]="isSidebarOpen()"
@@ -18,7 +17,7 @@ import { SidebarComponent } from '../../shared/components/sidebar/sidebar.compon
         (click)="closeSidebar()"
       ></div>
 
-      <!-- Sidebar Fijo (Con h-full y shrink-0 para evitar que se deforme o crezca) -->
+      <!-- Sidebar -->
       <div
         class="fixed inset-y-0 left-0 z-30 w-72 h-full transform border-r border-black-russian-700 bg-black-russian-900 shadow-[0_25px_60px_rgba(20,19,43,0.45)] transition-transform duration-300 ease-out lg:static lg:translate-x-0 shrink-0"
         [class.-translate-x-full]="!isSidebarOpen()"
@@ -27,10 +26,10 @@ import { SidebarComponent } from '../../shared/components/sidebar/sidebar.compon
         <app-sidebar />
       </div>
 
-      <!-- Contenido Principal con Scroll Independiente -->
+      <!-- Main Content -->
       <main class="flex h-full flex-1 flex-col overflow-y-auto bg-black-russian-950 text-black-russian-50">
         
-        <!-- Header móvil -->
+        <!-- Header mobile -->
         <header class="sticky top-0 z-10 border-b border-black-russian-700 bg-black-russian-950/80 px-4 py-3 backdrop-blur-sm lg:hidden shrink-0">
           <button
             type="button"
@@ -45,7 +44,7 @@ import { SidebarComponent } from '../../shared/components/sidebar/sidebar.compon
           </button>
         </header>
 
-        <!-- Contenedor de las vistas -->
+        <!-- container of the views -->
         <div class="mx-auto w-full max-w-7xl flex-1 p-4 md:p-8">
           <router-outlet></router-outlet>
         </div>
