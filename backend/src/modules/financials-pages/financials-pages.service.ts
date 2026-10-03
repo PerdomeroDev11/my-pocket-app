@@ -100,27 +100,26 @@ export class FinancialsPagesService {
                         financialPageId: previusPageId,
                     },
                     orderBy:{date: 'desc'},
-                    take: 1
                 }
             }
         });
         const movementsToCreate = recurrentCategories
         .filter((cat) => cat.movements.length > 0)
-        .map((cat) => {
-            const lastMovement = cat.movements[0]
-            return{
+        .flatMap((cat) =>
+            cat.movements.map((movement) => ({
                 financialPageId: newPageId,
                 categoryId: cat.id,
-                institutionFinancialId: lastMovement.institutionFinancialId,
-                name: lastMovement.name,
-                description: lastMovement.description,
-                amount: lastMovement.amount,
-                expectAmount: lastMovement.expectAmount,
+                institutionFinancialId: movement.institutionFinancialId,
+                name: movement.name,
+                description: movement.description,
+                amount: movement.amount,
+                expectAmount: movement.expectAmount,
                 date: new Date(),
                 isPay: false,
-                typeMovement: lastMovement.typeMovement
-            };
-        });
+                typeMovement: movement.typeMovement
+            }))
+        );
+
         if(movementsToCreate.length > 0) {
             await this.prisma.movements.createMany({
                 data: movementsToCreate
