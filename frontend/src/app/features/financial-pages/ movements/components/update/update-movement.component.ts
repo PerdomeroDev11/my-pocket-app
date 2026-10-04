@@ -4,13 +4,15 @@ import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from "@angu
 import { ToastrService } from "ngx-toastr";
 import { MODAL_REF, ModalRef } from "../../../../../shared/services/modal.service";
 import { ModalMovementData, TypeMovementEnum, UpdateMovementInterface } from "../../interfaces/movements.interface";
-import { FinancialInstitutionOption, FinancialInstitutionsService } from "../../../financial-institutions.service";
+import { FinancialInstitutionsService } from "../../../../financial-institutions/financial-institutions.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { MODAL_DATA } from "../../../../../shared/tokens/modal-data.token";
+import { FinancialInstitutionsResponse } from "../../../../financial-institutions/interfaces/financial-institutions";
+import { OptionsFinancialInstitutuionComponent } from "../../../../financial-institutions/components/options-institutions.component";
 
 @Component({
     selector: 'app-update-movement',
-    imports: [FormsModule,ReactiveFormsModule],
+    imports: [FormsModule,ReactiveFormsModule,OptionsFinancialInstitutuionComponent],
     standalone: true,
     templateUrl: './update-modal.comoponent.html'
 })
@@ -30,7 +32,7 @@ export class UpdateMovementComponent implements OnInit {
     readonly movementId = computed(() => this.modalData.id ?? this.movement()?.id ?? '')
     readonly pageId = computed(() => this.modalData.pageId ?? '')
     readonly categoryId = computed(()=> this.modalData.categoryId ?? '')
-    readonly financialInstitutions = signal<FinancialInstitutionOption[]>([]);
+    readonly financialInstitutions = signal<FinancialInstitutionsResponse[]>([]);
 
     readonly typeOptions = [
     { value: TypeMovementEnum.INCOME, label: 'Income' },
@@ -50,7 +52,6 @@ export class UpdateMovementComponent implements OnInit {
     })
 
     ngOnInit(): void {
-        this.loadFinancialInstitutions();
         const movement = this.movement();
         if (movement) {
             this.formUpdate.patchValue({
@@ -84,16 +85,6 @@ export class UpdateMovementComponent implements OnInit {
         this.modalRef.close(false)
     }
 
-    private loadFinancialInstitutions(): void {
-        this.institutionFinancial.getInstitutions().subscribe({
-            next: (institutions) => {
-                this.financialInstitutions.set(Array.isArray(institutions) ? institutions : []);
-            },
-            error: () => {
-                this.financialInstitutions.set([]);
-            },
-        });
-    }
 
   onSubmit(): void {
     if (this.formUpdate.invalid) return;

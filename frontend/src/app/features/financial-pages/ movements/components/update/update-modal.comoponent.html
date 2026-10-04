@@ -59,15 +59,7 @@
             </select>
           </div>
 
-          <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700">Financial institution</label>
-            <select formControlName="institutionFinancialId" class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200">
-              <option [ngValue]="null">No institution</option>
-              @for (institution of financialInstitutions(); track institution.id) {
-                <option [ngValue]="institution.id">{{ institution.name }}</option>
-              }
-            </select>
-          </div>
+          <app-options-financial-institution/>
           <div>
             <label class="mb-1 block text-sm font-medium text-slate-700">Receipt file</label>
             <input

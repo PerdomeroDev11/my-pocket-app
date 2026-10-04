@@ -9,7 +9,6 @@ import { StatusToggleComponent } from "../../../../shared/components/togglet/sta
 import { Subscription } from "rxjs/internal/Subscription";
 import { ButtonNewCategoryComponent } from "../../categorires/components/create/button-new-category.component";
 import { CategoriesComponent } from "../../categorires/components/categories.component";
-import { CategoriesJoinResponseInterface } from "../../categorires/interface/categorie.interface";
 import { HttpErrorResponse } from "@angular/common/http";
 
 @Component({

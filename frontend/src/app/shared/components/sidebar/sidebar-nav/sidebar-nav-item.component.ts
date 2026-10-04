@@ -10,7 +10,7 @@ import { LastPageResponseIdInterfaces } from '../../../../features/financial-pag
   template: `
     <div class="space-y-2">
       <a
-        routerLink="/sessions"
+        routerLink="/financial-institutions"
         routerLinkActive="border-blue-400 bg-blue-500/15 text-white shadow-[0_0_20px_rgba(59,130,246,0.15)]"
         [routerLinkActiveOptions]="{ exact: false }"
         class="flex items-center rounded-r-xl border-l-4 border-transparent px-6 py-2.5 text-sm font-medium text-black-russian-300 transition-all duration-300 hover:border-blue-400/60 hover:bg-blue-500/10 hover:text-white"
@@ -18,7 +18,7 @@ import { LastPageResponseIdInterfaces } from '../../../../features/financial-pag
         <svg class="h-5 w-5 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h18M12 3v18" />
         </svg>
-        <span class="mx-4">Sessions</span>
+        <span class="mx-4">Financial institutions</span>
       </a>
 
       <a

@@ -4,6 +4,7 @@ import { authGuard } from './core/guard/auth.guard';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { SettingComponent } from './pages/settings/setting-page.component';
 import { FinancialPage } from './pages/financial-pages/financial-page.component';
+import { FinancialInstitutionsPage } from './pages/financial-institutions/financial-institutions-page.component';
 
 export const routes: Routes = [
   { path: '',
@@ -22,6 +23,10 @@ export const routes: Routes = [
         path: 'financial-pages/:id',
         component: FinancialPage
       },
+      {
+        path: 'financial-institutions',
+        component: FinancialInstitutionsPage
+      }
     ]
   },
   { 

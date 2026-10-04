@@ -5,16 +5,18 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { MODAL_DATA } from '../../../../../shared/tokens/modal-data.token';
 import { MODAL_REF, ModalRef } from '../../../../../shared/services/modal.service';
-import { FinancialInstitutionOption, FinancialInstitutionsService } from '../../../financial-institutions.service';
+import {  FinancialInstitutionsService } from '../../../../financial-institutions/financial-institutions.service';
 import { CreateMovementInterface, ModalMovementData, TypeMovementEnum } from '../../interfaces/movements.interface';
 import { MovementsService } from '../../movemets.service';
+import {  FinancialInstitutionsResponse } from '../../../../financial-institutions/interfaces/financial-institutions';
+import { OptionsFinancialInstitutuionComponent } from '../../../../financial-institutions/components/options-institutions.component';
 
 
 
 @Component({
   selector: 'app-create-movement',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule,OptionsFinancialInstitutuionComponent],
   template: `
     <div class="w-[min(32rem,92vw)] rounded-2xl bg-white p-6 shadow-xl">
       <div class="mb-5 flex items-center justify-between gap-3">
@@ -77,15 +79,7 @@ import { MovementsService } from '../../movemets.service';
             </select>
           </div>
 
-          <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700">Financial institution</label>
-            <select formControlName="institutionFinancialId" class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200">
-              <option [ngValue]="null">No institution</option>
-              @for (institution of financialInstitutions(); track institution.id) {
-                <option [ngValue]="institution.id">{{ institution.name }}</option>
-              }
-            </select>
-          </div>
+          <app-options-financial-institution/>
         </div>
 
         <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
@@ -115,7 +109,7 @@ import { MovementsService } from '../../movemets.service';
     </div>
   `,
 })
-export class CreateMovementComponent implements OnInit {
+export class CreateMovementComponent {
   private fb = inject(FormBuilder);
   private toastr = inject(ToastrService);
   private movementsService = inject(MovementsService);
@@ -125,7 +119,7 @@ export class CreateMovementComponent implements OnInit {
 
   readonly isLoading = signal(false);
   readonly messageError = signal<string | null>(null);
-  readonly financialInstitutions = signal<FinancialInstitutionOption[]>([]);
+  readonly financialInstitutions = signal<FinancialInstitutionsResponse[]>([]);
 
   readonly typeOptions = [
     { value: TypeMovementEnum.INCOME, label: 'Income' },
@@ -146,10 +140,6 @@ export class CreateMovementComponent implements OnInit {
     typeMovement: [TypeMovementEnum.EXPENSE, [Validators.required]],
     institutionFinancialId: [null as string | null],
   });
-
-  ngOnInit(): void {
-    this.loadFinancialInstitutions();
-  }
 
   onSubmit(): void {
     if (this.movementForm.invalid) {
@@ -194,16 +184,7 @@ export class CreateMovementComponent implements OnInit {
     this.modalRef.close(false);
   }
 
-  private loadFinancialInstitutions(): void {
-    this.institutionsService.getInstitutions().subscribe({
-      next: (institutions) => {
-        this.financialInstitutions.set(Array.isArray(institutions) ? institutions : []);
-      },
-      error: () => {
-        this.financialInstitutions.set([]);
-      },
-    });
-  }
+
 
   private handleSuccess(): void {
     this.isLoading.set(false);

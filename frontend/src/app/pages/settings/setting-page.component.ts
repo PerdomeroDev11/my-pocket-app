@@ -5,11 +5,12 @@ import { ChangePasswordComponent } from "../../features/users/components/user/ch
 import { InfoUseComponent } from "../../features/users/components/user/user-data/user-data.component";
 import { ToastrService } from "ngx-toastr";
 
-
-
 @Component({
     selector: 'app-setting-pages',
-    imports: [SessionComponent,InfoUseComponent],
+    imports: [
+        SessionComponent,
+        InfoUseComponent,
+    ],
     templateUrl: './setting-page.component.html'
 })
 export class SettingComponent {
