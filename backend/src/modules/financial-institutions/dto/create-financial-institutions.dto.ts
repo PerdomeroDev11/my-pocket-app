@@ -1,4 +1,5 @@
-import { IsDecimal, IsEnum, IsString } from 'class-validator'
+import { Transform ,Type} from 'class-transformer'
+import { IsEnum, IsNumber, IsString, Min } from 'class-validator'
 import { typeIntitution } from '@generated/prisma/enums'
 
 export class CreateFinancialInstitutionDto {
@@ -7,6 +8,9 @@ export class CreateFinancialInstitutionDto {
     @IsEnum(typeIntitution)
     @IsString()
     type?: typeIntitution
-    @IsDecimal()
+    @Type(() => Number)
+    @IsNumber({ maxDecimalPlaces: 2 })
+    @Min(0)
+    @Transform(({ value }) => value === '' || value === undefined || value === null ? undefined : Number(value))
     balanceNow!: string
 }

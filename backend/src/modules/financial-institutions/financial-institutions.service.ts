@@ -16,11 +16,17 @@ export class FinancialInstitutionsService {
             }
         })
         if(!create) throw new BadRequestException('there was erroor to create a new financial institutions ')
-        return {message: 'new financial institutions created'}
+        return create
     }
     async show(userId: string){
         const get =  await this.prisma.financialInstitutions.findMany({where:{userId}})
         if(!get) throw new BadRequestException('there was an error to show all financial institutions')
+        return get
+    }
+    async showForOptions(userId: string){
+        const get =  await this.prisma.financialInstitutions.findMany({where:{userId , status: 'ACTIVE'}})
+        if(!get) throw new BadRequestException('there was an error to show all financial institutions')
+        return get
     }
     async update (dto: UpdateFinancialInstitutionsDto , userId: string , id:string){
         const update = await this.prisma.financialInstitutions.update({

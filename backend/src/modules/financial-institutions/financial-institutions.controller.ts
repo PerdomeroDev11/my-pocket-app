@@ -23,6 +23,12 @@ export class FinancialInstitutionsController{
     ){
         return await this.financialInstitutions.show(userId)
     }
+    @Get('options')
+    async showForOptions(
+        @CurrentUser('sub') userId: string
+    ){
+        return await this.financialInstitutions.showForOptions(userId)
+    }
     @Put(':id')
     async update (
         @Body() dto: UpdateFinancialInstitutionsDto,
