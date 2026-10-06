@@ -447,7 +447,7 @@ export class MovementsService {
         amount: Prisma.Decimal,
         institutoId: string | null,
     ) {
-
+        console.log('institutoId: ' ,institutoId)
         let delta = amount;
         
 
@@ -464,9 +464,10 @@ export class MovementsService {
             });
 
             if (institutoId) {
+                console.log('id: ', institutoId)
                 await tx.financialInstitutions.update({
                     where: { userId, id: institutoId },
-                    data: { balanceNow: { decrement: delta } }
+                    data: { balanceNow: { increment: delta } }
                 });
             }
         } 
@@ -484,7 +485,7 @@ export class MovementsService {
             if (institutoId) {
                 await tx.financialInstitutions.update({
                     where: { userId, id: institutoId },
-                    data: { balanceNow: { decrement: delta } }
+                    data: { balanceNow: { increment: delta } }
                 });
             }
         }
@@ -506,7 +507,7 @@ export class MovementsService {
             if (institutoId) {
             await tx.financialInstitutions.update({
                 where: { userId, id: institutoId },
-                data: { balanceNow: { decrement: delta } }
+                data: { balanceNow: { increment: delta } }
             });
             }
         }
