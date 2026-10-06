@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "@/prisma-config/prisma.service";
 import { CreateFinancialInstitutionDto } from "./dto/create-financial-institutions.dto";
 import { UpdateFinancialInstitutionsDto } from "./dto/update-financial-institutions.dto";
+import { Prisma } from "@generated/prisma/client";
 
 @Injectable()
 export class FinancialInstitutionsService {
@@ -16,6 +17,15 @@ export class FinancialInstitutionsService {
             }
         })
         if(!create) throw new BadRequestException('there was erroor to create a new financial institutions ')
+            const amount = Prisma.Decimal(dto.balanceNow)
+        await this.prisma.balanceSection.update({
+            where:{userId_nameBalance:{userId: userId ,nameBalance: 'AVAILABLE'}},
+            data:{balance: {increment: amount}}
+        })
+        await this.prisma.balanceSection.update({
+            where:{userId_nameBalance:{userId: userId ,nameBalance: 'TOTAL'}},
+            data:{balance: {increment: amount}}
+        })
         return create
     }
     async show(userId: string){
