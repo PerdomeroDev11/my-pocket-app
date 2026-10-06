@@ -1,14 +1,19 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, forwardRef, inject, OnInit, signal } from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { FinancialInstitutionsService } from "../financial-institutions.service";
 import { FinancialInstitutionsResponse } from "../interfaces/financial-institutions";
 import { HttpErrorResponse } from "@angular/common/http";
 import { ToastrService } from "ngx-toastr";
 import { FinancialPageService } from "../../financial-pages/fin-page/financial-pages.service";
 
-
-@Component ({
+@Component({
     selector: 'app-options-financial-institution',
     standalone: true,
+    providers: [{
+        provide: NG_VALUE_ACCESSOR,
+        useExisting: forwardRef(() => OptionsFinancialInstitutuionComponent),
+        multi: true,
+    }],
     template: `
         <div class="w-full space-y-2">
             @if (isLoading()) {
@@ -25,11 +30,13 @@ import { FinancialPageService } from "../../financial-pages/fin-page/financial-p
                 <select
                     id="financial-institution"
                     [attr.aria-label]="'Financial institution'"
+                    [value]="value()"
+                    (change)="onSelectChange($event)"
                     class="w-full appearance-none rounded-xl border border-slate-300 bg-white px-3 py-2.5 pr-10 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                 >
-                    @if (financialIntitutions().length === 0) {
-                        <option value="" class="bg-white text-slate-900">No financial institutions</option>
-                    }
+                    <option value="" class="bg-white text-slate-900">
+                        {{ financialIntitutions().length === 0 ? 'No financial institutions' : 'Select an institution' }}
+                    </option>
 
                     @for (institution of financialIntitutions(); track institution.id) {
                         <option [value]="institution.id" class="bg-white text-slate-900">
@@ -50,53 +57,70 @@ import { FinancialPageService } from "../../financial-pages/fin-page/financial-p
         </div>
     `
 })
-export class OptionsFinancialInstitutuionComponent implements OnInit{
+export class OptionsFinancialInstitutuionComponent implements OnInit, ControlValueAccessor {
     private financialInstitutionService = inject(FinancialInstitutionsService)
     private financialPageService = inject(FinancialPageService)
     private toastr = inject(ToastrService)
-    
+
     readonly financialIntitutions = signal<FinancialInstitutionsResponse[]>([])
+    readonly value = signal<string | null>(null)
     isLoading = signal<boolean>(false)
 
+    private onChange: (value: string | null) => void = () => {};
+    private onTouched: () => void = () => {};
+
     ngOnInit(): void {
-        this.loadFinancialInstitution()
+        this.loadFinancialInstitution();
         this.financialPageService.pageFinancialDate$.subscribe(() => {
             this.loadFinancialInstitution();
         });
     }
 
-    loadFinancialInstitution(){
-        this.getFinancialInstitutions()
+    writeValue(value: string | null): void {
+        this.value.set(value ?? null);
     }
 
-    private getFinancialInstitutions(){
-        console.log('data: ' , this.financialIntitutions())
+    registerOnChange(fn: (value: string | null) => void): void {
+        this.onChange = fn;
+    }
+
+    registerOnTouched(fn: () => void): void {
+        this.onTouched = fn;
+    }
+
+    setDisabledState?(_isDisabled: boolean): void {
+        // no-op for now, since this selector is not disabled in the current flows
+    }
+
+    onSelectChange(event: Event): void {
+        const input = event.target as HTMLSelectElement;
+        const nextValue = input.value || null;
+
+        this.value.set(nextValue);
+        this.onChange(nextValue);
+        this.onTouched();
+    }
+
+    loadFinancialInstitution(): void {
+        this.getFinancialInstitutions();
+    }
+
+    private getFinancialInstitutions(): void {
         this.isLoading.set(true)
         this.financialInstitutionService.getInstitutionOptions().subscribe({
-            next:(reponse: FinancialInstitutionsResponse[]) => this.handleSuccess(reponse),
+            next: (response: FinancialInstitutionsResponse[]) => this.handleSuccess(response),
             error: (err: HttpErrorResponse) => this.handleError(err)
         })
     }
 
-    private handleSuccess(response: FinancialInstitutionsResponse[]){
+    private handleSuccess(response: FinancialInstitutionsResponse[]): void {
         this.isLoading.set(false)
         this.financialIntitutions.set(response)
     }
 
-    formatDate(value: Date | string): string {
-        const date = new Date(value)
-        if (Number.isNaN(date.getTime())) return '—'
-
-        return new Intl.DateTimeFormat('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: '2-digit'
-        }).format(date)
-    }
-
-    private handleError(err: HttpErrorResponse){
+    private handleError(err: HttpErrorResponse): void {
         this.isLoading.set(false)
-        this.toastr.error('Error to load the financial intitutions')
-        console.error('There is an error in financial insitution component: ', err)
+        this.toastr.error('Error to load the financial institutions')
+        console.error('There is an error in financial institution component: ', err)
     }
 }

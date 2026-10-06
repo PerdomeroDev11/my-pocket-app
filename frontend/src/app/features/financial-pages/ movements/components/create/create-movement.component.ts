@@ -79,7 +79,7 @@ import { OptionsFinancialInstitutuionComponent } from '../../../../financial-ins
             </select>
           </div>
 
-          <app-options-financial-institution/>
+          <app-options-financial-institution formControlName="institutionFinancialId" />
         </div>
 
         <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
