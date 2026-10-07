@@ -1,6 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import { Transform } from 'class-transformer';
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsString, MinLength } from 'class-validator';
 
 export function RulesPassword() {
   return applyDecorators(

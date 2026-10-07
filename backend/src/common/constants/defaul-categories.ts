@@ -1,6 +1,6 @@
-// constants/default-categories.ts
 export const DEFAULT_CATEGORIES = [
-    { name: 'Gastos', isRecurrent: true },
-  { name: 'Gastos Hormigas', isRecurrent: false  },
-  { name: 'Ahorros', isRecurrent: true },
+    { name: 'Income', isRecurrent: true },
+    { name: 'Ant Expenses', isRecurrent: false  },
+    { name: 'Savings', isRecurrent: true },
+    { name: 'Expenses', isRecurrent: true },
 ];
