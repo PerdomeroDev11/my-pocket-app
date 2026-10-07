@@ -1,6 +1,7 @@
 import { Transform ,Type} from 'class-transformer'
 import { IsEnum, IsNumber, IsString, Min } from 'class-validator'
 import { typeIntitution } from '@generated/prisma/enums'
+import { NormalizedNumber } from '@/common/decorator/normalized-amount.decorator'
 
 export class UpdateFinancialInstitutionsDto {
     @IsString()
@@ -8,11 +9,8 @@ export class UpdateFinancialInstitutionsDto {
     @IsEnum(typeIntitution)
     @IsString()
     type?: typeIntitution
-    @Type(() => Number)
-    @IsNumber({ maxDecimalPlaces: 2 })
-    @Min(0)
-    @Transform(({ value }) => value === '' || value === undefined || value === null ? undefined : Number(value))
-    balanceNow?: number
+    @NormalizedNumber()
+    balanceNow!: number
     @IsString()
     status!: 'ACTIVE' | 'DESACTIVE'
 }

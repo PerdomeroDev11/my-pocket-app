@@ -1,6 +1,7 @@
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsDateString, IsEnum, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator'
+import { IsBoolean, IsDateString, IsEnum, IsNumber, IsOptional, IsPositive, IsString, IsUUID, Min } from 'class-validator'
 import { TypeMovement } from '@generated/prisma/enums'
+import { NormalizedNumber } from '@/common/decorator/normalized-amount.decorator';
 
 export class CreateMovementsDto{
     @IsString()
@@ -10,11 +11,7 @@ export class CreateMovementsDto{
     @IsOptional()
     description?: string
 
-    @Type(() => Number)
-    @IsNumber({maxDecimalPlaces: 2})
-    @IsOptional()
-    @IsPositive()
-    @Transform(({ value }) => value === '' || value === undefined || value === null ? undefined : Number(value))
+    @NormalizedNumber()
     amount!: number
 
     @IsDateString()
@@ -31,5 +28,5 @@ export class CreateMovementsDto{
     @IsUUID()
     @IsString()
     @IsOptional()
-    institutionFinancialId?: string
+    institutionFinancialId!: string | null
 }

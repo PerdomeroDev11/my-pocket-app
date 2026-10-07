@@ -31,7 +31,7 @@ export class MovementsController{
         @Param('id') id: string,
         @UploadedFile() file: Express.Multer.File
     ){
-        return await this.movementsService.updateMovement(dto,id,userId,file)
+        return await this.movementsService.updateMovement(dto,id,userId,pageId,file)
     }
     @Get('page/:id')
     async getMovements(
