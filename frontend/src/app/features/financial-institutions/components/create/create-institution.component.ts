@@ -50,17 +50,6 @@ import { HttpErrorResponse } from "@angular/common/http";
                     </select>
                 </div>
 
-                <div>
-                    <label for="balanceNow" class="mb-1 block text-sm font-medium text-slate-700">Balance</label>
-                    <input
-                        id="balanceNow"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        formControlName="balanceNow"
-                        class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
-                    />
-                </div>
 
                 <div class="flex justify-end gap-3 pt-2">
                     <button
@@ -96,7 +85,6 @@ export class CreateInstitutionFinancialComponent {
     formInstitution = this.fb.nonNullable.group({
         name: ['', [Validators.required]],
         type: [typeInstitutionEnum.BANK, [Validators.required]],
-        balanceNow: [0.0]
     })
     
     onSubmit(){

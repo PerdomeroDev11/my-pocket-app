@@ -45,10 +45,7 @@ import { UpdateStatusInstitutionFinancialComponent } from "./status/status-insti
                                     <p class="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-black-russian-400">{{ institution.type }}</p>
                                 </div>
 
-                                <div class="text-right">
-                                    <span class="block text-[10px] font-medium uppercase tracking-[0.18em] text-black-russian-500">Balance</span>
-                                    <p class="mt-1 text-base font-semibold text-black-russian-50 text-emerald-600">{{ institution.balanceNow }}</p>
-                                </div>
+                               
                             </div>
 
                             <div class="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3">

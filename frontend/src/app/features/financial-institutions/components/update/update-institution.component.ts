@@ -111,7 +111,6 @@ export class UpdateInstitutionFinancialComponent  implements OnInit{
     formInstitution = this.fb.nonNullable.group({
         name: [this.financialIntitutionsInput().name],
         type: [this.financialIntitutionsInput().type],
-        balanceNow: [Number(this.financialIntitutionsInput().balanceNow)]
     })
     
     ngOnInit(): void {
@@ -128,7 +127,6 @@ export class UpdateInstitutionFinancialComponent  implements OnInit{
         const payload: UpdateFinancialInstitutionInterface = {
             name: dto.name,
             type: dto.type,
-            balanceNow: Number(dto.balanceNow),
             status: this.financialIntitutionsInput().status
         }
         this.intitutionFinancialService.updateIntitutionFinancial(this.idInstitutionFinancial(), payload).subscribe({

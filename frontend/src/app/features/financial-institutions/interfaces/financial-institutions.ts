@@ -2,6 +2,7 @@ export enum typeInstitutionEnum {
     BANK = 'BANK',
     CASH = 'CASH',
     CRYPTO = 'CRYPTO',
+    DIGITALWILLET = 'DIGITALWILLET'
 }
 export enum statusInstitutionEnum {
     ACTIVE = 'ACTIVE',
@@ -11,7 +12,6 @@ export enum statusInstitutionEnum {
 export interface CreateFinancialInstitutionInterface {
     name: string;
     type: typeInstitutionEnum;
-    balanceNow: number;
 }
 export interface UpdateFinancialInstitutionInterface extends CreateFinancialInstitutionInterface {
     status: statusInstitutionEnum;
@@ -20,7 +20,6 @@ export interface FinancialInstitutionsResponse  {
     id: string;
     name: string;
     type: typeInstitutionEnum;
-    balanceNow: number;
     status: statusInstitutionEnum;
     createdAt: Date;
 }
