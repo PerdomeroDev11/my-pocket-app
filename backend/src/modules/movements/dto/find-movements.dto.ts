@@ -9,5 +9,5 @@ export class FindMovementsQueryDto {
 
   @IsOptional()
   @IsEnum(TypeMovement)
-  typeMovement?: TypeMovement;
+  typeMovement!: TypeMovement;
 }
