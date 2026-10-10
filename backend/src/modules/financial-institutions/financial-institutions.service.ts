@@ -16,16 +16,7 @@ export class FinancialInstitutionsService {
                 ...dto
             }
         })
-        if(!create) throw new BadRequestException('there was erroor to create a new financial institutions ')
-            const amount = Prisma.Decimal(dto.balanceNow)
-        await this.prisma.balanceSection.update({
-            where:{userId_nameBalance:{userId: userId ,nameBalance: 'AVAILABLE'}},
-            data:{balance: {increment: amount}}
-        })
-        await this.prisma.balanceSection.update({
-            where:{userId_nameBalance:{userId: userId ,nameBalance: 'TOTAL'}},
-            data:{balance: {increment: amount}}
-        })
+        if(!create) throw new BadRequestException('there was error to create a new financial institutions ')
         return create
     }
     async show(userId: string){

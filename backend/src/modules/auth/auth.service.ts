@@ -24,6 +24,7 @@ import { statusUser, typePeriod } from "@generated/prisma/enums";
 import { DEFAULT_BALANCE_SECTION } from "@/common/constants/balance-section";
 import { AuthResponseInterface } from "./entity/jwt.entity";
 import { DEFAULT_CATEGORIES } from "@/common/constants/defaul-categories";
+import { DEFAULT_INSTITUTIONS } from "@/common/constants/default-institutions";
 
 
 @Injectable()
@@ -187,6 +188,13 @@ export class AuthService {
                     isRecurrent: cat.isRecurrent
                 }))
             })
+            await this.prisma.financialInstitutions.createMany({
+                data: DEFAULT_INSTITUTIONS.map((inst) => ({
+                    userId: created.id,
+                    name: inst.name,
+                    type: inst.type,
+                }))
+            })
             user = created
             if(!created) throw new BadRequestException('there was an problem creating the user with Google')
         }else if (!user.googleId){
@@ -295,6 +303,13 @@ export class AuthService {
                     userId: user.id,
                     name: cat.name,
                     isRecurrent: cat.isRecurrent
+                }))
+            })
+         await this.prisma.financialInstitutions.createMany({
+                data: DEFAULT_INSTITUTIONS.map((inst) => ({
+                    userId: user.id,
+                    name: inst.name,
+                    type: inst.type,
                 }))
             })
         await  this.redis.del(`verifyEmail:${dto.email}`)

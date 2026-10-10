@@ -54,6 +54,7 @@ enum typeIntitution {
   BANK
   CASH
   CRYPTO
+  DIGITALWILLET
 }
 enum statusUser {
   ACTIVE
@@ -172,7 +173,6 @@ model FinancialInstitutions {
   userId String @db.Uuid @map("user_id")
   name String
   type typeIntitution?
-  balanceNow Decimal? @db.Decimal(12,2) @default(0.0) @map("balance_now")
   status String? @default("ACTIVE")
   createdAt DateTime @default(now()) @map("created_at")
 

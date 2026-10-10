@@ -8,7 +8,5 @@ export class CreateFinancialInstitutionDto {
     name!: string
     @IsEnum(typeIntitution)
     @IsString()
-    type?: typeIntitution
-    @NormalizedNumber()
-    balanceNow!: string
+    type!: typeIntitution
 }

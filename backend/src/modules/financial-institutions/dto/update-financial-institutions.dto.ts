@@ -8,9 +8,7 @@ export class UpdateFinancialInstitutionsDto {
     name?: string
     @IsEnum(typeIntitution)
     @IsString()
-    type?: typeIntitution
-    @NormalizedNumber()
-    balanceNow!: number
+    type!: typeIntitution
     @IsString()
     status!: 'ACTIVE' | 'DESACTIVE'
 }
