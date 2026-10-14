@@ -9,10 +9,18 @@ import { DEFAULT_CATEGORIES } from "@/common/constants/defaul-categories";
 export class CategoriesService {
     constructor (
         private prisma: PrismaService,
-        @Inject('REDIS_CLIENT') private readonly redis: Redis
+        @Inject('REDIS_CLIENT') private readonly redis: Redis,
     ){}
+
+    private async invalidateCategoryCache(userId: string) {
+        const pageCaches = await this.redis.keys(`category:${userId}:*`);
+        const cacheKeys = [`category:${userId}`, ...pageCaches];
+
+        await Promise.all(cacheKeys.map((key) => this.redis.del(key)));
+    }
+
     async createTemplateDefault(userId:string){
-        await this.redis.del(`category:${userId}`)
+        await this.invalidateCategoryCache(userId)
         return this.prisma.categories.createMany({
             data: DEFAULT_CATEGORIES.map((cat) => ({
                 userId,
@@ -30,7 +38,7 @@ export class CategoriesService {
         }
        })
        if(!category) throw new BadRequestException('there was an error to create a new category')
-       await this.redis.del(`category:${userId}`)
+       await this.invalidateCategoryCache(userId)
        return category
     }
     async updateCategory(dto: UpdateCategoryDto , id:string, userId:string){
@@ -41,11 +49,12 @@ export class CategoriesService {
         }
        });
        if(!updateCategory) throw new BadRequestException('there was an error to update category')
-        await this.redis.del(`category:${userId}`)
+        await this.invalidateCategoryCache(userId)
         return updateCategory       
     }
     async showCategories(userId: string , financialPageId: string){
         const cacheKey = `category:${userId}:${financialPageId}`
+        const cacheCategory = `category:${userId}`
         const cacheData = await this.redis.get(cacheKey)
         if(cacheData) return JSON.parse(cacheData)
         const categories = await this.prisma.categories.findMany({
@@ -58,10 +67,11 @@ export class CategoriesService {
             orderBy:{createdAt: 'asc'}
         })
         await this.redis.set(cacheKey , JSON.stringify(categories))
+        await this.redis.set(cacheCategory , JSON.stringify(categories))
         return categories
     }
     async solfDelete(userId: string , id:string){
-        await this.redis.del(`category:${userId}`)
+        await this.invalidateCategoryCache(userId)
         return this.prisma.categories.update({
             where:{userId , id},
             data:{status: "DELETED"}
