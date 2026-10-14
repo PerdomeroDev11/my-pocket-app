@@ -52,7 +52,6 @@ export class MovementsService {
                 await this.operationMovements(
                     dto.typeMovement,
                     userId,
-                    dto.institutionFinancialId,
                     new Prisma.Decimal(String(dto.amount)),
                     tx,
                     dto.isPay,
@@ -78,35 +77,51 @@ export class MovementsService {
         pageId: string,
         file?: Express.Multer.File
     ) {
-        const movements = await this.findAndVerifyOwnership(id, userId);
+        await this.findAndVerifyOwnership(id, userId);
+
         const updateData: Prisma.MovementsUpdateInput = {
-            ...(dto.name !== undefined ? { name: dto.name } : {}),
-            ...(dto.description !== undefined ? { description: dto.description } : {}),
-            ...(dto.amount !== undefined || dto.isPay !== null? { amount: dto.amount } : {}),
-            ...(dto.date ? { date: new Date(dto.date) } : {}),
-            ...(dto.isPay !== undefined || dto.isPay !== null? { isPay: dto.isPay } : {}),
-            ...(dto.typeMovement ? { typeMovement: dto.typeMovement } : {}),
-            ...(dto.institutionFinancialId !== undefined ? { institutionFinancialId: dto.institutionFinancialId ?? null } : {}),
+            name: dto.name,
+            description: dto.description,
+            amount: dto.amount,
+            date: dto.date ? new Date(dto.date) : undefined,
+            isPay: dto.isPay,
+            typeMovement: dto.typeMovement,
+            ...(dto.institutionFinancialId !== undefined ? { institutionFinancialId: dto.institutionFinancialId || null } : {}),
         };
 
         if (file?.buffer) {
             const processed = await this.imaggeProccess.processReceipt(file.buffer);
-            const url = await this.storageService.upload(processed, `avatars/${userId}`);
-            updateData.receipUrl = url;
+            updateData.receipUrl = await this.storageService.upload(processed, `avatars/${userId}`);
         }
-        const hasPaidToggle = dto.isPay !== undefined || dto.isPay !== null 
- 
-        if (hasPaidToggle) {
-            await this.updateIsPaied(userId, dto, id,pageId);
-        }
-        const update = await this.prisma.movements.update({
-            where: { id: movements.id },
-            data: updateData
+
+        await this.prisma.$transaction(async (tx) => {
+            const old = await tx.movements.findUniqueOrThrow({ where: { id } }); 
+
+            const next = {
+            typeMovement: dto.typeMovement ?? old.typeMovement,
+            amount: dto.amount != null ? new Prisma.Decimal(String(dto.amount)) : old.amount,
+            isPay: dto.isPay ?? old.isPay,
+            institutionId: dto.institutionFinancialId !== undefined ? (dto.institutionFinancialId || null) : old.institutionFinancialId,
+            };
+
+            const financialChange =
+            next.typeMovement !== old.typeMovement ||
+            !next.amount.equals(old.amount) ||
+            next.isPay !== old.isPay;
+             await this.validateEnoughAvailableBalance(userId,next.amount, next.isPay, next.typeMovement )
+            if (financialChange) {
+                if (old.isPay) {
+                    await this.operationMovements(old.typeMovement, userId,  old.amount, tx, false, old.financialPageId);
+                }
+                if (next.isPay) {
+                    await this.operationMovements(next.typeMovement, userId,  next.amount, tx, true, old.financialPageId);
+                }
+            }
+
+        await tx.movements.update({ where: { id }, data: updateData });
         });
 
-        await this.invalidateCache(userId, id,pageId)
-
-        return update;
+        await this.invalidateCache(userId, id, pageId);
     }
 
     async getMovements(pageId: string, query: FindMovementsQueryDto, userId: string): Promise<Movements[]> {
@@ -149,11 +164,13 @@ export class MovementsService {
         const cacheCategory = `category:${userId}`
         const cacheCategoryWithPage = `category:${userId}:${pageId}`
         const cacheBalance = `balance${userId}`
+        const pageCategoryKeys = await this.redis.keys(`category:${userId}:*`);
 
         await this.redis.del(cacheMovements);
         await this.redis.del(cacheMovement);
         await this.redis.del(cacheCategory);
         await this.redis.del(cacheCategoryWithPage);
+        await Promise.all(pageCategoryKeys.map((key) => this.redis.del(key)));
         await this.redis.del(cacheBalance);
     }
 
@@ -230,29 +247,6 @@ export class MovementsService {
         }
     }
 
-    private async updateIsPaied(userId: string, dto: UpdateMovementsDto, id: string , pageId: string) {
-        const movements = await this.findAndVerifyOwnership(id, userId);
-        
-        if (dto.isPay === undefined || dto.isPay === null) {
-            throw new BadRequestException('is pay must not be undefined or null');
-        }
-        let isPaid:boolean = dto.isPay
-
-        const amount = dto.amount !== undefined || dto.amount !== null ? new Prisma.Decimal(String(dto.amount)) : new Prisma.Decimal(String(movements.amount));
-        await this.validateEnoughAvailableBalance(userId,  amount, isPaid,dto.typeMovement);
-        const institutionId =  dto.institutionFinancialId ;
-        await this.prisma.$transaction(async (tx) => {
-            await this.operationMovements(
-                movements.typeMovement,
-                userId,
-                institutionId,
-                amount,
-                tx,
-                isPaid,
-                pageId
-            );
-        });
-    }
     private async deleteIsPaied(userId: string, dto: DeleteMovementDto, id: string,pageId) {
         const movements = await this.findAndVerifyOwnership(id, userId);
 
@@ -262,25 +256,22 @@ export class MovementsService {
         if(movements.typeMovement !== 'INCOME' && movements.isPay){
             await this.validateEnoughAvailableBalance(userId,movements.amount, movements.isPay, movements.typeMovement )
         }
-        
         await this.prisma.$transaction(async (tx) => {
             await this.operationMovements(
                 movements.typeMovement,
                 userId,
-                movements.institutionFinancialId ?? null,
                 new Prisma.Decimal(String(movements.amount)),
                 tx,
-                movements.isPay,
+                false,
                 pageId
             );
         });
-
-        return true;
+        
+        return;
     }
     private async operationMovements(
         typeMovement: TypeMovement,
         userId: string,
-        institutionId: string | null ,
         amount: Prisma.Decimal,
         tx: Prisma.TransactionClient,
         reversePaid: boolean,
