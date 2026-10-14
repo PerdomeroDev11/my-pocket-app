@@ -1,12 +1,14 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, UseGuards } from "@nestjs/common";
 import { BalanceSectionService } from "./balance-section.service";
 import { CurrentUser } from "@/common/decorator/current-user.decorator";
+import { JwtAuthGuard } from "../auth/guards/jwt.guard";
 
 @Controller('balance')
 export class balanceSectionController {
     constructor (private balanceSectionService: BalanceSectionService){}
 
-    @Get('available')
+    @UseGuards(JwtAuthGuard)
+    @Get()
     async available(
         @CurrentUser('sub') userId: string
     ){
