@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { HttpErrorResponse } from '@angular/common/http';
 import { tap } from 'rxjs/internal/operators/tap';
+import { FinancialPageService } from '../../fin-page/financial-pages.service';
 
 @Component({
     selector: 'app-categories',
@@ -19,6 +20,7 @@ import { tap } from 'rxjs/internal/operators/tap';
 })
 export class CategoriesComponent implements OnInit {
     private categoriesService = inject(CategoriesService)
+    private financialPageService = inject(FinancialPageService)
     private toastr = inject(ToastrService)
     private sub$ = new Subscription()
 
@@ -31,11 +33,21 @@ export class CategoriesComponent implements OnInit {
     ngOnInit(): void {
       this.loadDateCategories()
 
-      this.sub$ = this.categoriesService.categoryDate$.pipe(
-        tap(() => {
-            this.loadDateCategories()
-        })
-      ).subscribe()
+      this.sub$.add(
+        this.categoriesService.categoryDate$.pipe(
+          tap(() => {
+            this.loadDateCategories();
+          }),
+        ).subscribe(),
+      );
+
+      this.sub$.add(
+        this.financialPageService.pageFinancialDate$.pipe(
+          tap(() => {
+            this.loadDateCategories();
+          }),
+        ).subscribe(),
+      );
     }
     loadDateCategories() {
         this.getCategories()

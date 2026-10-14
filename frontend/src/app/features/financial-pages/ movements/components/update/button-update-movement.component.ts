@@ -3,6 +3,8 @@ import { ModalService } from '../../../../../shared/services/modal.service';
 import { FinancialPageService } from '../../../fin-page/financial-pages.service';
 import { MovementResponseInterface } from '../../interfaces/movements.interface';
 import { UpdateMovementComponent } from './update-movement.component';
+import { BalancesServices } from '../../../../balances/balances.service';
+import { CategoriesService } from '../../../categorires/categories.service';
 
 @Component({
   selector: 'app-button-Update-movement',
@@ -22,6 +24,8 @@ import { UpdateMovementComponent } from './update-movement.component';
 export class ButtonUpdateMovementComponent {
   private modalService = inject(ModalService);
   private financialPageService = inject(FinancialPageService);
+  private balanceService = inject(BalancesServices);
+  private categoryService = inject(CategoriesService);
 
   movement = input.required<MovementResponseInterface>();
   categoryId = input.required<string>();
@@ -39,6 +43,8 @@ export class ButtonUpdateMovementComponent {
     const wasCreated = await modal.afterClosed();
     if (wasCreated) {
       this.financialPageService.emitPageFinancialDate();
+      this.categoryService.emitCategoryDate();
+      this.balanceService.refreshBalance();
     }
   }
 }

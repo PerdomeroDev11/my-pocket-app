@@ -2,6 +2,8 @@ import { Component, inject, input } from '@angular/core';
 import { ModalService } from '../../../../../shared/services/modal.service';
 import { FinancialPageService } from '../../../fin-page/financial-pages.service';
 import { CreateMovementComponent } from './create-movement.component';
+import { BalancesServices } from '../../../../balances/balances.service';
+import { CategoriesService } from '../../../categorires/categories.service';
 
 @Component({
   selector: 'app-button-new-movement',
@@ -21,6 +23,8 @@ import { CreateMovementComponent } from './create-movement.component';
 export class ButtonNewMovementComponent {
   private modalService = inject(ModalService);
   private financialPageService = inject(FinancialPageService);
+  private balanceService = inject(BalancesServices);
+  private categoryService = inject(CategoriesService);
 
   pageId = input.required<string>();
   categoryId = input.required<string>();
@@ -34,6 +38,8 @@ export class ButtonNewMovementComponent {
     const wasCreated = await modal.afterClosed();
     if (wasCreated) {
       this.financialPageService.emitPageFinancialDate();
+      this.categoryService.emitCategoryDate();
+      this.balanceService.refreshBalance();
     }
   }
 }

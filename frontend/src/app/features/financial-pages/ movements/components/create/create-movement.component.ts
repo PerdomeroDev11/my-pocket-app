@@ -43,7 +43,7 @@ import { OptionsFinancialInstitutuionComponent } from '../../../../financial-ins
             formControlName="description"
             rows="3"
             class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
-            placeholder="e.g. Utilities payment, salary income"
+            placeholder="e.g. Utilities payment, share 1/9"
           ></textarea>
         </div>
 
@@ -133,9 +133,9 @@ export class CreateMovementComponent {
 
   movementForm = this.fb.nonNullable.group({
     name: ['', [Validators.required]],
-    description: ['', [Validators.required]],
+    description: [''],
     amount: [0, [Validators.required, Validators.min(0.01)]],
-    date: [new Date().toISOString().slice(0, 10), [Validators.required]],
+    date: [new Date(), [Validators.required]],
     isPay: [false],
     typeMovement: [TypeMovementEnum.EXPENSE, [Validators.required]],
     institutionFinancialId: [null as string | null],

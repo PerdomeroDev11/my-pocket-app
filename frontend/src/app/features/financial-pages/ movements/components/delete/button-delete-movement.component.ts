@@ -3,6 +3,8 @@ import { ModalService } from "../../../../../shared/services/modal.service";
 import { FinancialPageService } from "../../../fin-page/financial-pages.service";
 import { DeleteMovementComponent } from "./delete-movement.component";
 import { TypeMovementEnum } from "../../interfaces/movements.interface";
+import { BalancesServices } from "../../../../balances/balances.service";
+import { CategoriesService } from "../../../categorires/categories.service";
 
 @Component({
     selector: 'app-button-delete-movement',
@@ -16,6 +18,8 @@ import { TypeMovementEnum } from "../../interfaces/movements.interface";
 export class ButtonDeleteMovementComponent{
     private financialPageService = inject(FinancialPageService);
     private modalService = inject(ModalService);
+    private balanceService = inject(BalancesServices);
+    private categoryService = inject(CategoriesService);
     categoryId = input.required<string>(); 
     movementId = input.required<string>();
     pageId = input.required<string>();
@@ -33,7 +37,9 @@ export class ButtonDeleteMovementComponent{
         });
         const isDeleted$ = await modal.afterClosed();
         if(isDeleted$){
-            this.financialPageService.emitPageFinancialDate()
+            this.financialPageService.emitPageFinancialDate();
+            this.categoryService.emitCategoryDate();
+            this.balanceService.refreshBalance();
         }
     }   
 }

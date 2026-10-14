@@ -2,6 +2,7 @@ import {Component, inject} from "@angular/core";
 import { CreateCategoryComponent } from "./create-category.component";
 import { ModalService } from "../../../../../shared/services/modal.service";
 import { FinancialPageService } from "../../../fin-page/financial-pages.service";
+import { CategoriesService } from "../../categories.service";
 
 @Component({
     selector: 'app-button-new-category',
@@ -22,11 +23,13 @@ import { FinancialPageService } from "../../../fin-page/financial-pages.service"
 export class ButtonNewCategoryComponent{
     private modalRef = inject(ModalService)
     private financialPageService = inject(FinancialPageService)
+    private categoryService = inject(CategoriesService)
     async openModal(){
         const modal = this.modalRef.open(CreateCategoryComponent)
         const isCreated$ = await modal.afterClosed()
         if(isCreated$){
             this.financialPageService.emitPageFinancialDate()
+            this.categoryService.emitCategoryDate()
         }
     }
 }

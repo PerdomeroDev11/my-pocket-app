@@ -10,6 +10,8 @@ import { Subscription } from "rxjs/internal/Subscription";
 import { ButtonNewCategoryComponent } from "../../categorires/components/create/button-new-category.component";
 import { CategoriesComponent } from "../../categorires/components/categories.component";
 import { HttpErrorResponse } from "@angular/common/http";
+import { BalanceAvailableComponent } from "../../../balances/components/available/balance-available.component";
+import { BalanceSavingComponent } from "../../../balances/components/savings/balance-saving.component";
 
 @Component({
     standalone: true,
@@ -19,7 +21,9 @@ import { HttpErrorResponse } from "@angular/common/http";
         ListFinancialPageComponent,
         StatusToggleComponent,
         ButtonNewCategoryComponent,
-        CategoriesComponent
+        CategoriesComponent,
+        BalanceAvailableComponent,
+        BalanceSavingComponent,
     ],
     templateUrl: 'financial-page.component.html',
     styleUrl: 'financial-page.style.css'
