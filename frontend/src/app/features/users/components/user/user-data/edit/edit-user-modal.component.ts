@@ -82,7 +82,7 @@ export class EditUserModal implements OnInit {
         this.userService.editUser(editUser).subscribe({
             next: () => {
                 this.isLoading.set(false)
-                this.modalRef.close()
+                this.modalRef.close(true)
                 this.toastr.success('Data successfully edited.')
             },
             error: () => {

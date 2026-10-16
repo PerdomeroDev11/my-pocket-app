@@ -43,7 +43,47 @@ export enum CountryEnum {
   Ecuador = 'EC',
   Uruguay = 'UY',
 }
+export enum CurrencyEnum {
+  USD = "USD",
+  ARS = "ARS",
+  BOB = "BOB",
+  BRL = "BRL",
+  CLP = "CLP",
+  COP = "COP",
+  CRC = "CRC",
+  CUP = "CUP",
+  DOP = "DOP",
+  GTQ = "GTQ",
+  HNL = "HNL",
+  MXN = "MXN",
+  NIO = "NIO",
+  PAB = "PAB",
+  PYG = "PYG",
+  PEN = "PEN",
+  UYU = "UYU",
+  VES = "VES"
+}
 
+export const CurrencyLabels: Record<CurrencyEnum, string> = {
+  [CurrencyEnum.USD]: "Dólar Unites stade(USD)",
+  [CurrencyEnum.ARS]: "Peso argentino(ARS)",
+  [CurrencyEnum.BOB]: "Boliviano(BOB)",
+  [CurrencyEnum.BRL]: "Real brasileño(BRL)",
+  [CurrencyEnum.CLP]: "Peso chileno(CLP)",
+  [CurrencyEnum.COP]: "Peso colombiano(COP)",
+  [CurrencyEnum.CRC]: "Colón costarricense(CRC)",
+  [CurrencyEnum.CUP]: "Peso cubano(CUP)",
+  [CurrencyEnum.DOP]: "Peso dominicano(DOP)",
+  [CurrencyEnum.GTQ]: "Quetzal guatemalteco(GTQ)",
+  [CurrencyEnum.HNL]: "Lempira hondureña(HNL)",
+  [CurrencyEnum.MXN]: "Peso mexicano(MXN)",
+  [CurrencyEnum.NIO]: "Córdoba nicaragüense(NIO)",
+  [CurrencyEnum.PAB]: "Balboa panameño(PAB)",
+  [CurrencyEnum.PYG]: "Guaraní paraguayo(PYG)",
+  [CurrencyEnum.PEN]: "Sol peruano(PEN)",
+  [CurrencyEnum.UYU]: "Peso uruguayo(AYU)",
+  [CurrencyEnum.VES]: "Bolívar soberano venezolano(VES)"
+};
 // Dictionaries for displaying customer-readable names
 export const LanguageLabels: Record<LanguageEnum, string> = {
   [LanguageEnum.Spanish]: 'Spanish',
@@ -105,6 +145,7 @@ export interface UpdateUser {
   typePeriod?: TypePeriodEnum
   timeZone?: TimezoneEnum
   country?: CountryEnum
+  currency?: CurrencyEnum
 }
  export interface updateProfilePicture{
   profilePicture?: File | null

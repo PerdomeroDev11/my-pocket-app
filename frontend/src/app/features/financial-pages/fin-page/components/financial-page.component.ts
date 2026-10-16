@@ -2,7 +2,7 @@ import { Component, inject, OnDestroy, OnInit, signal } from "@angular/core";
 import { FinancialPageService } from "../financial-pages.service";
 import { ActivatedRoute } from "@angular/router";
 import { ToastrService } from "ngx-toastr";
-import { CommonModule } from "@angular/common";
+import { CommonModule, CurrencyPipe } from "@angular/common";
 import { ListFinancialPageComponent } from "./list-financial-page.component";
 import { StatusPagesInterface , StatusPageEnum, financialPageResponseInterface } from "../interface/financial-page.model";
 import { StatusToggleComponent } from "../../../../shared/components/togglet/status-togglet.component";
@@ -11,19 +11,19 @@ import { ButtonNewCategoryComponent } from "../../categorires/components/create/
 import { CategoriesComponent } from "../../categorires/components/categories.component";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BalanceAvailableComponent } from "../../../balances/components/available/balance-available.component";
-import { BalanceSavingComponent } from "../../../balances/components/savings/balance-saving.component";
+import { CurrencyUserComponent } from "../../../users/components/user/currency-user.component";
 
 @Component({
     standalone: true,
     selector: 'app-financial-page-component',
     imports: [
         CommonModule,
-        ListFinancialPageComponent,
         StatusToggleComponent,
         ButtonNewCategoryComponent,
         CategoriesComponent,
         BalanceAvailableComponent,
-        BalanceSavingComponent,
+        CurrencyPipe,
+        CurrencyUserComponent,
     ],
     templateUrl: 'financial-page.component.html',
     styleUrl: 'financial-page.style.css'
@@ -37,6 +37,9 @@ export class FinancialPageComponent implements OnInit , OnDestroy {
     isLoading = signal<boolean>(false)
     dateFinancialPage = signal<financialPageResponseInterface[] | null>(null)
     statusPage = signal<StatusPagesInterface>({status: StatusPageEnum.ACTIVE})
+    totalExpenses = signal(0)
+    totalIncomes = signal(0)
+    namePage = signal<string | null>(null)
     
     readonly pageId = signal<string>('')
     
@@ -78,11 +81,18 @@ export class FinancialPageComponent implements OnInit , OnDestroy {
         this.isLoading.set(true)
         this.financialPageService.getFiancianPages().subscribe({
             next: (pages: financialPageResponseInterface[]) => {
-                this.dateFinancialPage.set(pages)
-
                 const currentPage = pages.find((page) => page.id === financialPageId)
+                if(currentPage?.totalExpenses){
+                    this.totalExpenses.set(currentPage.totalExpenses)
+                }
+                if(currentPage?.totalIncome){
+                    this.totalIncomes.set(currentPage.totalIncome)
+                }
                 if (currentPage?.status) {
                     this.statusPage.set({ status: currentPage.status as StatusPageEnum })
+                }
+                if(currentPage?.name){
+                    this.namePage.set(currentPage.name)
                 }
 
                 this.isLoading.set(false)

@@ -33,6 +33,7 @@ export interface MovementResponseInterface {
     isPay: boolean;
     typeMovement: TypeMovementEnum;
     institutionFinancial: { id: string; name: string } | null;
+    receipUrl?: string | null;
     createdAt: Date;
 }
 

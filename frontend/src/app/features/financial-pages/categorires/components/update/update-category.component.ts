@@ -11,7 +11,7 @@ import { HttpErrorResponse } from "@angular/common/http";
     imports: [ReactiveFormsModule],
     standalone: true,
     template: `
-        <div class="w-[min(32rem,92vw)] rounded-2xl bg-white p-6 ">
+        <div class="w-[min(32rem,92vw)] rounded-2xl bg-white p-6 shadow-xl">
             <div class="mb-5 flex items-center justify-between gap-3">
                 <h2 class="text-xl font-semibold text-slate-900">Edit category</h2>
                 <button type="button" class="text-sm text-slate-500 hover:text-slate-800" (click)="modaleRef.close(false)">
@@ -32,7 +32,7 @@ import { HttpErrorResponse } from "@angular/common/http";
                         type="text"
                         id="name"
                         formControlName="name"
-                        class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                        class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
                         placeholder="e.g. Food"
                     >
                 </div>
@@ -42,7 +42,7 @@ import { HttpErrorResponse } from "@angular/common/http";
                         type="checkbox"
                         id="isRecurrent"
                         formControlName="isRecurrent"
-                        class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                        class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                     >
                     Is recurrent
                 </label>
@@ -58,7 +58,7 @@ import { HttpErrorResponse } from "@angular/common/http";
                     <button
                         type="submit"
                         [disabled]="categoryForm.invalid || isLoading()"
-                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-blue-300"
+                        class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-emerald-300"
                     >
                         {{isLoading() ? 'Updating...' : 'Save changes'}}
                     </button>

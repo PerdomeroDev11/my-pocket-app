@@ -15,7 +15,7 @@ import { UpdateStatusInstitutionFinancialComponent } from "../status/status-inst
     template: `
         <div class="w-[min(32rem,92vw)] rounded-2xl bg-white p-6 shadow-xl">
             <div class="mb-5 flex items-center justify-between gap-3">
-                <h2 class="text-xl font-semibold text-slate-900">Create financial institution</h2>
+                <h2 class="text-xl font-semibold text-slate-900">Update financial institution</h2>
                 <button type="button" class="text-sm text-slate-500 hover:text-slate-800" (click)="this.modalRef.close(false)">
                     Close
                 </button>
@@ -52,22 +52,11 @@ import { UpdateStatusInstitutionFinancialComponent } from "../status/status-inst
                     </select>
                 </div>
 
-                <div>
-                    <label for="balanceNow" class="mb-1 block text-sm font-medium text-slate-700">Balance</label>
-                    <input
-                        id="balanceNow"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        formControlName="balanceNow"
-                        class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200"
-                    />
-                </div>
-                <div>
-                    <label for="status" lass="mb-1 block text-sm font-medium text-slate-700">Status</label>
+                <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <label class="mb-2 block text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-700">Status</label>
                     <app-status-institution-financial
-                    [idInstitutionFinancial]="idInstitutionFinancial()"
-                    [statusInput]="financialIntitutionsInput().status"
+                        [idInstitutionFinancial]="idInstitutionFinancial()"
+                        [statusInput]="financialIntitutionsInput().status"
                     />
                 </div>
 

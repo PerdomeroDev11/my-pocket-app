@@ -5,81 +5,110 @@ import { financialPageResponseInterface } from "../interface/financial-page.mode
 import { HttpErrorResponse } from "@angular/common/http";
 
 @Component({
-    selector: 'app-list-financial-page',
-    standalone: true,
-    template: `
-        <div class="inline-flex flex-col gap-1.5 min-w-60">
-  <label for="page-select" class="text-xs font-semibold uppercase tracking-wider text-black-russian-400">
-    Period
-  </label>
-  <div class="relative">
-    <select
-      id="page-select"
-      (change)="onPageChange($event)"
-      class="custom-select-arrow w-full appearance-none bg-black-russian-950/60 backdrop-blur-xl border border-white/10 rounded-xl px-3.5 py-2.5 pr-10 text-sm font-medium text-black-russian-50 cursor-pointer transition-all duration-300 hover:border-white/30 hover:bg-black-russian-950/80 focus:outline-none focus:border-blue-500/80 focus:ring-4 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_10px_25px_rgba(0,0,0,0.5)]"
-    >
-      @if (isLoading()) {
-        <option class="bg-black-russian-950 text-black-russian-200">Loading...</option>
-      } @else {
-        @for (page of allPageOptions(); track page.id) {
-          <option [value]="page.id" [selected]="page.id === financialPageId()" class="bg-black-russian-950 text-black-russian-50 py-2">
-            {{page.name}} — {{page.status}}
-          </option>
-        }
+  selector: 'app-list-financial-page',
+  standalone: true,
+  template: `
+    <div class="w-full min-w-0">
+      <button
+        type="button"
+        (click)="toggle()"
+        [attr.aria-expanded]="open()"
+        class="group flex w-full items-center justify-between rounded-lg px-3.5 py-2 text-[13px] font-medium uppercase tracking-wider text-slate-400 transition-colors hover:text-slate-200 focus-visible:outline-none"
+      >
+        <div class="flex items-center gap-2.5">
+          <img
+            src="/pages-icon.svg"
+            alt="Pages icon"
+            class="h-4.5 w-4.5 shrink-0 opacity-80"
+          />
+          <span class="text-[13px]">Pages</span>
+        </div>
+        <svg
+          class="h-3.5 w-3.5 transition-transform duration-200"
+          [class.-rotate-90]="!open()"
+          viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
+        >
+          <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06Z" clip-rule="evenodd"/>
+        </svg>
+      </button>
+
+      @if (open()) {
+        <ul class="mt-0.5 max-h-64 space-y-0.5 overflow-y-auto ">
+          @if (isLoading()) {
+            <li class="px-3 py-1.5 text-sm text-slate-500">Loading...</li>
+          } @else if (errMesagge()) {
+            <li class="px-3 py-1.5 text-sm text-red-400">{{ errMesagge() }}</li>
+          } @else if (allPageOptions().length === 0) {
+            <li class="px-3 py-1.5 text-sm text-slate-500">No pages yet</li>
+          } @else {
+            @for (page of allPageOptions(); track page.id) {
+              <li class=" ">
+                <button
+                  type="button"
+                  (click)="pick(page)"
+                  class="flex w-full items-center gap-2.5 truncate rounded-lg border-l border-transparent px-3.5 py-2 text-left text-[14px] transition-all duration-200 hover:border-l-blue-400/80 hover:bg-white/5 focus-visible:border-l-blue-400/80 focus-visible:bg-white/5 focus-visible:outline-none"
+                  [class.text-slate-100]="page.id === financialPageId()"
+                  [class.bg-white/10]="page.id === financialPageId()"
+                  [class.text-slate-400]="page.id !== financialPageId()"
+                >
+                  <img
+                    src="/pages-icon.svg"
+                    alt="Page icon"
+                    class="h-4 w-4 shrink-0 rounded-none border-0 bg-transparent p-0 opacity-80"
+                  />
+                  <span class="truncate">{{ page.name }}</span>
+                </button>
+              </li>
+            }
+          }
+        </ul>
       }
-    </select>
-  </div>
-</div>
-    `
+    </div>
+  `
 })
-export class ListFinancialPageComponent implements OnInit{
-    private financialPageService = inject(FinancialPageService)
-    private router = inject(Router)
-    private route = inject(ActivatedRoute)
+export class ListFinancialPageComponent implements OnInit {
+  private financialPageService = inject(FinancialPageService)
+  private router = inject(Router)
+  private route = inject(ActivatedRoute)
 
-    isLoading = signal<boolean>(false)
-    errMesagge = signal<string | null>(null)
-    financialPageId = signal<string>('')
-    allPageOptions = signal<financialPageResponseInterface[]>([])
+  isLoading = signal<boolean>(false)
+  errMesagge = signal<string | null>(null)
+  financialPageId = signal<string>('')
+  allPageOptions = signal<financialPageResponseInterface[]>([])
+  open = signal<boolean>(true)
 
-    ngOnInit(): void {
-        this.route.paramMap.subscribe(params => {
-            const id = params.get('id')
-            if (id) {
-                this.financialPageId.set(id);
-            }
-        });
-      this.listPagesOption();
+  ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id')
+      if (id) this.financialPageId.set(id)
+    })
+    this.listPagesOption()
+  }
 
-        
-    }
-    onPageChange(event: Event) {
-        const selectedId = (event.target as HTMLSelectElement).value;
-        this.router.navigate(['/financial-pages', selectedId]);
-    }
+  toggle() { this.open.update(o => !o) }
 
-    listPagesOption(){
-        this.getFinancialList()
-    }
-    private getFinancialList(){
-      this.isLoading.set(true)
-        this.financialPageService.getFiancianPages().subscribe({
-            next: (response : financialPageResponseInterface[]) => {
-              this.handleSuccess(response)
-            },
-            error: (err: HttpErrorResponse) => {
-                this.handleError(err)
-            }
-        })
-    }
-    private handleSuccess(response: financialPageResponseInterface[]){
-        this.isLoading.set(false)
-        this.allPageOptions.set(response)
-    }
-    private handleError(err: HttpErrorResponse){
-        this.isLoading.set(false)
-        this.errMesagge.set(err.error?.message || 'Error fetching financial pages')
-        console.error('ListFinancialPageComponent: error fetching financial pages:', err)
-    }
+  pick(page: financialPageResponseInterface) {
+    this.financialPageId.set(page.id)
+    this.router.navigate(['/financial-pages', page.id])
+  }
 
+  listPagesOption() {
+    this.getFinancialList()
+  }
+  private getFinancialList() {
+    this.isLoading.set(true)
+    this.financialPageService.getFiancianPages().subscribe({
+      next: (response: financialPageResponseInterface[]) => this.handleSuccess(response),
+      error: (err: HttpErrorResponse) => this.handleError(err)
+    })
+  }
+  private handleSuccess(response: financialPageResponseInterface[]) {
+    this.isLoading.set(false)
+    this.allPageOptions.set(response)
+  }
+  private handleError(err: HttpErrorResponse) {
+    this.isLoading.set(false)
+    this.errMesagge.set(err.error?.message || 'Error fetching financial pages')
+    console.error('ListFinancialPageComponent: error fetching financial pages:', err)
+  }
 }

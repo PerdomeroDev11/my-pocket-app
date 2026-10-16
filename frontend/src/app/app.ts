@@ -11,5 +11,5 @@ import { RouterOutlet } from '@angular/router';
   `,
 })
 export class App {
-  protected readonly title = signal('frontend');
+  protected readonly title = signal('Mi Bolsillo');
 }

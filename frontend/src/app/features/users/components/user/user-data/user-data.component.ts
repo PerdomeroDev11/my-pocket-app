@@ -1,15 +1,16 @@
 import { Component, inject, OnInit, signal } from "@angular/core";
 import { ModalService } from "../../../../../shared/services/modal.service";
-import { CountryEnum, CountryLabels, LanguageEnum, LanguageLabels, TimezoneEnum, TypePeriodEnum, UserResponse } from "../../../interfaces/user.model";
+import { CountryEnum, CountryLabels, CurrencyEnum, CurrencyLabels, LanguageEnum, LanguageLabels, TimezoneEnum, TypePeriodEnum, UserResponse } from "../../../interfaces/user.model";
 import { UserService } from "../../../user.service";
 import { EditUserModal } from "./edit/edit-user-modal.component";
 import { enumToOptions } from "../../../../../shared/utils/selects-enums-user.util";
+import { DatePipe } from "@angular/common";
 
 
 @Component({
     selector: 'app-user-data',
     standalone: true,
-    imports: [],
+    imports: [DatePipe],
     templateUrl: './user-data.component.html'
 })
 export class InfoUseComponent implements OnInit{
@@ -22,10 +23,16 @@ export class InfoUseComponent implements OnInit{
     timezoneOptions = enumToOptions(TimezoneEnum);
     languageOptions = enumToOptions(LanguageEnum, LanguageLabels);
     periodOptions = enumToOptions(TypePeriodEnum);
+    currencyOptions = enumToOptions(CurrencyEnum, CurrencyLabels)
+
 
     getLanguageLabel(language?: string | null): string {
         if (!language) return 'No definido';
         return LanguageLabels[language as LanguageEnum] ?? language;
+    }
+    getCurrencyLale(currency?: string | null ):string{
+        if(!currency) return 'currency not defined'
+        return CurrencyLabels[currency as CurrencyEnum] ?? currency
     }
 
     ngOnInit() {

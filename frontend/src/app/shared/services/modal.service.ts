@@ -27,6 +27,8 @@ export class ModalService {
       scrollStrategy: this.overlay.scrollStrategies.block(),
     });
 
+    requestAnimationFrame(() => overlayRef.updatePosition());
+
     let resolveFn: (result?: TResult) => void;
     const afterClosedPromise = new Promise<TResult | undefined>((resolve) => {
       resolveFn = resolve;

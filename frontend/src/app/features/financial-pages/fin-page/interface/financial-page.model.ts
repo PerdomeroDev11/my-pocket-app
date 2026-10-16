@@ -16,7 +16,7 @@ export interface financialPageResponseInterface {
     endDate: Date | null
     status: string | null
     totalIncome: number | null
-    total: number | null
+    totalExpenses: number | null
     closedAt: Date | null
     createdAt: Date
     userId:string

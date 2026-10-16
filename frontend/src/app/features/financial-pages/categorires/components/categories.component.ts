@@ -2,6 +2,8 @@ import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { CategoriesJoinResponseInterface } from '../interface/categorie.interface';
 import { MovementComponent } from '../../ movements/movement.component';
 import { ButtonNewMovementComponent } from '../../ movements/components/create/button-new-movement.component';
+import { ButtonUpdateCategoryComponent } from './update/ button-update-category.component';
+import { ButtonDeleteCategoryComponent } from './soft-delete/button-category.component';
 import { CategoriesService } from '../categories.service';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs/internal/Subscription';
@@ -15,6 +17,8 @@ import { FinancialPageService } from '../../fin-page/financial-pages.service';
     imports: [
         MovementComponent,
         ButtonNewMovementComponent,
+        ButtonUpdateCategoryComponent,
+        ButtonDeleteCategoryComponent,
     ],
     templateUrl: './categories.component.html'
 })

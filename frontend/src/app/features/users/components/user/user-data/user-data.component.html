@@ -1,5 +1,5 @@
 <div class="w-full">
-  <div class="relative overflow-hidden rounded-[28px] border border-white/10 border-t-white/20 bg-black-russian-950/40 p-6 backdrop-blur-3xl shadow-[0_30px_70px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.1)]">
+  <div class="relative overflow-hidden  p-6 ">
     
     <div class="absolute -top-24 left-1/2 -translate-x-1/2 h-24 w-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
 
@@ -27,100 +27,128 @@
       </div>
 
       <div class="space-y-4">
-        <!-- Profile picture section -->
-        <div class="group flex items-center justify-between rounded-2xl border border-white/5 bg-black-russian-900/30 backdrop-blur-md p-4 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
-          <div class="flex items-center gap-4">
+        <div class="flex flex-2  border-b-fuchsia-100 border-b p-4 ">
+          <div class="w-100">
+            <strong class=" text-2xl mb-7">Acount User</strong>
+            <p>This information will be displayed on the dashboard. Only you can see it.</p>
+          </div>
+          <div class="w-3xl p-5 border border-zinc-800/80 rounded-2xl bg-linear-to-br from-zinc-900 via-zinc-950 to-black text-white shadow-xl">
+        <!-- Profile picture section --> 
+        <div class="group flex  items-center shadow-gray-950 justify-between   backdrop-blur-md p-4 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
+          <div class="flex items-center gap-4 w-70 ">
             @if (userData()?.profilePicture) {
-              <img [src]="userData()?.profilePicture" class="h-13 w-13 rounded-full object-cover border border-blue-400/35 shadow-md" alt="Avatar">
+              <img [src]="userData()?.profilePicture" class="h-20 w-20 rounded-full object-cover border border-blue-400/35 shadow-md" alt="Avatar">
             } @else {
-              <div class="flex h-13 w-13 items-center justify-center rounded-full border border-white/10 bg-black-russian-900 font-bold text-blue-400 shadow-inner">
+              <div class="flex h-13 w-13 items-center justify-center rounded-full border border-white/10 bg-black-russian-900 font-bold text-emerald-50 shadow-inner">
                 {{ userData()?.name?.charAt(0) || 'U' }}
               </div>
             }
             <div>
-              <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-black-russian-400">Profile Picture</span>
-              <p class="text-sm font-medium text-black-russian-50">Update your avatar</p>
+              <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-black-russian-400">{{userData()?.name}}</span>
+              <p class="text-sm font-medium text-black-russian-50">Since: {{userData()?.createdAt | date}}</p>
             </div>
           </div>
           <button 
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-semibold text-blue-300 shadow-sm transition-all duration-200 hover:border-blue-400 hover:bg-blue-500/20 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.25)]"
+            class="inline-flex  items-center gap-1.5 rounded-md border-blue-500/30 bg-blue-600  px-3.5 py-2 text-xs font-semibold text-emerald-50  transition-all duration-200 hover:bg-blue-500 0 hover:text-white "
             (click)="openEditModal('profilePicture', 'file', userData()?.profilePicture)">
-            Editar
+            Update
           </button>
         </div>
-        
-        <!-- Field component helper template style for rows -->
-        <!-- Name -->
-        <div class="group flex items-center justify-between rounded-2xl border border-white/5 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
+          <!-- Name -->
+        <div class="group flex items-center justify-between rounded-b-xl border-b border-b-blue-900 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
           <div>
             <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-black-russian-400">Name</span>
             <p class="text-sm font-medium text-black-russian-50">{{ userData()?.name }}</p>
           </div>
           <button
-            class="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-semibold text-blue-300 shadow-sm transition-all duration-200 hover:border-blue-400 hover:bg-blue-500/20 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.25)]" 
+            class="inline-flex  items-center gap-1.5 rounded-md border-blue-500/30 bg-blue-600  px-3.5 py-2 text-xs font-semibold text-emerald-50  transition-all duration-200 hover:bg-blue-500 0 hover:text-white "
             type="button" 
             (click)="openEditModal('name', 'text', userData()?.name)">
-            Editar
+            Edit
           </button>
         </div>
-
         <!-- Country -->
-        <div class="group flex items-center justify-between rounded-2xl border border-white/5 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
+        <div class="group flex items-center justify-between rounded-b-xl border-b border-b-blue-900 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
           <div>
             <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-black-russian-400">Country</span>
             <p class="text-sm font-medium text-black-russian-50">{{ userData()?.country }}</p>
           </div>
           <button
-            class="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-semibold text-blue-300 shadow-sm transition-all duration-200 hover:border-blue-400 hover:bg-blue-500/20 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.25)]" 
+            class="inline-flex  items-center gap-1.5 rounded-md border-blue-500/30 bg-blue-600  px-3.5 py-2 text-xs font-semibold text-emerald-50  transition-all duration-200 hover:bg-blue-500 0 hover:text-white"
             type="button" 
             (click)="openEditModal('country', 'select', userData()?.country, countryOptions)">
-            Editar
+            Edit
           </button>
         </div>
-
+        
+          </div>
+        </div>
+               
+        <div class="flex flex-2 border-b-fuchsia-100 border-b p-4">
+          <div class="w-100">
+              <strong class=" text-2xl mb-5">Preferences and Formats</strong>
+              <p>Configure how amounts, the settlement period, and time zones are displayed.</p>
+            </div>
+          <div class="w-3xl p-5 border border-zinc-800/80 rounded-2xl bg-linear-to-br from-zinc-900 via-zinc-950 to-black text-white shadow-xl" >
+            
         <!-- Language -->
-        <div class="group flex items-center justify-between rounded-2xl border border-white/5 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
-          <div>
+        <div class="group flex items-center justify-between rounded-2xl border-b border-b-blue-900 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
+          <div class="">
             <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-black-russian-400">Language</span>
             <p class="text-sm font-medium text-black-russian-50">{{ getLanguageLabel(userData()?.language) }}</p>
           </div>
           <button
-            class="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-semibold text-blue-300 shadow-sm transition-all duration-200 hover:border-blue-400 hover:bg-blue-500/20 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.25)]" 
+            class="inline-flex  items-center gap-1.5 rounded-md border-blue-500/30 bg-blue-600  px-3.5 py-2 text-xs font-semibold text-emerald-50  transition-all duration-200 hover:bg-blue-500 0 hover:text-white "
             type="button" 
             (click)="openEditModal('language', 'select', userData()?.language, languageOptions)">
-            Editar
+            Edit
           </button>
         </div>
 
         <!-- Timezone -->
-        <div class="group flex items-center justify-between rounded-2xl border border-white/5 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
+        <div class="group flex items-center justify-between rounded-b-xl border-b border-b-blue-900 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
           <div>
             <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-black-russian-400">Timezone</span>
             <p class="text-sm font-medium text-black-russian-50">{{ userData()?.timeZone }}</p>
           </div>
           <button
-            class="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-semibold text-blue-300 shadow-sm transition-all duration-200 hover:border-blue-400 hover:bg-blue-500/20 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.25)]"  
+            class="inline-flex  items-center gap-1.5 rounded-md border-blue-500/30 bg-blue-600  px-3.5 py-2 text-xs font-semibold text-emerald-50  transition-all duration-200 hover:bg-blue-500 0 hover:text-white"
             type="button" 
             (click)="openEditModal('timeZone', 'select', userData()?.timeZone, timezoneOptions)">
-            Editar
+            Edit
+          </button>
+        </div>
+        <!-- Currency -->
+        <div class="group flex items-center justify-between rounded-b-xl border-b border-b-blue-900 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
+          <div>
+            <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-black-russian-400">currency</span>
+            <p class="text-sm font-medium text-black-russian-50">{{ getCurrencyLale(userData()?.currency) }}</p>
+          </div>
+          <button
+            class="inline-flex  items-center gap-1.5 rounded-md border-blue-500/30 bg-blue-600  px-3.5 py-2 text-xs font-semibold text-emerald-50  transition-all duration-200 hover:bg-blue-500 0 hover:text-white "
+            type="button" 
+            (click)="openEditModal('currency', 'select', userData()?.currency, currencyOptions)">
+            Edit
           </button>
         </div>
 
         <!-- Period Type -->
-        <div class="group flex items-center justify-between rounded-2xl border border-white/5 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
+        <div class="group flex items-center justify-between rounded-b-xl border-b border-b-blue-600 bg-black-russian-900/30 backdrop-blur-md px-4 py-3.5 transition-all duration-300 hover:border-white/20 hover:bg-black-russian-900/60">
           <div>
             <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-black-russian-400">Period Type</span>
             <p class="text-sm font-medium text-black-russian-50">{{ userData()?.typePeriod }}</p>
           </div>
           <button
-            class="inline-flex items-center gap-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-semibold text-blue-300 shadow-sm transition-all duration-200 hover:border-blue-400 hover:bg-blue-500/20 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.25)]" 
+            class="inline-flex  items-center gap-1.5 rounded-md border-blue-500/30 bg-blue-600  px-3.5 py-2 text-xs font-semibold text-emerald-50  transition-all duration-200 hover:bg-blue-500 0 hover:text-white "
             type="button" 
             (click)="openEditModal('typePeriod', 'select', userData()?.typePeriod, periodOptions)">
-            Editar
+            Edit
           </button>
         </div>
         
+      </div>
+        </div>
       </div>
     }
   </div>

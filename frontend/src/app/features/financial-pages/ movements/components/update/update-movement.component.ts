@@ -4,7 +4,6 @@ import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from "@angu
 import { ToastrService } from "ngx-toastr";
 import { MODAL_REF, ModalRef } from "../../../../../shared/services/modal.service";
 import { ModalMovementData, TypeMovementEnum, UpdateMovementInterface } from "../../interfaces/movements.interface";
-import { FinancialInstitutionsService } from "../../../../financial-institutions/financial-institutions.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { MODAL_DATA } from "../../../../../shared/tokens/modal-data.token";
 import { FinancialInstitutionsResponse } from "../../../../financial-institutions/interfaces/financial-institutions";
@@ -18,7 +17,6 @@ import { OptionsFinancialInstitutuionComponent } from "../../../../financial-ins
 })
 export class UpdateMovementComponent implements OnInit {
     private movementService = inject(MovementsService)
-    private institutionFinancial = inject(FinancialInstitutionsService)
     private toastr = inject(ToastrService)
     private modalRef = inject(MODAL_REF) as ModalRef<boolean>
     private modalData = inject(MODAL_DATA) as ModalMovementData
@@ -27,6 +25,7 @@ export class UpdateMovementComponent implements OnInit {
     isLoading = signal<boolean>(false)
     messageError = signal<string | null>(null)
     filePut = signal<File | null>(null)
+    currentReceiptUrl = signal<string | null>(null)
 
     readonly movement = computed(() => this.modalData.movement ?? null)
     readonly movementId = computed(() => this.modalData.id ?? this.movement()?.id ?? '')
@@ -54,6 +53,7 @@ export class UpdateMovementComponent implements OnInit {
     ngOnInit(): void {
         const movement = this.movement();
         if (movement) {
+            this.currentReceiptUrl.set(movement.receipUrl ?? null);
             this.formUpdate.patchValue({
                 name: movement.name ?? '',
                 description: movement.description ?? '',
@@ -80,6 +80,13 @@ export class UpdateMovementComponent implements OnInit {
         const input = event.target as HTMLInputElement;
         const file = input.files?.[0] ?? null;
         this.filePut.set(file);
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => this.currentReceiptUrl.set(String(reader.result ?? null));
+            reader.readAsDataURL(file);
+        } else {
+            this.currentReceiptUrl.set(this.movement()?.receipUrl ?? null);
+        }
     }
     onCancel (): void{
         this.modalRef.close(false)

@@ -5,31 +5,98 @@
       <p>Loading information...</p>
     </div>
   }
-  <h2 class="text-4xl">Financial Page</h2>
-  <p></p>
-  <div class="w-3xs border-b-2 border-b-blue-950 mg-9 "></div>
-  @if (!isLoading() && pageId()) {
-    <div class="flex flex-2 justify-around mt-5">
-      <div>
-        <app-balance-available/>
-      </div>
-      <div>
-        <app-balance-saving/>
-      </div>
+  <div class="mb-6 flex items-end justify-between gap-4 border-b border-white/10 pb-4">
+    <div>
+      <p class="mb-2 text-[10px] font-semibold uppercase tracking-[0.32em] text-sky-300/80">Dashboard</p>
+      <h2 class="text-3xl font-semibold tracking-[-0.04em] text-white md:text-4xl">FINANCIAL PAGES</h2>
     </div>
-    <nav class="m-10 text-3xl flex flex-2 justify-between">
-      <app-list-financial-page />
-      <div class="mt-11 ml-150">
-        <app-button-new-category />
+    <div class="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.22em] text-white/60 md:block">
+      Overview
+    </div>
+  </div>
+  @if (!isLoading() && pageId()) {
+    <section class="mt-6 w-full">
+      <div class="mb-5">
+        <Strong class="text-2xl">Balances and financial position</Strong>
+        <p class="text-sm">Figures updated as of the accounting closing date. Page:  {{namePage()}}</p>
       </div>
       
-      <div class="mt-13">
-        <app-status-toggle
-          [status]="statusPage().status"
-          (toggle)="changeToggletStatus()"
-        />
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div class="min-h-42.5 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_18px_40px_rgba(10,10,25,0.28)] backdrop-blur-xl">
+          <app-balance-available />
+        </div>
+        <div class="min-h-42.5 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_18px_40px_rgba(10,10,25,0.28)] backdrop-blur-xl">
+          <div class="flex h-full flex-col justify-between gap-3">
+            <div class="flex items-center justify-between gap-3 pt-2">
+              <span class="text-[9px] font-medium uppercase tracking-[0.2em] text-white/70">Incomes  of the Financial Page</span>
+              <div class="flex h-5 w-5 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-400/20">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path d="M10 18a1 1 0 0 1-1-1V7.414L6.707 9.707a1 1 0 0 1-1.414-1.414l4-4a1 1 0 0 1 1.414 0l4 4a1 1 0 0 1-1.414 1.414L11 7.414V17a1 1 0 0 1-1 1Z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="flex items-end justify-between gap-3">
+              
+              <div class="flex flex-col justify-end">
+                <p class="text-[29px] font-bold leading-none tracking-tight text-emerald-400"> +{{ totalIncomes() | currency}}</p>
+                <span class="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-white/55"><app-currency-user/></span>
+                <p class="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-white/55">Amount of income: </p>
+              </div>
+              
+            </div>
+            <div class="flex items-center justify-between gap-3 border-t border-white/10 pt-2">
+              <span class="text-[9px] font-medium uppercase tracking-[0.2em] text-white/70">Average amount spent: </span>
+              <span class="text-[9px] font-medium uppercase tracking-[0.2em] text-emerald-400">+Income</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="min-h-42.5 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_18px_40px_rgba(10,10,25,0.28)] backdrop-blur-xl">
+          <div class="flex h-full flex-col justify-between gap-3">
+            <div class="flex items-center justify-between gap-3  pt-2">
+              <span class="text-[9px] font-medium uppercase tracking-[0.2em] text-white/70">Expenses of the Financial Page</span>
+              <div class="flex h-5 w-5 items-center justify-center rounded-xl bg-red-500/10 text-red-400 ring-1 ring-red-400/20">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path d="M10 2a1 1 0 0 1 1 1v9.586l2.293-2.293a1 1 0 1 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L9 12.586V3a1 1 0 0 1 1-1Z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="flex items-end justify-between gap-3">
+              <div class="flex flex-col justify-end">
+                <p class="text-[29px] font-bold leading-none tracking-tight text-red-400">-{{ totalExpenses() | currency }}</p>
+                <span class="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-white/55"><app-currency-user/></span>
+                <p class="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-white/55">Maximum amount you can spend: </p>
+              </div>
+              
+            </div>
+            <div class="flex items-center justify-between gap-3 border-t border-white/10 pt-2">
+              <span class="text-[9px] font-medium uppercase tracking-[0.2em] text-white/70">Average amount spent: </span>
+              <span class="text-[9px] font-medium uppercase tracking-[0.2em] text-red-500">-Expense</span>
+            </div>
+            
+          </div>
+        </div>
       </div>
-    </nav>
+    </section>
+
+    <div class="mt-8 flex items-center justify-between gap-4 rounded-[26px] border border-white/10 bg-white/3 px-4 py-3 shadow-[0_16px_40px_rgba(10,10,25,0.2)] backdrop-blur-xl md:px-5">
+      <div class="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-white/60">
+        Actions
+      </div>
+
+      <div class="flex items-center gap-3 md:gap-4">
+        <div class="flex items-center justify-center">
+          <app-button-new-category />
+        </div>
+
+        <div class="flex items-center justify-center rounded-full border border-white/10 bg-white/4 px-3 py-2 shadow-inner shadow-white/5">
+          <app-status-toggle
+            [status]="statusPage().status"
+            (toggle)="changeToggletStatus()"
+          />
+        </div>
+      </div>
+    </div>
     <div>
       <app-categories
         [pageId]="pageId()"
