@@ -4,6 +4,7 @@ import { CreateCategoryDto } from "./dto/create-categorie.dto";
 import Redis from "ioredis";  
 import { UpdateCategoryDto } from "./dto/update-category.dto";
 import { DEFAULT_CATEGORIES } from "@/common/constants/defaul-categories";
+import { moveMessagePortToContext } from "node:worker_threads";
 
 @Injectable()
 export class CategoriesService {
@@ -61,7 +62,10 @@ export class CategoriesService {
             where:{userId: userId, status: 'ACTIVE'},
             include:{
                 movements:{
-                    where:{financialPageId: financialPageId}
+                    where:{financialPageId: financialPageId},
+                    include:{
+                        institutionFinancial: true,
+                    }
                 }
             },
             orderBy:{createdAt: 'asc'}
@@ -72,6 +76,15 @@ export class CategoriesService {
     }
     async solfDelete(userId: string , id:string){
         await this.invalidateCategoryCache(userId)
+       const hasPaidMovement = await this.prisma.movements.findFirst({
+            where: { 
+                categoryId: id,
+                isPay: true 
+            }
+        });
+        if (hasPaidMovement) {
+            throw new BadRequestException('The category cannot be deleted because it has paid transactions.');
+        }
         return this.prisma.categories.update({
             where:{userId , id},
             data:{status: "DELETED"}

@@ -46,6 +46,6 @@ export class CategoriesController {
         @CurrentUser('sub') userId: string,
         @Param('id') id: string
     ){
-        this.categoriesService.solfDelete(userId,id)
+        return  this.categoriesService.solfDelete(userId,id)
     }
 }
