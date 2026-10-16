@@ -65,7 +65,6 @@ export class UsersService {
         })
     }
     async updateUser(dto: UpdateUserdto , userId: string):Promise<UserResponseEntity>{
-        console.log('DTO validado con éxito:', dto);
         const update = await this.prisma.user.update({
             where:{id: userId},
             data:{...dto, updatedAt: new Date()}

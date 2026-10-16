@@ -35,6 +35,10 @@ export class UpdateUserdto {
     @IsString()
     country?: string;
 
+    @IsString()
+    @IsOptional()
+    currency?: string
+
     @IsOptional()
     @IsEnum(typePeriod)
     typePeriod?: typePeriod;

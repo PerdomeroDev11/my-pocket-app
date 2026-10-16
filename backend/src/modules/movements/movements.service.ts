@@ -137,6 +137,9 @@ export class MovementsService {
                 ...(query.typeMovement && { typeMovement: query.typeMovement }),
                 financialPageId: pageId
             },
+            include: {
+                institutionFinancial: true,
+            },
             orderBy: { date: 'desc' }
         });
         await this.redis.set(cacheKey, JSON.stringify(movements));
@@ -164,14 +167,20 @@ export class MovementsService {
         const cacheCategory = `category:${userId}`
         const cacheCategoryWithPage = `category:${userId}:${pageId}`
         const cacheBalance = `balance${userId}`
+        const cacheUserPages = `userPages:${userId}`
+        const cacheFinancialPage = `financialPage${pageId}`
+        const cacheLastPage = `lastPage:${userId}`
         const pageCategoryKeys = await this.redis.keys(`category:${userId}:*`);
 
         await this.redis.del(cacheMovements);
         await this.redis.del(cacheMovement);
         await this.redis.del(cacheCategory);
         await this.redis.del(cacheCategoryWithPage);
-        await Promise.all(pageCategoryKeys.map((key) => this.redis.del(key)));
         await this.redis.del(cacheBalance);
+        await this.redis.del(cacheUserPages);
+        await this.redis.del(cacheFinancialPage);
+        await this.redis.del(cacheLastPage);
+        await Promise.all(pageCategoryKeys.map((key) => this.redis.del(key)));
     }
 
     private async findAndVerifyOwnership(id: string, userId: string):Promise<MovementWithCategory> {
@@ -189,7 +198,10 @@ export class MovementsService {
 
         const movement = await this.prisma.movements.findUnique({
             where: { id },
-            include: { category: true }
+            include: {
+                category: true,
+                institutionFinancial: true,
+            }
         });
 
         if (!movement) throw new NotFoundException('Movement not found');

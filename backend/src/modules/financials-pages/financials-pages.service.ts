@@ -84,7 +84,6 @@ export class FinancialsPagesService {
         await this.redis.del(`financialPage${id}`)
         await this.redis.del(`userPages:${userId}`)
         await this.redis.del(`lastPage:${userId}`)
-        console.log(changeStatus.status)
         return {status: changeStatus.status}
     }
     private async cloneCategories(userId: string ,previusPageId:string, newPageId: string ){
