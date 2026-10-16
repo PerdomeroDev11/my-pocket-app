@@ -13,8 +13,6 @@ export class BalanceSectionService{
     async getBalanceAvailable(userId:string){
          await this.redis.del(`balance${userId}`)
         
-       
-        console.log('userId: ', userId)
         const balanaceAll = await this.prisma.balanceSection.findMany({where:{userId}})
         if(!balanaceAll) throw new BadRequestException('there was an error in get balance available')
         return balanaceAll
