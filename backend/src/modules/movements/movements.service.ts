@@ -287,7 +287,7 @@ export class MovementsService {
         amount: Prisma.Decimal,
         tx: Prisma.TransactionClient,
         reversePaid: boolean,
-        pageId: string
+        pageId: string,
     ) {
         let amountPaid = amount
         // If 'reversePaid' is false, negate the amount to reuse 
